@@ -474,7 +474,15 @@ setupMusicKit.then(async (music) => {
                 console.log('album-id: '+ e.target.getAttribute('album-id'))
                 const fetchOptions = {
                     method: 'POST',
-                    headers:{"X-CSRFToken": getCookie('csrftoken')}
+                    headers:{
+                        "X-CSRFToken": getCookie('csrftoken'),
+                        // 'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        'media_type': 'song',
+                        'media_id': 'dummy_id'
+                    })
                 }
                 fetch('http://localhost:8000/api/favorite/item',fetchOptions).then((value) => {
                     console.log('fetch completed')
