@@ -443,6 +443,25 @@ setupMusicKit.then(async (music) => {
                 mainScreen.displayNowPlayingAlbum()
             })
 
+
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+
             // Favorite Button
             const favButton = document.createElement('button');
             favButton.textContent = 'Favorite'
@@ -453,7 +472,11 @@ setupMusicKit.then(async (music) => {
                 console.log('favButton clicked')
                 console.log('song-id: '+ e.target.getAttribute('song-id'))
                 console.log('album-id: '+ e.target.getAttribute('album-id'))
-                fetch('http://localhost:8000/api/favorite/item',{method: 'POST'}).then((value) => {
+                const fetchOptions = {
+                    method: 'POST',
+                    headers:{"X-CSRFToken": getCookie('csrftoken')}
+                }
+                fetch('http://localhost:8000/api/favorite/item',fetchOptions).then((value) => {
                     console.log('fetch completed')
                     console.log(value)
                 }

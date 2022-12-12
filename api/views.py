@@ -7,11 +7,13 @@ from rest_framework.response import Response
 def favorite_item(request):
     if request.method == 'POST':
         print('POST requested')
-        print(request.data)
+        print(request.user)
+        return Response()
 
 
 @api_view(['GET','POST'])
 def favorite_part(request):
     if request.method == 'POST':
         print('POST requested')
-        print(request.data)
+        print(request.user)
+        return Response()
