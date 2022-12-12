@@ -25,13 +25,9 @@ setupMusicKit.then(async (music) => {
     let timeScopeDotPos = document.getElementById('timescope-dot-position');
     let timeScopeDot = document.getElementById('timescope-dot');
     let songName = document.getElementById('media-item-title');
-    let currentAlbumName = document.getElementById('album-title');
-    let currentArtistName = document.getElementById('artist-name');
     let currentAlgumInfo = document.getElementById('album-info')
     let playbackTime = document.getElementById('playback-time');
     let playbackDuration = document.getElementById('playback-duration');
-
-    let nowPlayingAlbumInfo = document.getElementById('now-playing-album-info');
 
     let searchResultTabLink = document.getElementById('search-result-tab');
     searchResultTabLink.addEventListener('click', () => {
@@ -329,8 +325,9 @@ setupMusicKit.then(async (music) => {
     // Search Bar and Search Result
     let searchBar = document.getElementById('search-bar');
     searchBar.addEventListener('keypress', runSearch);
-    let searchResultSongs = document.getElementById('search-result-songs');
-    let searchResultAlbums = document.getElementById('search-result-albums');
+    console.log('runSearch added to searchBar')
+    // let searchResultSongs = document.getElementById('search-result-songs');
+    // let searchResultAlbums = document.getElementById('search-result-albums');
 
     // Main Screen
     class MainScreen {
@@ -422,12 +419,17 @@ setupMusicKit.then(async (music) => {
         searchedSongs = await music.api.songs(songIdList)
 
         for (const song of searchedSongs) {
+            const divtag = document.createElement("div");
+
             const ptag = document.createElement("p");
             ptag.setAttribute('class', 'song');
             ptag.setAttribute('song-id', song.id);
             ptag.setAttribute('album-id', song.relationships.albums.data[0].id)
             const node = document.createTextNode(song.attributes.name + ' - ' + song.attributes.albumName);
             ptag.appendChild(node);
+
+            divtag.appendChild(ptag);
+
 
             ptag.addEventListener('click', async (e) => {
                 await music.setQueue({
@@ -440,7 +442,28 @@ setupMusicKit.then(async (music) => {
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
             })
-            wrapperDiv.appendChild(ptag);
+
+            // Favorite Button
+            const favButton = document.createElement('button');
+            favButton.textContent = 'Favorite'
+            favButton.setAttribute('song-id', song.id);
+            favButton.setAttribute('album-id', song.relationships.albums.data[0].id)
+
+            favButton.addEventListener('click', (e) => {
+                console.log('favButton clicked')
+                console.log('song-id: '+ e.target.getAttribute('song-id'))
+                console.log('album-id: '+ e.target.getAttribute('album-id'))
+                fetch('http://localhost:8000/api/favorite/item',{method: 'POST'}).then((value) => {
+                    console.log('fetch completed')
+                    console.log(value)
+                }
+
+                )
+            })
+
+            divtag.appendChild(favButton);
+
+            wrapperDiv.appendChild(divtag);
         }
         return wrapperDiv
     }
@@ -477,6 +500,7 @@ setupMusicKit.then(async (music) => {
 
     async function runSearch(e) {
         if (e.key == 'Enter') {
+            console.log('entered runSearch')
             // Format search query and request API
             let searchString = searchBar.value.replace(' ', '+').replace('　', '+');
             searchResultData = await music.api.search(searchBar.value)
@@ -497,6 +521,10 @@ setupMusicKit.then(async (music) => {
             // Albums
             if (albumsDataArray) {
                 wrapperDiv.appendChild(await getAlbumList(albumsDataArray))
+            }
+
+            if (songsDataArray == null && albumsDataArray == null) {
+                wrapperDiv.textContent = 'No Matching Content Found'
             }
             mainScreen.setSearchResult(wrapperDiv)
             mainScreen.displaySearchResult()

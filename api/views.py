@@ -1,8 +1,17 @@
 from django.shortcuts import render
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
-# Create your views here.
-def favorite_item():
-    pass
 
-def favorite_part():
-    pass
+@api_view(['GET','POST'])
+def favorite_item(request):
+    if request.method == 'POST':
+        print('POST requested')
+        print(request.data)
+
+
+@api_view(['GET','POST'])
+def favorite_part(request):
+    if request.method == 'POST':
+        print('POST requested')
+        print(request.data)
