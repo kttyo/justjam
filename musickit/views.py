@@ -6,7 +6,6 @@ def index(request):
     context = {
         'user': request.user,
         'user_is_authenticated': request.user.is_authenticated,
-        'musickit_dev_token': settings.MUSICKIT_DEVELOPER_TOKEN,
     }
 
     if request.user.is_authenticated:
