@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'account.apps.AccountConfig',
     'musickit.apps.MusickitConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
