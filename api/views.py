@@ -3,18 +3,20 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import FavoriteItemSerializer
+from .models import FavoriteItem
 
 
 @api_view(['GET','POST'])
 def favorite_item(request):
-    if request.method == 'POST':
-        print('POST requested')
-        print(request.user)
-        print(request.data)
+    if request.user.id and request.method == 'GET':
+        favorite_items = FavoriteItem.objects.all()
+        serializer = FavoriteItemSerializer(favorite_items, many=True)
+        return Response(serializer.data)
+
+    elif request.user.id and request.method == 'POST':
         request.data['user'] = request.user.id # Passing user id, not user name
-        print(request.data)
         serializer = FavoriteItemSerializer(data=request.data)
-        print('serializer.is_valid(): '+ str(serializer.is_valid()))
+        print('serializer.is_valid(): ' + str(serializer.is_valid()))
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

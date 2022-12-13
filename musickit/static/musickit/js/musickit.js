@@ -18,6 +18,21 @@ const setupMusicKit = new Promise((resolve) => {
 setupMusicKit.then(async (music) => {
     music.player.volume = 0.8;
 
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
     // Info Display
     let artworkImg = document.getElementById('artwork');
     let timeScope = document.getElementById('timescope');
@@ -39,6 +54,24 @@ setupMusicKit.then(async (music) => {
         mainScreen.displayNowPlayingAlbum()
     })
 
+    let favoriteTabLink = document.getElementById('favorite-tab');
+    favoriteTabLink.addEventListener('click', () => {
+        fetch('http://localhost:8000/api/favorite/item').then((value) => {
+            console.log('fetch completed')
+            return value.json()
+        }).then(async (favoriteArray) => {
+            console.log(favoriteArray)
+
+            songIdList = []
+            for (favorite of favoriteArray) {
+                songIdList.push(favorite.media_id)
+            }
+            console.log(songIdList)
+            // Bulk search the songs
+            searchedSongs = await music.api.songs(songIdList)
+            console.log(searchedSongs)
+        })
+    })
 
     music.addEventListener('mediaItemDidChange', () => {
         songName.textContent = music.player.nowPlayingItem.title
@@ -404,19 +437,64 @@ setupMusicKit.then(async (music) => {
         return wrapperDiv
     }
 
+
+    function generateFavButton(mediaType, albumId, songId) {
+        // Favorite Button for Songs
+        const favButton = document.createElement('button');
+        favButton.textContent = 'Favorite'
+        favButton.setAttribute('media-type', mediaType);
+        favButton.setAttribute('album-id', albumId);
+
+        if (mediaType == 'song') {
+            favButton.setAttribute('song-id', songId);   
+        }
+
+        favButton.addEventListener('click', (e) => {
+            console.log('favButton clicked')
+
+            let mediaType = e.target.getAttribute('media-type');
+            let mediaId;
+
+            if (mediaType == 'song') {
+                mediaId = e.target.getAttribute('song-id');
+            } else if (mediaType == 'album') {
+                mediaId = e.target.getAttribute('album-id');
+            }
+
+            const fetchOptions = {
+                method: 'POST',
+                headers: {
+                    "X-CSRFToken": getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'media_type': mediaType,
+                    'media_id': mediaId
+                })
+            }
+            
+            fetch('http://localhost:8000/api/favorite/item', fetchOptions).then((value) => {
+                console.log('fetch completed')
+                console.log(value)
+            }
+
+            )
+        })
+
+        return favButton
+    }
+
+
     async function getSongList(songArray) {
         const wrapperDiv = document.createElement("div");
 
-        const headerSongs = document.createElement("h2");
-        headerSongs.textContent = 'Songs';
-        wrapperDiv.appendChild(headerSongs);
-
+        // Bulk search the songs to capture relationships data
         let songIdList = []
         for (const song of songArray) {
             songIdList.push(song.id)
         }
-        // Bulk search the songs
         searchedSongs = await music.api.songs(songIdList)
+        console.log(searchedSongs)
 
         for (const song of searchedSongs) {
             const divtag = document.createElement("div");
@@ -427,10 +505,6 @@ setupMusicKit.then(async (music) => {
             ptag.setAttribute('album-id', song.relationships.albums.data[0].id)
             const node = document.createTextNode(song.attributes.name + ' - ' + song.attributes.albumName);
             ptag.appendChild(node);
-
-            divtag.appendChild(ptag);
-
-
             ptag.addEventListener('click', async (e) => {
                 await music.setQueue({
                     album: e.target.getAttribute('album-id'),
@@ -442,57 +516,10 @@ setupMusicKit.then(async (music) => {
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
             })
+            divtag.appendChild(ptag);
 
-
-
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        // Does this cookie string begin with the name we want?
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-
-
-            // Favorite Button
-            const favButton = document.createElement('button');
-            favButton.textContent = 'Favorite'
-            favButton.setAttribute('song-id', song.id);
-            favButton.setAttribute('album-id', song.relationships.albums.data[0].id)
-
-            favButton.addEventListener('click', (e) => {
-                console.log('favButton clicked')
-                console.log('song-id: '+ e.target.getAttribute('song-id'))
-                console.log('album-id: '+ e.target.getAttribute('album-id'))
-                const fetchOptions = {
-                    method: 'POST',
-                    headers:{
-                        "X-CSRFToken": getCookie('csrftoken'),
-                        // 'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        'media_type': 'song',
-                        'media_id': 'dummy_id'
-                    })
-                }
-                fetch('http://localhost:8000/api/favorite/item',fetchOptions).then((value) => {
-                    console.log('fetch completed')
-                    console.log(value)
-                }
-
-                )
-            })
-
-            divtag.appendChild(favButton);
+            // Populate Favorite Button
+            divtag.appendChild(generateFavButton('song', song.relationships.albums.data[0].id, song.id));
 
             wrapperDiv.appendChild(divtag);
         }
@@ -502,18 +529,13 @@ setupMusicKit.then(async (music) => {
     async function getAlbumList(albumArray) {
         const wrapperDiv = document.createElement("div");
 
-
-        const headerAlbums = document.createElement("h2");
-        headerAlbums.textContent = 'Albums';
-        wrapperDiv.appendChild(headerAlbums);
-
         for (const album of albumArray) {
+            const divtag = document.createElement("div");
             const ptag = document.createElement("p");
             ptag.setAttribute('class', 'album');
             ptag.setAttribute('album-id', album.id);
             const node = document.createTextNode(album.attributes.name + ' - ' + album.attributes.artistName);
             ptag.appendChild(node);
-
             ptag.addEventListener('click', async (e) => {
                 await music.setQueue({
                     album: e.target.getAttribute('album-id')
@@ -524,7 +546,11 @@ setupMusicKit.then(async (music) => {
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
             })
-            wrapperDiv.appendChild(ptag);
+            divtag.appendChild(ptag);
+            // Populate Favorite Button
+            divtag.appendChild(generateFavButton('album', album.id, null));
+
+            wrapperDiv.appendChild(divtag);
         }
         return wrapperDiv
     }
@@ -546,11 +572,19 @@ setupMusicKit.then(async (music) => {
 
             // Songs
             if (songsDataArray) {
+                console.log(songsDataArray)
+                const headerSongs = document.createElement("h2");
+                headerSongs.textContent = 'Songs';
+                wrapperDiv.appendChild(headerSongs);
                 wrapperDiv.appendChild(await getSongList(songsDataArray))
             }
 
             // Albums
             if (albumsDataArray) {
+                console.log(albumsDataArray)
+                const headerAlbums = document.createElement("h2");
+                headerAlbums.textContent = 'Albums';
+                wrapperDiv.appendChild(headerAlbums);
                 wrapperDiv.appendChild(await getAlbumList(albumsDataArray))
             }
 
