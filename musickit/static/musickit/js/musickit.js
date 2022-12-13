@@ -54,23 +54,91 @@ setupMusicKit.then(async (music) => {
         mainScreen.displayNowPlayingAlbum()
     })
 
-    let favoriteTabLink = document.getElementById('favorite-tab');
-    favoriteTabLink.addEventListener('click', () => {
-        fetch('http://localhost:8000/api/favorite/item').then((value) => {
-            console.log('fetch completed')
-            return value.json()
-        }).then(async (favoriteArray) => {
-            console.log(favoriteArray)
+    // Main Screen
+    class MainScreen {
+        constructor(prt) {
+            this.parentElement = prt;
+            this.searchResult = document.createElement('div');
+            this.nowPlayingAlbum = document.createElement('div');
+            this.favorite = document.createElement('div');
+        };
 
-            songIdList = []
-            for (favorite of favoriteArray) {
+        setSearchResult(result) {
+            this.searchResult = result
+        };
+
+        displaySearchResult() {
+            this.parentElement.textContent = '';
+            this.parentElement.appendChild(this.searchResult);
+        };
+
+        setNowPlayingAlbum(album) {
+            this.nowPlayingAlbum = album;
+        };
+
+        displayNowPlayingAlbum() {
+            this.parentElement.textContent = '';
+            this.parentElement.appendChild(this.nowPlayingAlbum);
+        };
+
+        setFavorite(fav) {
+            this.favorite = fav;
+        };
+
+        displayFavorite() {
+            this.parentElement.textContent = '';
+            this.parentElement.appendChild(this.favorite);
+        };
+    };
+
+    let mainScreen = new MainScreen(document.getElementById('main-screen'))
+
+    // Initialize up Favorite Tab
+    fetch('http://localhost:8000/api/favorite/item').then((value) => {
+        console.log('fetch completed')
+        return value.json()
+    }).then(async (favoriteArray) => {
+        console.log(favoriteArray)
+
+        songIdList = []
+        albumIdList = []
+        for (favorite of favoriteArray) {
+            if (favorite.media_type == 'song') {
                 songIdList.push(favorite.media_id)
+            } else if (favorite.media_type == 'album') {
+                albumIdList.push(favorite.media_id)
             }
-            console.log(songIdList)
-            // Bulk search the songs
+        }
+
+        console.log(songIdList.length)
+        console.log(albumIdList.length)
+        const wrapperDiv = document.createElement("div")
+
+        if (songIdList.length > 0) {
+            const headerSongs = document.createElement("h2");
+            headerSongs.textContent = 'Songs';
+            wrapperDiv.appendChild(headerSongs);
+    
             searchedSongs = await music.api.songs(songIdList)
-            console.log(searchedSongs)
-        })
+            wrapperDiv.appendChild(await getSongList(searchedSongs))
+        }
+        
+        if (albumIdList.length > 0) {
+            const headerAlbums = document.createElement("h2");
+            headerAlbums.textContent = 'Albums';
+            wrapperDiv.appendChild(headerAlbums);
+    
+            searchedAlbums = await music.api.albums(albumIdList)
+            wrapperDiv.appendChild(await getAlbumList(searchedAlbums))
+        }
+        
+        mainScreen.setFavorite(wrapperDiv)
+    })
+
+    let favoriteTabLink = document.getElementById('favorite-tab');
+
+    favoriteTabLink.addEventListener('click', () => {
+        mainScreen.displayFavorite()
     })
 
     music.addEventListener('mediaItemDidChange', () => {
@@ -362,44 +430,7 @@ setupMusicKit.then(async (music) => {
     // let searchResultSongs = document.getElementById('search-result-songs');
     // let searchResultAlbums = document.getElementById('search-result-albums');
 
-    // Main Screen
-    class MainScreen {
-        constructor(prt) {
-            this.parentElement = prt;
-            this.searchResult = null;
-            this.nowPlayingAlbum = null;
-            this.favorite = null;
-        };
 
-        setSearchResult(result) {
-            this.searchResult = result
-        };
-
-        displaySearchResult() {
-            this.parentElement.textContent = '';
-            this.parentElement.appendChild(this.searchResult);
-        };
-
-        setNowPlayingAlbum(album) {
-            this.nowPlayingAlbum = album;
-        };
-
-        displayNowPlayingAlbum() {
-            this.parentElement.textContent = '';
-            this.parentElement.appendChild(this.nowPlayingAlbum);
-        };
-
-        setFavorite(fav) {
-            this.favorite = fav;
-        };
-
-        displayFavorite() {
-            this.parentElement.textContent = '';
-            this.parentElement.appendChild(this.favorite);
-        };
-    };
-
-    let mainScreen = new MainScreen(document.getElementById('main-screen'))
 
 
     // Now-playin Album Info for MainScreen Class
@@ -441,12 +472,13 @@ setupMusicKit.then(async (music) => {
     function generateFavButton(mediaType, albumId, songId) {
         // Favorite Button for Songs
         const favButton = document.createElement('button');
-        favButton.textContent = 'Favorite'
+        favButton.textContent = 'Add to Favorite'
         favButton.setAttribute('media-type', mediaType);
         favButton.setAttribute('album-id', albumId);
+        favButton.classList.add('not-fav')
 
         if (mediaType == 'song') {
-            favButton.setAttribute('song-id', songId);   
+            favButton.setAttribute('song-id', songId);
         }
 
         favButton.addEventListener('click', (e) => {
@@ -461,24 +493,48 @@ setupMusicKit.then(async (music) => {
                 mediaId = e.target.getAttribute('album-id');
             }
 
-            const fetchOptions = {
-                method: 'POST',
-                headers: {
-                    "X-CSRFToken": getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    'media_type': mediaType,
-                    'media_id': mediaId
-                })
+            let fetchOptions;
+            if (e.target.getAttribute('class') == 'not-fav'){
+
+                fetchOptions = {
+                    method: 'POST',
+                    headers: {
+                        "X-CSRFToken": getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        'media_type': mediaType,
+                        'media_id': mediaId
+                    })
+                }
+
+                favButton.classList.remove('not-fav')
+                favButton.classList.add('fav')
+                console.log(e.target.textContent = 'Remove from Favorite')
+
+            } else if (e.target.getAttribute('class') == 'fav'){
+                fetchOptions = {
+                    method: 'DELETE',
+                    headers: {
+                        "X-CSRFToken": getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        'media_type': mediaType,
+                        'media_id': mediaId
+                    })
+                }
+                console.log('fire a request to delete')
+                favButton.classList.remove('fav')
+                favButton.classList.add('not-fav')
+                e.target.textContent = 'Add to Favorite'
             }
-            
+
             fetch('http://localhost:8000/api/favorite/item', fetchOptions).then((value) => {
                 console.log('fetch completed')
                 console.log(value)
-            }
+            })
 
-            )
         })
 
         return favButton
@@ -494,7 +550,6 @@ setupMusicKit.then(async (music) => {
             songIdList.push(song.id)
         }
         searchedSongs = await music.api.songs(songIdList)
-        console.log(searchedSongs)
 
         for (const song of searchedSongs) {
             const divtag = document.createElement("div");
@@ -571,7 +626,7 @@ setupMusicKit.then(async (music) => {
             const wrapperDiv = document.createElement("div")
 
             // Songs
-            if (songsDataArray) {
+            if (songsDataArray.length > 0) {
                 console.log(songsDataArray)
                 const headerSongs = document.createElement("h2");
                 headerSongs.textContent = 'Songs';
@@ -580,7 +635,7 @@ setupMusicKit.then(async (music) => {
             }
 
             // Albums
-            if (albumsDataArray) {
+            if (albumsDataArray.length > 0) {
                 console.log(albumsDataArray)
                 const headerAlbums = document.createElement("h2");
                 headerAlbums.textContent = 'Albums';
