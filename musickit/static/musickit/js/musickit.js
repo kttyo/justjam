@@ -113,11 +113,6 @@ setupMusicKit.then(async (music) => {
             let fetchResponse = await fetch('http://localhost:8000/api/favorite/item')
             this.favorite = await fetchResponse.json()
         };
-
-        outputFavoriteData(){
-            console.log(this.favorite)
-        };
-
     }
 
     let favoriteDataInstance = new FavoriteItem()
@@ -505,10 +500,31 @@ setupMusicKit.then(async (music) => {
     function generateFavButton(mediaType, albumId, songId) {
         // Favorite Button for Songs
         const favButton = document.createElement('button');
-        favButton.textContent = 'Add to Favorite'
+
+        let comparisonId;
+        if (mediaType == 'song') {
+            comparisonId = songId
+        } else if (mediaType == 'album') {
+            comparisonId = albumId
+        }
+
+        for (existingFavorite of favoriteDataInstance.favorite) {
+            if (existingFavorite.media_type == mediaType && existingFavorite.media_id == comparisonId) {
+
+                favButton.textContent = 'Remove from Favorite'
+                favButton.classList.remove('not-fav')
+                favButton.classList.add('fav')
+                break
+            } else {
+                favButton.textContent = 'Add to Favorite'
+                favButton.classList.remove('fav')
+                favButton.classList.add('not-fav')
+            }
+        }
+
         favButton.setAttribute('media-type', mediaType);
         favButton.setAttribute('album-id', albumId);
-        favButton.classList.add('not-fav')
+        
 
         if (mediaType == 'song') {
             favButton.setAttribute('song-id', songId);
@@ -529,6 +545,7 @@ setupMusicKit.then(async (music) => {
             let fetchOptions;
             if (e.target.getAttribute('class') == 'not-fav'){
                 // Adding to Favorite
+                console.log('Requested to Add')
                 fetchOptions = {
                     method: 'POST',
                     headers: {
@@ -546,6 +563,7 @@ setupMusicKit.then(async (music) => {
 
             } else if (e.target.getAttribute('class') == 'fav'){
                 // Removing from Favorite
+                console.log('Requested to Remove')
                 fetchOptions = {
                     method: 'DELETE',
                     headers: {
