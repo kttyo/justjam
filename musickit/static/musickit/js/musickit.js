@@ -93,47 +93,80 @@ setupMusicKit.then(async (music) => {
 
     let mainScreen = new MainScreen(document.getElementById('main-screen'))
 
-    // Initialize up Favorite Tab
-    fetch('http://localhost:8000/api/favorite/item').then((value) => {
-        console.log('fetch completed')
-        return value.json()
-    }).then(async (favoriteArray) => {
-        console.log(favoriteArray)
 
-        songIdList = []
-        albumIdList = []
-        for (favorite of favoriteArray) {
-            if (favorite.media_type == 'song') {
-                songIdList.push(favorite.media_id)
-            } else if (favorite.media_type == 'album') {
-                albumIdList.push(favorite.media_id)
+
+    // async function getFavoriteJson() {
+    //     let fetchResponse = await fetch('http://localhost:8000/api/favorite/item')
+    //     return fetchResponse.json()
+    // }
+
+    // let favoriteList = await getFavoriteJson()
+
+
+    // Favorite Class
+    class FavoriteItem {
+        constructor(){
+            this.favorite = null
+        };
+
+        async refreshFavoriteData(){
+            let fetchResponse = await fetch('http://localhost:8000/api/favorite/item')
+            this.favorite = await fetchResponse.json()
+        };
+
+        outputFavoriteData(){
+            console.log(this.favorite)
+        };
+
+    }
+
+    let favoriteDataInstance = new FavoriteItem()
+    await favoriteDataInstance.refreshFavoriteData()
+
+    // Initialize Favorite Tab
+    async function refreshFavoriteTab() {
+        // fetch('http://localhost:8000/api/favorite/item').then((value) => {
+        //     console.log('fetch completed')
+        //     return value.json()
+        // }).then(async (favoriteArray) => {
+        //     console.log(favoriteArray)
+
+            songIdList = []
+            albumIdList = []
+            for (favorite of favoriteDataInstance.favorite) {
+                if (favorite.media_type == 'song') {
+                    songIdList.push(favorite.media_id)
+                } else if (favorite.media_type == 'album') {
+                    albumIdList.push(favorite.media_id)
+                }
             }
-        }
 
-        console.log(songIdList.length)
-        console.log(albumIdList.length)
-        const wrapperDiv = document.createElement("div")
+            console.log(songIdList.length)
+            console.log(albumIdList.length)
+            const wrapperDiv = document.createElement("div")
 
-        if (songIdList.length > 0) {
-            const headerSongs = document.createElement("h2");
-            headerSongs.textContent = 'Songs';
-            wrapperDiv.appendChild(headerSongs);
-    
-            searchedSongs = await music.api.songs(songIdList)
-            wrapperDiv.appendChild(await getSongList(searchedSongs))
-        }
-        
-        if (albumIdList.length > 0) {
-            const headerAlbums = document.createElement("h2");
-            headerAlbums.textContent = 'Albums';
-            wrapperDiv.appendChild(headerAlbums);
-    
-            searchedAlbums = await music.api.albums(albumIdList)
-            wrapperDiv.appendChild(await getAlbumList(searchedAlbums))
-        }
-        
-        mainScreen.setFavorite(wrapperDiv)
-    })
+            if (songIdList.length > 0) {
+                const headerSongs = document.createElement("h2");
+                headerSongs.textContent = 'Songs';
+                wrapperDiv.appendChild(headerSongs);
+
+                searchedSongs = await music.api.songs(songIdList)
+                wrapperDiv.appendChild(await getSongList(searchedSongs))
+            }
+
+            if (albumIdList.length > 0) {
+                const headerAlbums = document.createElement("h2");
+                headerAlbums.textContent = 'Albums';
+                wrapperDiv.appendChild(headerAlbums);
+
+                searchedAlbums = await music.api.albums(albumIdList)
+                wrapperDiv.appendChild(await getAlbumList(searchedAlbums))
+            }
+
+            mainScreen.setFavorite(wrapperDiv)
+    //     })
+    }
+    refreshFavoriteTab()
 
     let favoriteTabLink = document.getElementById('favorite-tab');
 
@@ -495,7 +528,7 @@ setupMusicKit.then(async (music) => {
 
             let fetchOptions;
             if (e.target.getAttribute('class') == 'not-fav'){
-
+                // Adding to Favorite
                 fetchOptions = {
                     method: 'POST',
                     headers: {
@@ -507,12 +540,12 @@ setupMusicKit.then(async (music) => {
                         'media_id': mediaId
                     })
                 }
-
                 favButton.classList.remove('not-fav')
                 favButton.classList.add('fav')
-                console.log(e.target.textContent = 'Remove from Favorite')
+                e.target.textContent = 'Remove from Favorite'
 
             } else if (e.target.getAttribute('class') == 'fav'){
+                // Removing from Favorite
                 fetchOptions = {
                     method: 'DELETE',
                     headers: {
@@ -524,15 +557,16 @@ setupMusicKit.then(async (music) => {
                         'media_id': mediaId
                     })
                 }
-                console.log('fire a request to delete')
                 favButton.classList.remove('fav')
                 favButton.classList.add('not-fav')
                 e.target.textContent = 'Add to Favorite'
             }
 
-            fetch('http://localhost:8000/api/favorite/item', fetchOptions).then((value) => {
+            fetch('http://localhost:8000/api/favorite/item', fetchOptions).then(async (value) => {
                 console.log('fetch completed')
                 console.log(value)
+                await favoriteDataInstance.refreshFavoriteData()
+                refreshFavoriteTab()
             })
 
         })
