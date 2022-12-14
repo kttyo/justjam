@@ -136,8 +136,6 @@ setupMusicKit.then(async (music) => {
                 }
             }
 
-            console.log(songIdList.length)
-            console.log(albumIdList.length)
             const wrapperDiv = document.createElement("div")
 
             if (songIdList.length > 0) {
@@ -479,6 +477,7 @@ setupMusicKit.then(async (music) => {
         wrapperDiv.appendChild(headerNowPlayingAlbumInfo);
 
         for (const track of albumTracks) {
+            const divtag = document.createElement("div");
             const para = document.createElement("p");
             para.setAttribute('class', 'song');
             para.setAttribute('song-id', track.attributes.playParams.id);
@@ -491,7 +490,9 @@ setupMusicKit.then(async (music) => {
                 await music.changeToMediaAtIndex(music.player.queue.indexForItem(e.target.getAttribute('song-id')))
                 playPauseButton.textContent = '⏸'
             })
-            wrapperDiv.appendChild(para)
+            divtag.appendChild(para)
+            divtag.appendChild(generateFavButton('song', albumId, track.attributes.playParams.id));
+            wrapperDiv.appendChild(divtag)
         }
         return wrapperDiv
     }
@@ -500,36 +501,31 @@ setupMusicKit.then(async (music) => {
     function generateFavButton(mediaType, albumId, songId) {
         // Favorite Button for Songs
         const favButton = document.createElement('button');
+        favButton.setAttribute('media-type', mediaType);
+        favButton.setAttribute('album-id', albumId);
+        if (mediaType == 'song') {
+            favButton.setAttribute('song-id', songId);
+        }
+        favButton.textContent = 'Add to Favorite'
+        favButton.classList.add('not-fav')
 
+        // Update attributes if the media already exists as favorite
         let comparisonId;
         if (mediaType == 'song') {
             comparisonId = songId
         } else if (mediaType == 'album') {
             comparisonId = albumId
         }
-
         for (existingFavorite of favoriteDataInstance.favorite) {
             if (existingFavorite.media_type == mediaType && existingFavorite.media_id == comparisonId) {
-
                 favButton.textContent = 'Remove from Favorite'
                 favButton.classList.remove('not-fav')
                 favButton.classList.add('fav')
                 break
-            } else {
-                favButton.textContent = 'Add to Favorite'
-                favButton.classList.remove('fav')
-                favButton.classList.add('not-fav')
             }
         }
 
-        favButton.setAttribute('media-type', mediaType);
-        favButton.setAttribute('album-id', albumId);
-        
-
-        if (mediaType == 'song') {
-            favButton.setAttribute('song-id', songId);
-        }
-
+        // Define click event
         favButton.addEventListener('click', (e) => {
             console.log('favButton clicked')
 
@@ -542,6 +538,7 @@ setupMusicKit.then(async (music) => {
                 mediaId = e.target.getAttribute('album-id');
             }
 
+            // Prepare options for API call
             let fetchOptions;
             if (e.target.getAttribute('class') == 'not-fav'){
                 // Adding to Favorite
@@ -580,6 +577,7 @@ setupMusicKit.then(async (music) => {
                 e.target.textContent = 'Add to Favorite'
             }
 
+            // Execute API call
             fetch('http://localhost:8000/api/favorite/item', fetchOptions).then(async (value) => {
                 console.log('fetch completed')
                 console.log(value)
