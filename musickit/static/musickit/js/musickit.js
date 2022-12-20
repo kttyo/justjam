@@ -3,7 +3,7 @@ const setupMusicKit = new Promise((resolve) => {
     document.addEventListener('musickitloaded', function () {
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
         MusicKit.configure({
-            developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzE0OTYwMjN9.4phAZgovr4TnN68dIiq8N9iC5rG9cFO1w0NovKXqGq_KjaB6BffWMik93jk-5XSbvvC4IQmAM1nXiLvAKhRtxQ',
+            developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzI0NjIzNzJ9.jFPoBJtg-ypiA8Jza_z7jWvvAZtCuB6Hwg7RoUrYRl-430Q5azbBCWViaUpBdVJ2rh5TDE6NPo8UFxBrFKJ5iA',
             app: {
                 name: 'My Cool Web App',
                 build: '2022.11.17'
@@ -453,11 +453,8 @@ setupMusicKit.then(async (music) => {
     let searchBar = document.getElementById('search-bar');
     searchBar.addEventListener('keypress', runSearch);
     console.log('runSearch added to searchBar')
-    // let searchResultSongs = document.getElementById('search-result-songs');
-    // let searchResultAlbums = document.getElementById('search-result-albums');
 
-
-
+    
 
     // Now-playin Album Info for MainScreen Class
     async function getNowPlayingAlbumInfo(albumId) {
@@ -501,8 +498,11 @@ setupMusicKit.then(async (music) => {
     function generateFavButton(mediaType, albumId, songId) {
         // Favorite Button for Songs
         const favButton = document.createElement('button');
+        favButton.setAttribute('type', 'button');
+        favButton.setAttribute('class','btn btn-outline-primary btn-sm')
         favButton.setAttribute('media-type', mediaType);
         favButton.setAttribute('album-id', albumId);
+        
         if (mediaType == 'song') {
             favButton.setAttribute('song-id', songId);
         }
@@ -540,7 +540,7 @@ setupMusicKit.then(async (music) => {
 
             // Prepare options for API call
             let fetchOptions;
-            if (e.target.getAttribute('class') == 'not-fav'){
+            if (favButton.classList.contains('not-fav')){
                 // Adding to Favorite
                 console.log('Requested to Add')
                 fetchOptions = {
@@ -558,7 +558,7 @@ setupMusicKit.then(async (music) => {
                 favButton.classList.add('fav')
                 e.target.textContent = 'Remove from Favorite'
 
-            } else if (e.target.getAttribute('class') == 'fav'){
+            } else if (favButton.classList.contains('fav')){
                 // Removing from Favorite
                 console.log('Requested to Remove')
                 fetchOptions = {
@@ -590,6 +590,37 @@ setupMusicKit.then(async (music) => {
         return favButton
     }
 
+    function createMediaCardLayout() {
+        const div1 = document.createElement("div");
+        div1.setAttribute('class', 'card mb-3')
+        div1.setAttribute('style', 'max-width: 540px;')
+
+        const div2 = document.createElement("div");
+        div2.setAttribute('class', 'row g-0')
+
+        const div3_1 = document.createElement("div");
+        div3_1.setAttribute('class', 'col-md-2')
+
+        const img = document.createElement("img");
+
+        const div3_2 = document.createElement("div");
+        div3_2.setAttribute('class', 'col-md-10')
+
+        const div4 = document.createElement("div");
+        div4.setAttribute('class', 'card-body')
+
+        const p = document.createElement("p");
+        p.setAttribute('class', 'card-text')
+
+        div4.appendChild(p)
+        div3_1.appendChild(img)
+        div3_2.appendChild(div4)
+        div2.appendChild(div3_1)
+        div2.appendChild(div3_2)
+        div1.appendChild(div2)
+
+        return div1
+    }
 
     async function getSongList(songArray) {
         const wrapperDiv = document.createElement("div");
@@ -602,9 +633,17 @@ setupMusicKit.then(async (music) => {
         searchedSongs = await music.api.songs(songIdList)
 
         for (const song of searchedSongs) {
-            const divtag = document.createElement("div");
 
-            const ptag = document.createElement("p");
+            // Get Card Layout
+            const cardDiv = createMediaCardLayout()
+            const artwork = cardDiv.querySelector('img')
+            const ptag = cardDiv.querySelector('.card-text')
+            const cardBody = cardDiv.querySelector('.card-body')
+
+            // Artwork
+            artwork.setAttribute('src', MusicKit.formatArtworkURL(song.attributes.artwork, 50, 50))
+            
+            // Card Text
             ptag.setAttribute('class', 'song');
             ptag.setAttribute('song-id', song.id);
             ptag.setAttribute('album-id', song.relationships.albums.data[0].id)
@@ -621,12 +660,11 @@ setupMusicKit.then(async (music) => {
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
             })
-            divtag.appendChild(ptag);
 
-            // Populate Favorite Button
-            divtag.appendChild(generateFavButton('song', song.relationships.albums.data[0].id, song.id));
+            // Favorite Button
+            cardBody.appendChild(generateFavButton('song', song.relationships.albums.data[0].id, song.id));
 
-            wrapperDiv.appendChild(divtag);
+            wrapperDiv.appendChild(cardDiv);
         }
         return wrapperDiv
     }
@@ -635,8 +673,17 @@ setupMusicKit.then(async (music) => {
         const wrapperDiv = document.createElement("div");
 
         for (const album of albumArray) {
-            const divtag = document.createElement("div");
-            const ptag = document.createElement("p");
+
+            // Get Card Layout
+            const cardDiv = createMediaCardLayout()
+            const artwork = cardDiv.querySelector('img')
+            const ptag = cardDiv.querySelector('.card-text')
+            const cardBody = cardDiv.querySelector('.card-body')
+
+            // Artwork
+            artwork.setAttribute('src', MusicKit.formatArtworkURL(album.attributes.artwork, 50, 50))
+
+            // Card Text
             ptag.setAttribute('class', 'album');
             ptag.setAttribute('album-id', album.id);
             const node = document.createTextNode(album.attributes.name + ' - ' + album.attributes.artistName);
@@ -651,11 +698,12 @@ setupMusicKit.then(async (music) => {
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
             })
-            divtag.appendChild(ptag);
-            // Populate Favorite Button
-            divtag.appendChild(generateFavButton('album', album.id, null));
+            cardBody.appendChild(ptag);
 
-            wrapperDiv.appendChild(divtag);
+            // Favorite Button
+            cardBody.appendChild(generateFavButton('album', album.id, null));
+
+            wrapperDiv.appendChild(cardDiv);
         }
         return wrapperDiv
     }
