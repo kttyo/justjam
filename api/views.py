@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import FavoriteItemSerializer
-from .models import FavoriteItem
+from .serializers import FavoriteItemSerializer, FavoritePartSerializer
+from .models import FavoriteItem, FavoritePart
 
 
 @api_view(['GET','POST','DELETE'])
@@ -36,7 +36,20 @@ def favorite_item(request):
 
 @api_view(['GET','POST'])
 def favorite_part(request):
-    if request.method == 'POST':
+    if request.user.id and request.method == 'GET':
+        favorite_parts = FavoritePart.objects.all()
+        serializer = FavoritePartSerializer(favorite_parts, many=True)
+        return Response(serializer.data)
+
+    elif request.user.id and request.method == 'POST':
+        request.data['user'] = request.user.id  # Passing user id, not user name
+        serializer = FavoritePartSerializer(data=request.data)
+        print('serializer.is_valid(): ' + str(serializer.is_valid()))
+
         print('POST requested')
         print(request.user)
-        return Response()
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
