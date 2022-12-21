@@ -162,12 +162,11 @@ setupMusicKit.then(async (music) => {
     refreshFavoriteTab()
 
     let favoriteTabLink = document.getElementById('favorite-tab');
-
     favoriteTabLink.addEventListener('click', () => {
         mainScreen.displayFavorite()
     })
 
-    music.addEventListener('mediaItemDidChange', () => {
+    music.addEventListener('mediaItemDidChange', async () => {
         songName.textContent = music.player.nowPlayingItem.title
         currentAlgumInfo.textContent = music.player.nowPlayingItem.artistName + ' | ' + music.player.nowPlayingItem.albumName
         artworkImg.setAttribute('src', MusicKit.formatArtworkURL(music.player.nowPlayingItem.attributes.artwork, 100, 100))
@@ -179,6 +178,8 @@ setupMusicKit.then(async (music) => {
         let durationString = hours >= 1 ? hours + ':' + minutes + ':' + seconds : minutes + ':' + seconds;
         playbackDuration.textContent = durationString;
 
+        let song = await music.api.song(music.player.nowPlayingItem.id)
+
         // Reset loop segment
         looperStartDotPos.style.left = '0%';
         looperEndDotPos.style.left = '100%';
@@ -186,8 +187,11 @@ setupMusicKit.then(async (music) => {
         looper.setEndTime(music.player.currentPlaybackDuration);
         looper.setMediaItem({
             'id': music.player.nowPlayingItem.id,
+            'parentId': song.relationships.albums.data[0].id,
             'type': music.player.nowPlayingItem.type
         });
+        const favoritePart = document.getElementById('favorite-part');
+        favoritePart.appendChild(generateFavButton('song',looper.mediaItem.parentId, looper.mediaItem.id))
     })
 
     music.addEventListener('playbackTimeDidChange', async () => {
@@ -326,6 +330,7 @@ setupMusicKit.then(async (music) => {
             this.startTime = 0;
             this.endTime = 0;
             this.mediaItem = null;
+            this.mediaParentItem = null;
         };
         looperSwitch() {
             if (this.isOn) {
@@ -350,9 +355,9 @@ setupMusicKit.then(async (music) => {
             }
 
         };
-        setMediaItem(item) {
+        async setMediaItem(item) {
             this.mediaItem = item
-        }
+        };
     };
 
     let looper = new Looper();
@@ -361,7 +366,7 @@ setupMusicKit.then(async (music) => {
     let looperStartDot = document.getElementById('looper-start-dot');
     let looperEndDotPos = document.getElementById('looper-end-dot-position');
     let looperEndDot = document.getElementById('looper-end-dot');
-    let favoriteButton = document.getElementById('favorite');
+    let favoriteButton = document.getElementById('favorite-part');
 
     looperStartDot.addEventListener('dragend', async (e) => {
         let barWidth = timeScope.offsetWidth;
@@ -433,9 +438,6 @@ setupMusicKit.then(async (music) => {
             looperEndDot.style.display = 'none'
             favoriteButton.style.display = 'none'
         }
-    });
-
-    favoriteButton.addEventListener('click', () => {
         console.log(looper)
     });
 
@@ -494,7 +496,7 @@ setupMusicKit.then(async (music) => {
         return wrapperDiv
     }
 
-
+    // Favorite Button
     function generateFavButton(mediaType, albumId, songId) {
         // Favorite Button for Songs
         const favButton = document.createElement('button');
@@ -590,6 +592,8 @@ setupMusicKit.then(async (music) => {
         return favButton
     }
 
+
+    // Formatting Media Card
     function createMediaCardLayout() {
         const div1 = document.createElement("div");
         div1.setAttribute('class', 'card mb-3')
@@ -651,8 +655,7 @@ setupMusicKit.then(async (music) => {
             ptag.appendChild(node);
             ptag.addEventListener('click', async (e) => {
                 await music.setQueue({
-                    album: e.target.getAttribute('album-id'),
-                    // startPosition: e.target.getAttribute('queue-index')
+                    album: e.target.getAttribute('album-id')
                 })
                 await music.changeToMediaAtIndex(music.player.queue.indexForItem(e.target.getAttribute('song-id')))
                 playPauseButton.textContent = '⏸'
