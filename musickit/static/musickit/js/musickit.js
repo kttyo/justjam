@@ -94,15 +94,6 @@ setupMusicKit.then(async (music) => {
     let mainScreen = new MainScreen(document.getElementById('main-screen'))
 
 
-
-    // async function getFavoriteJson() {
-    //     let fetchResponse = await fetch('http://localhost:8000/api/favorite/item')
-    //     return fetchResponse.json()
-    // }
-
-    // let favoriteList = await getFavoriteJson()
-
-
     // Favorite Class
     class FavoriteItem {
         constructor(){
@@ -120,11 +111,6 @@ setupMusicKit.then(async (music) => {
 
     // Initialize Favorite Tab
     async function refreshFavoriteTab() {
-        // fetch('http://localhost:8000/api/favorite/item').then((value) => {
-        //     console.log('fetch completed')
-        //     return value.json()
-        // }).then(async (favoriteArray) => {
-        //     console.log(favoriteArray)
 
             songIdList = []
             albumIdList = []
@@ -190,6 +176,7 @@ setupMusicKit.then(async (music) => {
             'parentId': song.relationships.albums.data[0].id,
             'type': music.player.nowPlayingItem.type
         });
+
         const favoritePart = document.getElementById('favorite-part');
         favoritePart.textContent = ''
         favoritePart.appendChild(generateFavButton('song',looper.mediaItem.parentId, looper.mediaItem.id))
@@ -497,6 +484,68 @@ setupMusicKit.then(async (music) => {
         return wrapperDiv
     }
 
+    // Fav Button Clicked
+    function favButtonClick(e){
+        console.log('favButton clicked')
+        let favButton =  e.target
+        let mediaType = e.target.getAttribute('media-type');
+        let mediaId;
+
+        if (mediaType == 'song') {
+            mediaId = e.target.getAttribute('song-id');
+        } else if (mediaType == 'album') {
+            mediaId = e.target.getAttribute('album-id');
+        }
+
+        // Prepare options for API call
+        let fetchOptions;
+        if (favButton.classList.contains('not-fav')){
+            // Adding to Favorite
+            console.log('Requested to Add')
+            fetchOptions = {
+                method: 'POST',
+                headers: {
+                    "X-CSRFToken": getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'media_type': mediaType,
+                    'media_id': mediaId
+                })
+            }
+            favButton.classList.remove('not-fav')
+            favButton.classList.add('fav')
+            e.target.textContent = 'Remove from Favorite'
+
+        } else if (favButton.classList.contains('fav')){
+            // Removing from Favorite
+            console.log('Requested to Remove')
+            fetchOptions = {
+                method: 'DELETE',
+                headers: {
+                    "X-CSRFToken": getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'media_type': mediaType,
+                    'media_id': mediaId
+                })
+            }
+            favButton.classList.remove('fav')
+            favButton.classList.add('not-fav')
+            e.target.textContent = 'Add to Favorite'
+        }
+
+        // Execute API call
+        fetch('http://localhost:8000/api/favorite/item', fetchOptions).then(async (value) => {
+            console.log('fetch completed')
+            console.log(value)
+            await favoriteDataInstance.refreshFavoriteData()
+            refreshFavoriteTab()
+        })
+
+    }
+
     // Favorite Button
     function generateFavButton(mediaType, albumId, songId) {
         // Favorite Button for Songs
@@ -529,66 +578,7 @@ setupMusicKit.then(async (music) => {
         }
 
         // Define click event
-        favButton.addEventListener('click', (e) => {
-            console.log('favButton clicked')
-
-            let mediaType = e.target.getAttribute('media-type');
-            let mediaId;
-
-            if (mediaType == 'song') {
-                mediaId = e.target.getAttribute('song-id');
-            } else if (mediaType == 'album') {
-                mediaId = e.target.getAttribute('album-id');
-            }
-
-            // Prepare options for API call
-            let fetchOptions;
-            if (favButton.classList.contains('not-fav')){
-                // Adding to Favorite
-                console.log('Requested to Add')
-                fetchOptions = {
-                    method: 'POST',
-                    headers: {
-                        "X-CSRFToken": getCookie('csrftoken'),
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        'media_type': mediaType,
-                        'media_id': mediaId
-                    })
-                }
-                favButton.classList.remove('not-fav')
-                favButton.classList.add('fav')
-                e.target.textContent = 'Remove from Favorite'
-
-            } else if (favButton.classList.contains('fav')){
-                // Removing from Favorite
-                console.log('Requested to Remove')
-                fetchOptions = {
-                    method: 'DELETE',
-                    headers: {
-                        "X-CSRFToken": getCookie('csrftoken'),
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        'media_type': mediaType,
-                        'media_id': mediaId
-                    })
-                }
-                favButton.classList.remove('fav')
-                favButton.classList.add('not-fav')
-                e.target.textContent = 'Add to Favorite'
-            }
-
-            // Execute API call
-            fetch('http://localhost:8000/api/favorite/item', fetchOptions).then(async (value) => {
-                console.log('fetch completed')
-                console.log(value)
-                await favoriteDataInstance.refreshFavoriteData()
-                refreshFavoriteTab()
-            })
-
-        })
+        favButton.addEventListener('click', favButtonClick)
 
         return favButton
     }
