@@ -552,7 +552,14 @@ setupMusicKit.then(async (music) => {
         }
 
         // Execute API call
-        fetch('http://localhost:8000/api/favorite/item', fetchOptions).then(async (value) => {
+        let fetchURL;
+        if (mediaType == 'song' || mediaType == 'album') {
+            fetchURL = 'http://localhost:8000/api/favorite/item'
+        } else if (mediaType == 'song-part') {
+            fetchURL = 'http://localhost:8000/api/favorite/part'
+        }
+
+        fetch(fetchURL, fetchOptions).then(async (value) => {
             console.log('fetch completed')
             console.log(value)
             await favoriteDataInstance.refreshFavoriteData()
