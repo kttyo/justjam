@@ -191,6 +191,7 @@ setupMusicKit.then(async (music) => {
             'type': music.player.nowPlayingItem.type
         });
         const favoritePart = document.getElementById('favorite-part');
+        favoritePart.textContent = ''
         favoritePart.appendChild(generateFavButton('song',looper.mediaItem.parentId, looper.mediaItem.id))
     })
 
