@@ -1,6 +1,9 @@
+console.log('script file rendered')
 // Create Promise for document.addEventListener
 const setupMusicKit = new Promise((resolve) => {
-    document.addEventListener('musickitloaded', function () {
+    console.log('setupMusicKit Promise creation')
+    document.addEventListener('musickitloaded', function (e) {
+        console.log(e)
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
         MusicKit.configure({
             developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzI0NjIzNzJ9.jFPoBJtg-ypiA8Jza_z7jWvvAZtCuB6Hwg7RoUrYRl-430Q5azbBCWViaUpBdVJ2rh5TDE6NPo8UFxBrFKJ5iA',
@@ -16,6 +19,8 @@ const setupMusicKit = new Promise((resolve) => {
 
 // Wait till MusicKit.configure gets completed
 setupMusicKit.then(async (music) => {
+    console.log('Main script starts')
+
     music.player.volume = 0.8;
 
     function getCookie(name) {
@@ -457,8 +462,6 @@ setupMusicKit.then(async (music) => {
     // Search Bar and Search Result
     let searchBar = document.getElementById('search-bar');
     searchBar.addEventListener('keypress', runSearch);
-    console.log('runSearch added to searchBar')
-
     
 
     // Now-playin Album Info for MainScreen Class
@@ -503,31 +506,13 @@ setupMusicKit.then(async (music) => {
     function favButtonClick(e){
         console.log('favButton clicked')
         let favButton =  e.target
-        let mediaType = e.target.getAttribute('media-type');
-        let mediaId;
+        let mediaType = favButton.getAttribute('media-type');
+        
+        console.log(looper)
 
-        if (mediaType == 'song') {
-            mediaId = e.target.getAttribute('song-id');
-        } else if (mediaType == 'album') {
-            mediaId = e.target.getAttribute('album-id');
-        }
-
-        // Prepare options for API call
-        let fetchOptions;
         if (favButton.classList.contains('not-fav')){
             // Adding to Favorite
             console.log('Requested to Add')
-            fetchOptions = {
-                method: 'POST',
-                headers: {
-                    "X-CSRFToken": getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    'media_type': mediaType,
-                    'media_id': mediaId
-                })
-            }
             favButton.classList.remove('not-fav')
             favButton.classList.add('fav')
             e.target.textContent = 'Remove from Favorite'
@@ -535,8 +520,32 @@ setupMusicKit.then(async (music) => {
         } else if (favButton.classList.contains('fav')){
             // Removing from Favorite
             console.log('Requested to Remove')
+            favButton.classList.remove('fav')
+            favButton.classList.add('not-fav')
+            e.target.textContent = 'Add to Favorite'
+        }
+
+        // Prepare options for API call
+
+        let mediaId;
+        if (mediaType == 'song') {
+            mediaId = e.target.getAttribute('song-id');
+        } else if (mediaType == 'album') {
+            mediaId = e.target.getAttribute('album-id');
+        }
+
+        let requestMethod;
+        if (favButton.classList.contains('not-fav')) {
+            requestMethod = 'POST'
+        } else if (favButton.classList.contains('fav')) {
+            requestMethod = 'DELETE'
+        }
+
+        let fetchOptions;
+        let fetchURL;
+        if (mediaType == 'song' || mediaType == 'album') {
             fetchOptions = {
-                method: 'DELETE',
+                method: requestMethod,
                 headers: {
                     "X-CSRFToken": getCookie('csrftoken'),
                     'Content-Type': 'application/json'
@@ -546,19 +555,25 @@ setupMusicKit.then(async (music) => {
                     'media_id': mediaId
                 })
             }
-            favButton.classList.remove('fav')
-            favButton.classList.add('not-fav')
-            e.target.textContent = 'Add to Favorite'
-        }
-
-        // Execute API call
-        let fetchURL;
-        if (mediaType == 'song' || mediaType == 'album') {
             fetchURL = 'http://localhost:8000/api/favorite/item'
         } else if (mediaType == 'song-part') {
+            fetchOptions = {
+                method: requestMethod,
+                headers: {
+                    "X-CSRFToken": getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'media_type': mediaType,
+                    'media_id': mediaId,
+                    'loop_start_time': looper.startTime,
+                    'loop_end_time':looper.endTime
+                })
+            }
             fetchURL = 'http://localhost:8000/api/favorite/part'
         }
 
+        // Execute API call
         fetch(fetchURL, fetchOptions).then(async (value) => {
             console.log('fetch completed')
             console.log(value)
