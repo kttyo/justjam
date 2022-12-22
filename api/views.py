@@ -24,13 +24,13 @@ def favorite_item(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.user.id and request.method == 'DELETE':
-        print(request.data)
+        # print(request.data)
         items_to_delete = FavoriteItem.objects.filter(
             user=request.user.id
         ).filter(
             media_type=request.data['media_type']
         ).filter(media_id=request.data['media_id'])
-        print(items_to_delete.delete())
+        items_to_delete.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -43,6 +43,7 @@ def favorite_part(request):
 
     elif request.user.id and request.method == 'POST':
         request.data['user'] = request.user.id  # Passing user id, not user name
+        print(request.data)
         serializer = FavoritePartSerializer(data=request.data)
         print('serializer.is_valid(): ' + str(serializer.is_valid()))
 
