@@ -132,38 +132,58 @@ setupMusicKit.then(async (music) => {
     // Initialize Favorite Tab
     async function refreshFavoriteTab() {
 
-            songIdList = []
-            albumIdList = []
-            for (favorite of favoriteDataInstance.favorite) {
-                if (favorite.media_type == 'song') {
-                    songIdList.push(favorite.media_id)
-                } else if (favorite.media_type == 'album') {
-                    albumIdList.push(favorite.media_id)
-                }
+        songIdList = []
+        albumIdList = []
+        for (favorite of favoriteDataInstance.favorite) {
+            if (favorite.media_type == 'song') {
+                songIdList.push(favorite.media_id)
+            } else if (favorite.media_type == 'album') {
+                albumIdList.push(favorite.media_id)
             }
+        }
 
-            const wrapperDiv = document.createElement("div")
+        console.log(songIdList)
+        console.log(albumIdList)
 
-            if (songIdList.length > 0) {
-                const headerSongs = document.createElement("h2");
-                headerSongs.textContent = 'Songs';
-                wrapperDiv.appendChild(headerSongs);
+        loopItemList = []
+        for (favorite of favoritePartInstance.favorite) {
+            loopItemList.push(favorite.media_id)
+        }
 
-                searchedSongs = await music.api.songs(songIdList)
-                wrapperDiv.appendChild(await getSongList(searchedSongs))
-            }
+        console.log(loopItemList)
 
-            if (albumIdList.length > 0) {
-                const headerAlbums = document.createElement("h2");
-                headerAlbums.textContent = 'Albums';
-                wrapperDiv.appendChild(headerAlbums);
 
-                searchedAlbums = await music.api.albums(albumIdList)
-                wrapperDiv.appendChild(await getAlbumList(searchedAlbums))
-            }
+        const wrapperDiv = document.createElement("div")
 
-            mainScreen.setFavorite(wrapperDiv)
-    //     })
+        if (loopItemList.length > 0) {
+            const headerSongs = document.createElement("h2");
+            headerSongs.textContent = 'Loops';
+            wrapperDiv.appendChild(headerSongs);
+
+            searchedSongs = await music.api.songs(loopItemList)
+            wrapperDiv.appendChild(await getSongList(searchedSongs))
+        }
+
+        if (songIdList.length > 0) {
+            const headerSongs = document.createElement("h2");
+            headerSongs.textContent = 'Songs';
+            wrapperDiv.appendChild(headerSongs);
+
+            searchedSongs = await music.api.songs(songIdList)
+            wrapperDiv.appendChild(await getSongList(searchedSongs))
+        }
+
+        if (albumIdList.length > 0) {
+            const headerAlbums = document.createElement("h2");
+            headerAlbums.textContent = 'Albums';
+            wrapperDiv.appendChild(headerAlbums);
+
+            searchedAlbums = await music.api.albums(albumIdList)
+            wrapperDiv.appendChild(await getAlbumList(searchedAlbums))
+        }
+
+        mainScreen.setFavorite(wrapperDiv)
+        //     })
     }
     refreshFavoriteTab()
 
@@ -732,6 +752,7 @@ setupMusicKit.then(async (music) => {
         }
         return wrapperDiv
     }
+
 
     async function getAlbumList(albumArray) {
         const wrapperDiv = document.createElement("div");
