@@ -160,8 +160,7 @@ setupMusicKit.then(async (music) => {
             headerSongs.textContent = 'Loops';
             wrapperDiv.appendChild(headerSongs);
 
-            searchedSongs = await music.api.songs(loopItemList)
-            wrapperDiv.appendChild(await getSongList(searchedSongs))
+            wrapperDiv.appendChild(await getLoopList(loopItemList))
         }
 
         if (songIdList.length > 0) {
@@ -183,7 +182,6 @@ setupMusicKit.then(async (music) => {
         }
 
         mainScreen.setFavorite(wrapperDiv)
-        //     })
     }
     refreshFavoriteTab()
 
@@ -705,6 +703,59 @@ setupMusicKit.then(async (music) => {
         div1.appendChild(div2)
 
         return div1
+    }
+
+    async function getLoopList(songArray) {
+        console.log(songArray)
+        const wrapperDiv = document.createElement("div");
+
+        // Bulk search the songs to capture relationships data
+        searchedSongs = await music.api.songs(songArray)
+
+        for (const song of searchedSongs) {
+            for (favorite of favoritePartInstance.favorite){
+                if (favorite.media_id == song.id){
+                    song.looperStartTime = favorite.loop_start_time
+                    song.looperEndTime = favorite.loop_end_time
+                    console.log('id matched')
+                    console.log(song)
+                }
+            }
+
+            // Get Card Layout
+            const cardDiv = createMediaCardLayout()
+            const artwork = cardDiv.querySelector('img')
+            const ptag = cardDiv.querySelector('.card-text')
+            const cardBody = cardDiv.querySelector('.card-body')
+
+            // Artwork
+            artwork.setAttribute('src', MusicKit.formatArtworkURL(song.attributes.artwork, 50, 50))
+            
+            // Card Text
+            ptag.setAttribute('class', 'song-part');
+            ptag.setAttribute('start-time',song.looperStartTime)
+            ptag.setAttribute('end-time',song.looperEndTime)
+            ptag.setAttribute('song-id', song.id);
+            ptag.setAttribute('album-id', song.relationships.albums.data[0].id)
+            const node = document.createTextNode(song.looperStartTime + ' - ' + song.looperEndTime + ' - ' + song.attributes.name + ' - ' + song.attributes.artistName);
+            ptag.appendChild(node);
+            ptag.addEventListener('click', async (e) => {
+                await music.setQueue({
+                    album: e.target.getAttribute('album-id')
+                })
+                await music.changeToMediaAtIndex(music.player.queue.indexForItem(e.target.getAttribute('song-id')))
+                playPauseButton.textContent = '⏸'
+
+                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
+                mainScreen.displayNowPlayingAlbum()
+            })
+
+            // Favorite Button
+            cardBody.appendChild(generateFavButton('song', song.relationships.albums.data[0].id, song.id));
+
+            wrapperDiv.appendChild(cardDiv);
+        }
+        return wrapperDiv
     }
 
     async function getSongList(songArray) {
