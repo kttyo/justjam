@@ -19,15 +19,19 @@ const setupMusicKit = new Promise((resolve) => {
 
 // Wait till MusicKit.configure gets completed
 setupMusicKit.then(async (music) => {
-    
+    music.musicUserToken = "Am4bcqi6bzbIW62RzCvXUSoQ2d5RCNVDtB16vpOVxNKF7THgUQ82/7oub5E2yLHtSEf5iKg50yQoFKOWLbb6rba52Di/6FF38GLczJTe03Lsf4NS1oguklUge2xoS9iCAIigEN0G+2eZ2HF3Z5mV6ErBmcz2oHgW8nH3Shby95GvsH6Z5n4T2oxRxHY+3bxYtTFFmOiBxAm1Div+YK5OIcACAeCc6Q/MJTTdJuP6FaWFgJuUTw=="
+    console.log('musicKitInstance:')
     console.log(music)
+    console.log('musicUserToken:')
     console.log(music.musicUserToken)
 
     let unauthenticateButton = document.getElementById('unauthenticate')
     unauthenticateButton.addEventListener('click', async () => {
         console.log('unauth clicked')
+
         console.log(music)
         console.log(music.musicUserToken)
+
         result = await music.unauthorize();
         console.log(result)
     })
@@ -128,7 +132,7 @@ setupMusicKit.then(async (music) => {
         };
 
         async refreshFavoriteData(){
-            let fetchResponse = await fetch('http://localhost:8000/api/favorite/item')
+            let fetchResponse = await fetch('http://127.0.0.1:8000/api/favorite/item')
             this.favorite = await fetchResponse.json()
         };
     }
@@ -143,7 +147,7 @@ setupMusicKit.then(async (music) => {
         };
 
         async refreshFavoriteData() {
-            let fetchResponse = await fetch('http://localhost:8000/api/favorite/part')
+            let fetchResponse = await fetch('http://127.0.0.1:8000/api/favorite/part')
             this.favorite = await fetchResponse.json()
         };
     }
@@ -615,7 +619,7 @@ setupMusicKit.then(async (music) => {
                     'media_id': mediaId
                 })
             }
-            fetchURL = 'http://localhost:8000/api/favorite/item'
+            fetchURL = 'http://127.0.0.1:8000/api/favorite/item'
         } else if (mediaType == 'song-part') {
             fetchOptions = {
                 method: requestMethod,
@@ -630,7 +634,7 @@ setupMusicKit.then(async (music) => {
                     'loop_end_time':looper.endTime
                 })
             }
-            fetchURL = 'http://localhost:8000/api/favorite/part'
+            fetchURL = 'http://127.0.0.1:8000/api/favorite/part'
         }
 
         console.log(fetchOptions)
