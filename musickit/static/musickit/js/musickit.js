@@ -246,8 +246,8 @@ setupMusicKit.then(async (music) => {
         favoritePart.appendChild(generateFavButton('song-part',looper.mediaItem.parentId, looper.mediaItem.id))
     }
 
-    
-    music.addEventListener('mediaItemDidChange', async () => {
+
+    music.addEventListener('mediaItemDidChange', () => {
         updateCurrentPlayingItem ()
         resetLoopSegment()
     })
@@ -520,7 +520,12 @@ setupMusicKit.then(async (music) => {
 
     // Search Bar and Search Result
     let searchBar = document.getElementById('search-bar');
-    searchBar.addEventListener('keypress', runSearch);
+    searchBar.addEventListener('keypress', async (event) => {
+        if (event.key == 'Enter') {
+            searchResults = await music.api.search(event.target.value.replace(' ', '+').replace('　', '+'))
+            renderSearchResult(searchResults)
+        }
+    });
     
 
     // Now-playin Album Info for MainScreen Class
@@ -924,14 +929,5 @@ setupMusicKit.then(async (music) => {
 
         mainScreen.setSearchResult(wrapperDiv)
         mainScreen.displaySearchResult()
-    }
-
-
-    async function runSearch(event) {
-        if (event.key == 'Enter') {
-            let searchString = event.target.value.replace(' ', '+').replace('　', '+');
-            searchResults = await music.api.search(searchString)
-            renderSearchResult(searchResults)
-        }
     }
 })
