@@ -191,7 +191,7 @@ setupMusicKit.then(async (music) => {
             wrapperDiv.appendChild(headerSongs);
 
             searchedSongs = await music.api.songs(songIdList)
-            wrapperDiv.appendChild(await getSongList(searchedSongs))
+            wrapperDiv.appendChild(await getSongCards(searchedSongs))
         }
 
         if (albumIdList.length > 0) {
@@ -200,7 +200,7 @@ setupMusicKit.then(async (music) => {
             wrapperDiv.appendChild(headerAlbums);
 
             searchedAlbums = await music.api.albums(albumIdList)
-            wrapperDiv.appendChild(await getAlbumList(searchedAlbums))
+            wrapperDiv.appendChild(await getAlbumCards(searchedAlbums))
         }
 
         mainScreen.setFavorite(wrapperDiv)
@@ -797,7 +797,7 @@ setupMusicKit.then(async (music) => {
         return wrapperDiv
     }
 
-    async function getSongList(songArray) {
+    async function getSongCards(songArray) {
         const wrapperDiv = document.createElement("div");
 
         // Bulk search the songs to capture relationships data
@@ -844,7 +844,7 @@ setupMusicKit.then(async (music) => {
     }
 
 
-    async function getAlbumList(albumArray) {
+    async function getAlbumCards(albumArray) {
         const wrapperDiv = document.createElement("div");
 
         for (const album of albumArray) {
@@ -883,46 +883,45 @@ setupMusicKit.then(async (music) => {
         return wrapperDiv
     }
 
-    async function runSearch(e) {
-        if (e.key == 'Enter') {
-            console.log('entered runSearch')
-            // Format search query and request API
-            let searchString = searchBar.value.replace(' ', '+').replace('　', '+');
-            searchResultData = await music.api.search(searchBar.value)
-            console.log(searchResultData)
 
-            // Populate search results on HTML
-            let songsDataArray = searchResultData.songs ? searchResultData.songs.data : null;
-            let albumsDataArray = searchResultData.albums ? searchResultData.albums.data : null;
-            let artistsDataArray = searchResultData.artists ? searchResultData.artists.data : null;
+    async function renderSearchResult(searchResults) {
+        // Populate search results on HTML
+        let songsDataArray = searchResults.songs ? searchResults.songs.data : null;
+        let albumsDataArray = searchResults.albums ? searchResults.albums.data : null;
+        let artistsDataArray = searchResults.artists ? searchResults.artists.data : null;
 
-            const wrapperDiv = document.createElement("div")
+        const wrapperDiv = document.createElement("div")
 
-            // Songs
-            if (songsDataArray.length > 0) {
-                console.log(songsDataArray)
-                const headerSongs = document.createElement("h2");
-                headerSongs.textContent = 'Songs';
-                wrapperDiv.appendChild(headerSongs);
-                wrapperDiv.appendChild(await getSongList(songsDataArray))
-            }
-
-            // Albums
-            if (albumsDataArray.length > 0) {
-                console.log(albumsDataArray)
-                const headerAlbums = document.createElement("h2");
-                headerAlbums.textContent = 'Albums';
-                wrapperDiv.appendChild(headerAlbums);
-                wrapperDiv.appendChild(await getAlbumList(albumsDataArray))
-            }
-
-            if (songsDataArray == null && albumsDataArray == null) {
-                wrapperDiv.textContent = 'No Matching Content Found'
-            }
-            mainScreen.setSearchResult(wrapperDiv)
-            mainScreen.displaySearchResult()
+        // Songs
+        if (songsDataArray.length > 0) {
+            const headerSongs = document.createElement("h2");
+            headerSongs.textContent = 'Songs';
+            wrapperDiv.appendChild(headerSongs);
+            wrapperDiv.appendChild(await getSongCards(songsDataArray))
         }
+
+        // Albums
+        if (albumsDataArray.length > 0) {
+            const headerAlbums = document.createElement("h2");
+            headerAlbums.textContent = 'Albums';
+            wrapperDiv.appendChild(headerAlbums);
+            wrapperDiv.appendChild(await getAlbumCards(albumsDataArray))
+        }
+
+        if (songsDataArray == null && albumsDataArray == null) {
+            wrapperDiv.textContent = 'No Matching Content Found'
+        }
+
+        mainScreen.setSearchResult(wrapperDiv)
+        mainScreen.displaySearchResult()
     }
 
 
+    async function runSearch(event) {
+        if (event.key == 'Enter') {
+            let searchString = event.target.value.replace(' ', '+').replace('　', '+');
+            searchResults = await music.api.search(searchString)
+            renderSearchResult(searchResults)
+        }
+    }
 })
