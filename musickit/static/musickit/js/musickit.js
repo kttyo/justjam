@@ -19,6 +19,28 @@ const setupMusicKit = new Promise((resolve) => {
 
 // Wait till MusicKit.configure gets completed
 setupMusicKit.then(async (music) => {
+    
+    console.log(music)
+    console.log(music.musicUserToken)
+
+    let unauthenticateButton = document.getElementById('unauthenticate')
+    unauthenticateButton.addEventListener('click', async () => {
+        console.log('unauth clicked')
+        console.log(music)
+        console.log(music.musicUserToken)
+        result = await music.unauthorize();
+        console.log(result)
+    })
+
+    let authenticateButton = document.getElementById('authenticate')
+    authenticateButton.addEventListener('click', async () => {
+        console.log('auth clicked')
+        console.log(music)
+        console.log(music.musicUserToken)
+        result = await music.authorize();
+        console.log(result)
+    })
+
     console.log('Main script starts')
 
     music.player.volume = 0.8;
@@ -367,6 +389,12 @@ setupMusicKit.then(async (music) => {
                 console.log('End time must be larger than start time.')
             }
         };
+        switchOn() {
+            this.isOn = true
+        };
+        switchOff() {
+            this.isOn = false
+        };
         setStartTime(startAt) {
             if (startAt > this.endTime) {
                 this.endTime = startAt;
@@ -381,8 +409,11 @@ setupMusicKit.then(async (music) => {
             }
 
         };
-        async setMediaItem(item) {
-            this.mediaItem = item
+        setMediaItem(mediaId) {
+            this.mediaItem = mediaId
+        };
+        setMediaParent(parentId) {
+            this.mediaParentItem = parentId
         };
     };
 
@@ -743,6 +774,14 @@ setupMusicKit.then(async (music) => {
                 await music.setQueue({
                     album: e.target.getAttribute('album-id')
                 })
+
+                looper.setMediaItem(e.target.getAttribute('song-id'))
+                looper.setMediaParent(e.target.getAttribute('album-id'))
+                looper.setStartTime(e.target.getAttribute('start-time'))
+                looper.setEndTime(e.target.getAttribute('end-time'))
+                looper.switchOn()
+                console.log(looper)
+
                 await music.changeToMediaAtIndex(music.player.queue.indexForItem(e.target.getAttribute('song-id')))
                 playPauseButton.textContent = '⏸'
 

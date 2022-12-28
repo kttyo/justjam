@@ -118,6 +118,8 @@
             <!-- nowPlayingItem.artworkURL -->
     
             <div class="card mb-3" style="max-width: 540px;">
+                <button id="authenticate">Authenticate to Apple Music</button>
+                <button id="unauthenticate">Unauthenticate from Apple Music</button>
                     {% if user_is_authenticated %}
                     <p>
                     {{username}}
