@@ -212,7 +212,8 @@ setupMusicKit.then(async (music) => {
         mainScreen.displayFavorite()
     })
 
-    music.addEventListener('mediaItemDidChange', async () => {
+
+    function updateCurrentPlayingItem (){
         songName.textContent = music.player.nowPlayingItem.title
         currentAlgumInfo.textContent = music.player.nowPlayingItem.artistName + ' | ' + music.player.nowPlayingItem.albumName
         artworkImg.setAttribute('src', MusicKit.formatArtworkURL(music.player.nowPlayingItem.attributes.artwork, 100, 100))
@@ -223,7 +224,10 @@ setupMusicKit.then(async (music) => {
 
         let durationString = hours >= 1 ? hours + ':' + minutes + ':' + seconds : minutes + ':' + seconds;
         playbackDuration.textContent = durationString;
+    }
 
+
+    async function resetLoopSegment(){
         let song = await music.api.song(music.player.nowPlayingItem.id)
 
         // Reset loop segment
@@ -240,6 +244,12 @@ setupMusicKit.then(async (music) => {
         const favoritePart = document.getElementById('favorite-part');
         favoritePart.textContent = ''
         favoritePart.appendChild(generateFavButton('song-part',looper.mediaItem.parentId, looper.mediaItem.id))
+    }
+
+    
+    music.addEventListener('mediaItemDidChange', async () => {
+        updateCurrentPlayingItem ()
+        resetLoopSegment()
     })
 
     music.addEventListener('playbackTimeDidChange', async () => {
