@@ -19,7 +19,9 @@ const setupMusicKit = new Promise((resolve) => {
 
 // Wait till MusicKit.configure gets completed
 setupMusicKit.then(async (music) => {
-    music.musicUserToken = "Am4bcqi6bzbIW62RzCvXUSoQ2d5RCNVDtB16vpOVxNKF7THgUQ82/7oub5E2yLHtSEf5iKg50yQoFKOWLbb6rba52Di/6FF38GLczJTe03Lsf4NS1oguklUge2xoS9iCAIigEN0G+2eZ2HF3Z5mV6ErBmcz2oHgW8nH3Shby95GvsH6Z5n4T2oxRxHY+3bxYtTFFmOiBxAm1Div+YK5OIcACAeCc6Q/MJTTdJuP6FaWFgJuUTw=="
+    // music.musicUserToken = "Aj0X911rEKVtIkI+0J5QRWeGFid4uDCVe3yovheIRQ3o7fo9410tMQNKUVy9k1rXYJ2uD2cz3Q2U1LvP7g9hyaHX3EmLnwMrRPgX902V4ElEYlPEDs71NIh/Z/jjDXzwovygSI3+UrRzY6uccms/yI0Spp5rwsULGjM9U0fvIZrqaufCCfk+Pv96wBGR5B64RJK1GyuFazp7QX+VLfgBBO9pqsTr1/+7A/g5KdTdCnl908uyzQ=="
+
+
     console.log('musicKitInstance:')
     console.log(music)
     console.log('musicUserToken:')
@@ -41,8 +43,7 @@ setupMusicKit.then(async (music) => {
         console.log('auth clicked')
         console.log(music)
         console.log(music.musicUserToken)
-        result = await music.authorize();
-        console.log(result)
+        console.log(await music.authorize())
     })
 
     console.log('Main script starts')
@@ -132,7 +133,7 @@ setupMusicKit.then(async (music) => {
         };
 
         async refreshFavoriteData(){
-            let fetchResponse = await fetch('http://127.0.0.1:8000/api/favorite/item')
+            let fetchResponse = await fetch('http://localhost:8000/api/favorite/item')
             this.favorite = await fetchResponse.json()
         };
     }
@@ -147,7 +148,7 @@ setupMusicKit.then(async (music) => {
         };
 
         async refreshFavoriteData() {
-            let fetchResponse = await fetch('http://127.0.0.1:8000/api/favorite/part')
+            let fetchResponse = await fetch('http://localhost:8000/api/favorite/part')
             this.favorite = await fetchResponse.json()
         };
     }
@@ -619,7 +620,7 @@ setupMusicKit.then(async (music) => {
                     'media_id': mediaId
                 })
             }
-            fetchURL = 'http://127.0.0.1:8000/api/favorite/item'
+            fetchURL = 'http://localhost:8000/api/favorite/item'
         } else if (mediaType == 'song-part') {
             fetchOptions = {
                 method: requestMethod,
@@ -634,7 +635,7 @@ setupMusicKit.then(async (music) => {
                     'loop_end_time':looper.endTime
                 })
             }
-            fetchURL = 'http://127.0.0.1:8000/api/favorite/part'
+            fetchURL = 'http://localhost:8000/api/favorite/part'
         }
 
         console.log(fetchOptions)
