@@ -12,7 +12,7 @@ def login_view(request):
 
             if user:
                 login(request, user)
-                return redirect(to='musickit:index')
+                return redirect(to='http://localhost:8080')
 
     else:
         form = LoginForm()
@@ -27,4 +27,4 @@ def login_view(request):
 def logout_view(request):
     logout(request)
 
-    return redirect(to='musickit:index')
+    return redirect(to='http://localhost:8080')

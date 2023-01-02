@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+
+    <!-- Configuring MusicKit JS -->
+
+    <title>MusicKit Features</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        #looper-start-dot-position {
+            width: 8px;
+            position: absolute;
+            left: 0%;
+        }
+        #looper-start-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #26107B;
+            position: absolute;
+            display: none;
+            border-radius: 100%;
+            top: 5px;
+            left: -50%;
+        }
+        #looper-end-dot-position {
+            width: 8px;
+            position: absolute;
+            left: 100%;
+        }
+        #looper-end-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #808080;
+            position: absolute;
+            display: none;
+            border-radius: 100%;
+            top: 5px;
+            left: -50%;
+        }
+        #timescope {
+            width: 250px;
+            height: 3px;
+            background-color: #DC3545;
+            position: relative;
+            margin: auto 12px;
+            display: inline-block;
+            opacity: 0.5;
+        }
+        #timescope-after {
+            width: 0px;
+            height: 3px;
+            background-color: #26107B;
+            position: absolute;
+            display: inline-block;
+        }
+        #timescope-dot-position {
+            width: 8px;
+            position: absolute;
+            left: 0%;
+        }
+        #timescope-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #26107B;
+            position: absolute;
+            display: inline-block;
+            border-radius: 100%;
+            top: -2.5px;
+            left: -50%;
+        }
+
+        #favorite-part {
+            display: none;
+        }
+
+        #volume-scope {
+            width: 50px;
+            height: 3px;
+            background-color: #DC3545;
+            position: relative;
+            margin: auto 12px;
+            display: inline-block;
+            opacity: 0.5;
+        }
+        #volume-scope-after {
+            width: 0px;
+            height: 3px;
+            background-color: #26107B;
+            position: absolute;
+            display: inline-block;
+        }
+        #volume-scope-dot-position {
+            width: 8px;
+            position: absolute;
+            left: 80%;
+        }
+        #volume-scope-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #26107B;
+            position: absolute;
+            display: inline-block;
+            border-radius: 100%;
+            top: -2.5px;
+            left: -50%;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow justify-content-center">
+        <div id="player-function">
+    
+            <!-- nowPlayingItem.artworkURL -->
+    
+            <div class="card mb-3" style="max-width: 540px;">
+                <button id="authenticate">Authenticate to Apple Music</button>
+                <button id="unauthenticate">Unauthenticate from Apple Music</button>
+                    {% if user_is_authenticated %}
+                    <p>
+                    {{username}}
+                    </p>
+                <p>
+                    <a href="http://localhost:8000/account/logout">ログアウト</a>
+                    </p>
+                    {% else %}
+                <p>
+                    <a href="http://localhost:8000/account/login">ログイン</a>
+                </p>
+                    {% endif %}
+                <div class="row g-0">
+                    <div class="col-md-2">
+                        <img id="artwork" style="max-width: 50px;">
+                    </div>
+                    <div class="col-md-10">
+                        <div class="card-body">
+                            <h5 id="media-item-title" class="card-title"></h5>
+                            <p id="album-info" class="card-text"><small class="text-muted"></small></p>
+                            <span id="playback-time">0:00</span>
+                            <span id="timescope">
+                                <span id="timescope-after"></span>
+                                <span id="timescope-dot-position">
+                                    <span id="timescope-dot" draggable="true"></span>
+                                </span>
+                                <span id="looper-start-dot-position">
+                                    <span id="looper-start-dot" draggable="true"></span>
+                                </span>
+                                <span id="looper-end-dot-position">
+                                    <span id="looper-end-dot" draggable="true"></span>
+                                </span>
+                            </span>
+                            <span id="playback-duration">0:00</span>
+                                                    <p>
+                            <div id="favorite-part"></div>
+                        </p>
+                        </div>
+                        <p>
+                            <button id="looper-switch">Looper On</button>
+                        </p>
+                        <p>
+                            <span id="volume-scope">
+                                <span id="volume-scope-after"></span>
+                                <span id="volume-scope-dot-position">
+                                    <span id="volume-scope-dot" draggable="true"></span>
+                                </span>
+                            </span>
+                        </p>
+                        <p><button id="back-to-start">Back to Start</button></p>
+                        <p>
+                            <button id="previous-item">Previous</button>
+                            <button id="rewind">- 5 sec</button>
+                            <button id="play-pause">▶︎</button>
+                            <button id="fast-forward">+ 5 sec</button>
+                            <button id="next-item">Next</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <input id="search-bar" class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+                    <ul class="nav flex-column">
+                        <li class="nav-item" id="search-result-tab">
+                            <a class="nav-link active" aria-current="page">
+                                <span data-feather="home"></span>
+                                Search Results
+                            </a>
+                        </li>
+                        <li class="nav-item" id="now-playing-album-tab">
+                            <a class="nav-link">
+                                <span data-feather="file"></span>
+                                Playing Album
+                            </a>
+                        </li>
+                        {% if user_is_authenticated %}
+                        <li class="nav-item" id="favorite-tab">
+                            <a class="nav-link">
+                                <span data-feather="shopping-cart"></span>
+                                Favorites
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+
+                    <h6
+                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Saved reports</span>
+                        <a class="link-secondary" href="#" aria-label="Add a new report">
+                            <span data-feather="plus-circle"></span>
+                        </a>
+                    </h6>
+                    <ul class="nav flex-column mb-2">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Current month
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Last quarter
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Social engagement
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Year-end sale
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div id="main-screen"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js"></script>
+    <script src="http://localhost:8000/static/musickit/js/musickit.js"></script>
+</body>
+
+</html>

@@ -6,7 +6,7 @@ const setupMusicKit = new Promise((resolve) => {
         console.log(e)
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
         MusicKit.configure({
-            developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzI0NjIzNzJ9.jFPoBJtg-ypiA8Jza_z7jWvvAZtCuB6Hwg7RoUrYRl-430Q5azbBCWViaUpBdVJ2rh5TDE6NPo8UFxBrFKJ5iA',
+            developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzM2NTU1NTF9.8TrqF6qzXpsFh-RCj8AC6QJBSHWck230QiIiv3BnDjHV09FbFgTF3F8RUyjbJjZFOpZOeuQRSWe2yyweXj6KDw',
             app: {
                 name: 'My Cool Web App',
                 build: '2022.11.17'
@@ -19,36 +19,11 @@ const setupMusicKit = new Promise((resolve) => {
 
 // Wait till MusicKit.configure gets completed
 setupMusicKit.then(async (music) => {
-    // music.musicUserToken = "Aj0X911rEKVtIkI+0J5QRWeGFid4uDCVe3yovheIRQ3o7fo9410tMQNKUVy9k1rXYJ2uD2cz3Q2U1LvP7g9hyaHX3EmLnwMrRPgX902V4ElEYlPEDs71NIh/Z/jjDXzwovygSI3+UrRzY6uccms/yI0Spp5rwsULGjM9U0fvIZrqaufCCfk+Pv96wBGR5B64RJK1GyuFazp7QX+VLfgBBO9pqsTr1/+7A/g5KdTdCnl908uyzQ=="
-
-
-    console.log('musicKitInstance:')
-    console.log(music)
-    console.log('musicUserToken:')
-    console.log(music.musicUserToken)
-
-    let unauthenticateButton = document.getElementById('unauthenticate')
-    unauthenticateButton.addEventListener('click', async () => {
-        console.log('unauth clicked')
-
-        console.log(music)
-        console.log(music.musicUserToken)
-
-        result = await music.unauthorize();
-        console.log(result)
-    })
-
-    let authenticateButton = document.getElementById('authenticate')
-    authenticateButton.addEventListener('click', async () => {
-        console.log('auth clicked')
-        console.log(music)
-        console.log(music.musicUserToken)
-        console.log(await music.authorize())
-    })
-
-    console.log('Main script starts')
-
-    music.player.volume = 0.8;
+    console.log('Entered Main Script')
+    if (document.cookie && document.cookie !== '') {
+        console.log(document.cookie)
+    }
+    
 
     function getCookie(name) {
         let cookieValue = null;
@@ -65,6 +40,21 @@ setupMusicKit.then(async (music) => {
         }
         return cookieValue;
     }
+
+    let unauthenticateButton = document.getElementById('unauthenticate')
+    unauthenticateButton.addEventListener('click', async () => {
+        result = await music.unauthorize();
+    })
+
+    let authenticateButton = document.getElementById('authenticate')
+    authenticateButton.addEventListener('click', async () => {
+        await music.authorize()
+    })
+
+    console.log('Main script starts')
+
+    music.player.volume = 0.8;
+
     // Info Display
     let artworkImg = document.getElementById('artwork');
     let timeScope = document.getElementById('timescope');
@@ -133,7 +123,11 @@ setupMusicKit.then(async (music) => {
         };
 
         async refreshFavoriteData(){
-            let fetchResponse = await fetch('http://localhost:8000/api/favorite/item')
+            let fetchResponse = await fetch('http://localhost:8000/api/favorite/item',
+            {
+                credentials: 'include'
+            }
+            )
             this.favorite = await fetchResponse.json()
         };
     }
@@ -148,7 +142,11 @@ setupMusicKit.then(async (music) => {
         };
 
         async refreshFavoriteData() {
-            let fetchResponse = await fetch('http://localhost:8000/api/favorite/part')
+            let fetchResponse = await fetch('http://localhost:8000/api/favorite/part',
+            {
+                credentials: 'include'
+            }
+            )
             this.favorite = await fetchResponse.json()
         };
     }
@@ -611,6 +609,7 @@ setupMusicKit.then(async (music) => {
         if (mediaType == 'song' || mediaType == 'album') {
             fetchOptions = {
                 method: requestMethod,
+                credentials: 'include',
                 headers: {
                     "X-CSRFToken": getCookie('csrftoken'),
                     'Content-Type': 'application/json'
@@ -624,6 +623,7 @@ setupMusicKit.then(async (music) => {
         } else if (mediaType == 'song-part') {
             fetchOptions = {
                 method: requestMethod,
+                credentials: 'include',
                 headers: {
                     "X-CSRFToken": getCookie('csrftoken'),
                     'Content-Type': 'application/json'
