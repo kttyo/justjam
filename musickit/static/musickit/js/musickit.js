@@ -833,7 +833,7 @@ setupMusicKit.then(async (music) => {
             })
 
             // Favorite Button
-            cardBody.appendChild(generateFavButton('song', song.relationships.albums.data[0].id, song.id));
+            cardBody.appendChild(generateFavButton('song-part', song.relationships.albums.data[0].id, song.id));
 
             wrapperDiv.appendChild(cardDiv);
         }
