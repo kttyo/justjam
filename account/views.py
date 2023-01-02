@@ -1,6 +1,18 @@
 from django.shortcuts import render, redirect
 from .forms import LoginForm
 from django.contrib.auth import login, logout
+from django.http import JsonResponse
+
+
+def user_status(request):
+    dict_data = {}
+    if request.user.is_authenticated:
+        dict_data['authenticated'] = True
+        dict_data['username'] = request.user.username
+    else:
+        dict_data['authenticated'] = False
+        dict_data['username'] = 'AnonymousUser'
+    return JsonResponse(dict_data, safe=False)
 
 
 def login_view(request):
