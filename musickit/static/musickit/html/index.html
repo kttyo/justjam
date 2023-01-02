@@ -118,18 +118,7 @@
             <div class="card mb-3" style="max-width: 540px;">
                 <button id="authenticate">Authenticate to Apple Music</button>
                 <button id="unauthenticate">Unauthenticate from Apple Music</button>
-                    {% if user_is_authenticated %}
-                    <p>
-                    {{username}}
-                    </p>
-                <p>
-                    <a href="http://localhost:8000/account/logout">ログアウト</a>
-                    </p>
-                    {% else %}
-                <p>
-                    <a href="http://localhost:8000/account/login">ログイン</a>
-                </p>
-                    {% endif %}
+                <div id="login-logout"></div>
                 <div class="row g-0">
                     <div class="col-md-2">
                         <img id="artwork" style="max-width: 50px;">
@@ -249,7 +238,39 @@
             </main>
         </div>
     </div>
+    <script>
+        async function getUserStatus(){
+            userStatusData = await fetch(
+                'http://localhost:8000/account/user-status',
+                {credentials: 'include'}
+            )
+            userStatusJSON = await userStatusData.json()
+            return userStatusJSON
+        }
+        const userStatus = getUserStatus()
+        userStatus.then((value) => {
+            console.log(value)
+            const logInOut = document.getElementById('login-logout')
 
+            let p = document.createElement('p')
+            p.innerHTML = value.username
+            logInOut.appendChild(p)
+
+            if (value.authenticated){
+                let a = document.createElement('a')
+                a.setAttribute('href','http://localhost:8000/account/logout')
+                a.innerHTML = 'Log Out'
+                logInOut.appendChild(a)
+            } else {
+                let a = document.createElement('a')
+                a.setAttribute('href','http://localhost:8000/account/login')
+                a.innerHTML = 'Log In'
+                logInOut.appendChild(a)
+            }
+
+
+        })
+    </script>
     <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js"></script>
     <script src="http://localhost:8000/static/musickit/js/musickit.js"></script>
 </body>
