@@ -20,10 +20,6 @@ const setupMusicKit = new Promise((resolve) => {
 // Wait till MusicKit.configure gets completed
 setupMusicKit.then(async (music) => {
     console.log('Entered Main Script')
-    if (document.cookie && document.cookie !== '') {
-        console.log(document.cookie)
-    }
-    
 
     function getCookie(name) {
         let cookieValue = null;
@@ -211,7 +207,7 @@ setupMusicKit.then(async (music) => {
     refreshFavoriteTab()
 
     let favoriteTabLink = document.getElementById('favorite-tab');
-    favoriteTabLink.addEventListener('click', () => {
+        favoriteTabLink.addEventListener('click', () => {
         mainScreen.displayFavorite()
     })
 
@@ -392,7 +388,15 @@ setupMusicKit.then(async (music) => {
             this.endTime = 0;
             this.mediaItem = null;
             this.mediaParentItem = null;
+
+            this.looperButton = document.getElementById('looper-switch');
+            this.looperStartDotPos = document.getElementById('looper-start-dot-position');
+            this.looperStartDot = document.getElementById('looper-start-dot');
+            this.looperEndDotPos = document.getElementById('looper-end-dot-position');
+            this.looperEndDot = document.getElementById('looper-end-dot');
+            this.favoriteButton = document.getElementById('favorite-part');
         };
+
         looperSwitch() {
             if (this.isOn) {
                 this.isOn = false
@@ -402,18 +406,33 @@ setupMusicKit.then(async (music) => {
                 console.log('End time must be larger than start time.')
             }
         };
+
         switchOn() {
             this.isOn = true
+
+            this.looperButton.textContent = 'Looper Off'
+            this.looperStartDot.style.display = 'inline-block'
+            this.looperEndDot.style.display = 'inline-block'
+            this.favoriteButton.style.display = 'inline-block'
+
         };
+
         switchOff() {
             this.isOn = false
+
+            this.looperButton.textContent = 'Looper On'
+            this.looperStartDot.style.display = 'none'
+            this.looperEndDot.style.display = 'none'
+            this.favoriteButton.style.display = 'none'
         };
+
         setStartTime(startAt) {
             if (startAt > this.endTime) {
                 this.endTime = startAt;
             }
             this.startTime = startAt;
         };
+
         setEndTime(endAt) {
             if (endAt > this.startTime) {
                 this.endTime = endAt;
@@ -422,9 +441,11 @@ setupMusicKit.then(async (music) => {
             }
 
         };
+
         setMediaItem(mediaId) {
             this.mediaItem = mediaId
         };
+
         setMediaParent(parentId) {
             this.mediaParentItem = parentId
         };
@@ -496,17 +517,21 @@ setupMusicKit.then(async (music) => {
 
     let looperSwitch = document.getElementById('looper-switch');
     looperSwitch.addEventListener('click', () => {
-        looper.looperSwitch()
+        // looper.looperSwitch()
         if (looper.isOn) {
-            looperSwitch.textContent = 'Looper Off'
-            looperStartDot.style.display = 'inline-block'
-            looperEndDot.style.display = 'inline-block'
-            favoriteButton.style.display = 'inline-block'
+            console.log('looper.switchOff()')
+            looper.switchOff()
+            // looperSwitch.textContent = 'Looper Off'
+            // looperStartDot.style.display = 'inline-block'
+            // looperEndDot.style.display = 'inline-block'
+            // favoriteButton.style.display = 'inline-block'
         } else {
-            looperSwitch.textContent = 'Looper On'
-            looperStartDot.style.display = 'none'
-            looperEndDot.style.display = 'none'
-            favoriteButton.style.display = 'none'
+            console.log('looper.switchOn()')
+            looper.switchOn()
+            // looperSwitch.textContent = 'Looper On'
+            // looperStartDot.style.display = 'none'
+            // looperEndDot.style.display = 'none'
+            // favoriteButton.style.display = 'none'
         }
         console.log(looper)
     });
@@ -661,17 +686,17 @@ setupMusicKit.then(async (music) => {
         }
     }
 
-    function checkExisitingFavoritePart(mediaType,comparisonId, startTime, endTime){
-        if (! favoritePartInstance){
-            return false
-        }else if (mediaType == 'song-part'){
-            for (existingFavorite of favoriteDataInstance.favorite) {
-                if (existingFavorite.media_id == comparisonId && existingFavorite.loop_start_time == startTime && existingFavorite.loop_end_time == endTime) {
-                    return true
-                }
-            }
-        }
-    }
+    // function checkExisitingFavoritePart(mediaType,comparisonId, startTime, endTime){
+    //     if (! favoritePartInstance){
+    //         return false
+    //     }else if (mediaType == 'song-part'){
+    //         for (existingFavorite of favoriteDataInstance.favorite) {
+    //             if (existingFavorite.media_id == comparisonId && existingFavorite.loop_start_time == startTime && existingFavorite.loop_end_time == endTime) {
+    //                 return true
+    //             }
+    //         }
+    //     }
+    // }
 
     // Favorite Button
     function generateFavButton(mediaType, albumId, songId) {
@@ -692,9 +717,6 @@ setupMusicKit.then(async (music) => {
         favButton.textContent = 'Add to Favorite'
         favButton.classList.add('not-fav')
 
-        // console.log(favoriteDataInstance.favorite)
-        // console.log(favoritePartInstance.favorite)
-        
         // Update attributes if the media already exists as favorite
         let comparisonId;
         if (mediaType == 'song') {
@@ -707,7 +729,7 @@ setupMusicKit.then(async (music) => {
         if (mediaType == 'song' || mediaType == 'album'){
             existsInFavorite = checkExisitingFavoriteData(mediaType, comparisonId)
         } else if (mediaType == 'song-part'){
-            existsInFavorite = checkExisitingFavoritePart(mediaType, looper.mediaItem, looper.startTime, looper.endTime)
+            existsInFavorite = true // checkExisitingFavoritePart(mediaType, looper.mediaItem, looper.startTime, looper.endTime)
         }
         
         if (existsInFavorite) {
@@ -795,6 +817,12 @@ setupMusicKit.then(async (music) => {
                     album: e.target.getAttribute('album-id')
                 })
 
+                await music.changeToMediaAtIndex(music.player.queue.indexForItem(e.target.getAttribute('song-id')))
+                playPauseButton.textContent = '⏸'
+
+                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
+                mainScreen.displayNowPlayingAlbum()
+
                 looper.setMediaItem(e.target.getAttribute('song-id'))
                 looper.setMediaParent(e.target.getAttribute('album-id'))
                 looper.setStartTime(e.target.getAttribute('start-time'))
@@ -802,11 +830,6 @@ setupMusicKit.then(async (music) => {
                 looper.switchOn()
                 console.log(looper)
 
-                await music.changeToMediaAtIndex(music.player.queue.indexForItem(e.target.getAttribute('song-id')))
-                playPauseButton.textContent = '⏸'
-
-                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
-                mainScreen.displayNowPlayingAlbum()
             })
 
             // Favorite Button
