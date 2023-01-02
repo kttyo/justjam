@@ -187,14 +187,12 @@
                                 Playing Album
                             </a>
                         </li>
-                        {% if user_is_authenticated %}
                         <li class="nav-item" id="favorite-tab">
                             <a class="nav-link">
                                 <span data-feather="shopping-cart"></span>
                                 Favorites
                             </a>
                         </li>
-                        {% endif %}
                     </ul>
 
                     <h6
@@ -247,7 +245,9 @@
             userStatusJSON = await userStatusData.json()
             return userStatusJSON
         }
+
         const userStatus = getUserStatus()
+        
         userStatus.then((value) => {
             console.log(value)
             const logInOut = document.getElementById('login-logout')
@@ -261,15 +261,20 @@
                 a.setAttribute('href','http://localhost:8000/account/logout')
                 a.innerHTML = 'Log Out'
                 logInOut.appendChild(a)
+
+                const favoriteTabLink = document.getElementById('favorite-tab');
+                favoriteTabLink.style.display = 'inline-block';
             } else {
                 let a = document.createElement('a')
                 a.setAttribute('href','http://localhost:8000/account/login')
                 a.innerHTML = 'Log In'
                 logInOut.appendChild(a)
+
+                const favoriteTabLink = document.getElementById('favorite-tab');
+                favoriteTabLink.style.display = 'none';
             }
-
-
         })
+
     </script>
     <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js"></script>
     <script src="http://localhost:8000/static/musickit/js/musickit.js"></script>
