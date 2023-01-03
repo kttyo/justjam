@@ -163,25 +163,14 @@ setupMusicKit.then(async (music) => {
             }
         }
 
-        console.log(songIdList)
-        console.log(albumIdList)
-
-        loopItemList = []
-        for (favorite of favoritePartInstance.favorite) {
-            loopItemList.push(favorite.media_id)
-        }
-
-        console.log(loopItemList)
-
-
         const wrapperDiv = document.createElement("div")
 
-        if (loopItemList.length > 0) {
+        if (favoritePartInstance.favorite.length > 0) {
             const headerSongs = document.createElement("h2");
             headerSongs.textContent = 'Loops';
             wrapperDiv.appendChild(headerSongs);
 
-            wrapperDiv.appendChild(await getLoopList(loopItemList))
+            wrapperDiv.appendChild(await getLoopCards(favoritePartInstance.favorite))
         }
 
         if (songIdList.length > 0) {
@@ -778,22 +767,25 @@ setupMusicKit.then(async (music) => {
         return div1
     }
 
-    async function getLoopList(songArray) {
-        console.log(songArray)
+    async function getLoopCards(loopItemList) {
+        console.log(loopItemList)
         const wrapperDiv = document.createElement("div");
 
-        // Bulk search the songs to capture relationships data
-        searchedSongs = await music.api.songs(songArray)
+        loopItemIdList = []
+        for (loopItem of loopItemList) {
+            loopItemIdList.push(loopItem.media_id)
+        }
 
-        for (const song of searchedSongs) {
-            for (favorite of favoritePartInstance.favorite){
-                if (favorite.media_id == song.id){
-                    song.looperStartTime = favorite.loop_start_time
-                    song.looperEndTime = favorite.loop_end_time
-                    console.log('id matched')
-                    console.log(song)
+        // Bulk search the songs to capture relationships data
+        searchedSongs = await music.api.songs(loopItemIdList)
+
+        for(const loopItem of loopItemList){
+            for (const song of searchedSongs) {
+                if (loopItem.media_id == song.id){
+                    loopItem.songInfo = song
                 }
             }
+            console.log(loopItem)
 
             // Get Card Layout
             const cardDiv = createMediaCardLayout()
@@ -802,15 +794,15 @@ setupMusicKit.then(async (music) => {
             const cardBody = cardDiv.querySelector('.card-body')
 
             // Artwork
-            artwork.setAttribute('src', MusicKit.formatArtworkURL(song.attributes.artwork, 50, 50))
+            artwork.setAttribute('src', MusicKit.formatArtworkURL(loopItem.songInfo.attributes.artwork, 50, 50))
             
             // Card Text
             ptag.setAttribute('class', 'song-part');
-            ptag.setAttribute('start-time',song.looperStartTime)
-            ptag.setAttribute('end-time',song.looperEndTime)
-            ptag.setAttribute('song-id', song.id);
-            ptag.setAttribute('album-id', song.relationships.albums.data[0].id)
-            const node = document.createTextNode(song.looperStartTime + ' - ' + song.looperEndTime + ' - ' + song.attributes.name + ' - ' + song.attributes.artistName);
+            ptag.setAttribute('start-time',loopItem.loop_start_time)
+            ptag.setAttribute('end-time',loopItem.loop_end_time)
+            ptag.setAttribute('song-id', loopItem.media_id);
+            ptag.setAttribute('album-id', loopItem.songInfo.relationships.albums.data[0].id)
+            const node = document.createTextNode(loopItem.loop_start_time + ' - ' + loopItem.loop_end_time + ' - ' + loopItem.songInfo.attributes.name + ' - ' + loopItem.songInfo.attributes.artistName);
             ptag.appendChild(node);
             ptag.addEventListener('click', async (e) => {
                 await music.setQueue({
@@ -833,7 +825,7 @@ setupMusicKit.then(async (music) => {
             })
 
             // Favorite Button
-            cardBody.appendChild(generateFavButton('song-part', song.relationships.albums.data[0].id, song.id));
+            cardBody.appendChild(generateFavButton('song-part', loopItem.songInfo.relationships.albums.data[0].id, loopItem.media_id));
 
             wrapperDiv.appendChild(cardDiv);
         }
@@ -868,6 +860,7 @@ setupMusicKit.then(async (music) => {
             const node = document.createTextNode(song.attributes.name + ' - ' + song.attributes.albumName);
             ptag.appendChild(node);
             ptag.addEventListener('click', async (e) => {
+                looper.switchOff()
                 await music.setQueue({
                     album: e.target.getAttribute('album-id')
                 })
@@ -875,7 +868,7 @@ setupMusicKit.then(async (music) => {
                 playPauseButton.textContent = '⏸'
 
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
-                mainScreen.displayNowPlayingAlbum()
+                mainScreen.displayNowPlayingAlbum()  
             })
 
             // Favorite Button
@@ -907,6 +900,7 @@ setupMusicKit.then(async (music) => {
             const node = document.createTextNode(album.attributes.name + ' - ' + album.attributes.artistName);
             ptag.appendChild(node);
             ptag.addEventListener('click', async (e) => {
+                looper.switchOff()
                 await music.setQueue({
                     album: e.target.getAttribute('album-id')
                 })
