@@ -34,7 +34,7 @@ def favorite_item(request):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['GET','POST'])
+@api_view(['GET','POST','DELETE'])
 def favorite_part(request):
     if request.user.id and request.method == 'GET':
         favorite_parts = FavoritePart.objects.all()
@@ -54,3 +54,18 @@ def favorite_part(request):
             return Response(serializer.data)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.user.id and request.method == 'DELETE':
+        # print(request.data)
+        items_to_delete = FavoritePart.objects.filter(
+            user=request.user.id
+        ).filter(
+            media_type=request.data['media_type']
+        ).filter(
+            loop_start_time=request.data['loop_start_time']
+        ).filter(
+            loop_end_time=request.data['loop_end_time']
+        )
+        print(items_to_delete)
+        items_to_delete.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
