@@ -635,6 +635,8 @@ setupMusicKit.then(async (music) => {
             }
             fetchURL = 'http://localhost:8000/api/favorite/item'
         } else if (mediaType == 'song-part') {
+            console.log('This is the logic for song-part')
+            console.log(looper.mediaItem.id)
             fetchOptions = {
                 method: requestMethod,
                 credentials: 'include',
@@ -658,6 +660,7 @@ setupMusicKit.then(async (music) => {
             console.log('fetch completed')
             console.log(value)
             await favoriteDataInstance.refreshFavoriteData()
+            await favoritePartInstance.refreshFavoriteData()
             refreshFavoriteTab()
         })
 
@@ -812,13 +815,19 @@ setupMusicKit.then(async (music) => {
                 await music.changeToMediaAtIndex(music.player.queue.indexForItem(e.target.getAttribute('song-id')))
                 playPauseButton.textContent = '⏸'
 
+
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
 
-                looper.setMediaItem(e.target.getAttribute('song-id'))
-                looper.setMediaParent(e.target.getAttribute('album-id'))
-                looper.setStartTime(e.target.getAttribute('start-time'))
-                looper.setEndTime(e.target.getAttribute('end-time'))
+                await music.player.seekToTime(Number(e.target.getAttribute('start-time')))
+
+                looper.setMediaItem({
+                    'id': e.target.getAttribute('song-id'),
+                    'parentId': e.target.getAttribute('album-id'),
+                    'type': 'song-part'
+                });
+                looper.setStartTime(Number(e.target.getAttribute('start-time')))
+                looper.setEndTime(Number(e.target.getAttribute('end-time')))
                 looper.switchOn()
                 console.log(looper)
 
