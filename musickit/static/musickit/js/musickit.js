@@ -231,7 +231,8 @@ setupMusicKit.then(async (music) => {
 
         const favoritePart = document.getElementById('favorite-part');
         favoritePart.textContent = ''
-        favoritePart.appendChild(generateFavButton('song-part',looper.mediaItem.parentId, looper.mediaItem.id))
+        let favButton = generateFavButton('song-part',looper.mediaItem.parentId, looper.mediaItem.id)
+        favoritePart.appendChild(favButton)
     }
 
 
@@ -833,8 +834,11 @@ setupMusicKit.then(async (music) => {
 
             })
 
+            let favButton = generateFavButton('song-part', loopItem.songInfo.relationships.albums.data[0].id, loopItem.media_id)
+            favButton.setAttribute('start-time',loopItem.loop_start_time)
+            favButton.setAttribute('end-time',loopItem.loop_end_time)
             // Favorite Button
-            cardBody.appendChild(generateFavButton('song-part', loopItem.songInfo.relationships.albums.data[0].id, loopItem.media_id));
+            cardBody.appendChild(favButton);
 
             wrapperDiv.appendChild(cardDiv);
         }
