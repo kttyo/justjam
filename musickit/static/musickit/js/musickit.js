@@ -226,7 +226,7 @@ setupMusicKit.then(async (music) => {
 
         const favoritePart = document.getElementById('favorite-part');
         favoritePart.textContent = ''
-        let favButton = generateFavButton('song-part',looper.mediaItem.parentId, looper.mediaItem.id)
+        let favButton = generateFavButtonForPart('song-part', looper.mediaItem.parentId, looper.mediaItem.id, 0, music.player.currentPlaybackDuration)
         favoritePart.appendChild(favButton)
 
         looperStartDotPos.style.left = '0%';
@@ -236,7 +236,7 @@ setupMusicKit.then(async (music) => {
     }
 
 
-    music.addEventListener('mediaItemDidChange', () => {
+    music.addEventListener('mediaItemDidChange', (event) => {
         updateCurrentPlayingItem ()
         resetLoopSegment()
     })
@@ -597,9 +597,9 @@ setupMusicKit.then(async (music) => {
     }
 
     // Fav Button Clicked
-    function favButtonClick(e){
+    function favButtonClick(event){
         console.log('favButton clicked')
-        let favButton =  e.target
+        let favButton =  event.target
         let mediaType = favButton.getAttribute('media-type');
         let requestMethod;
         console.log(looper)
@@ -609,7 +609,7 @@ setupMusicKit.then(async (music) => {
             console.log('Requested to Add')
             favButton.classList.remove('not-fav')
             favButton.classList.add('fav')
-            e.target.textContent = 'Remove from Favorite'
+            favButton.textContent = 'Remove from Favorite'
             requestMethod = 'POST'
 
         } else if (favButton.classList.contains('fav')){
@@ -617,7 +617,7 @@ setupMusicKit.then(async (music) => {
             console.log('Requested to Remove')
             favButton.classList.remove('fav')
             favButton.classList.add('not-fav')
-            e.target.textContent = 'Add to Favorite'
+            favButton.textContent = 'Add to Favorite'
             requestMethod = 'DELETE'
         }
 
@@ -625,9 +625,9 @@ setupMusicKit.then(async (music) => {
 
         let mediaId;
         if (mediaType == 'song') {
-            mediaId = e.target.getAttribute('song-id');
+            mediaId = favButton.getAttribute('song-id');
         } else if (mediaType == 'album') {
-            mediaId = e.target.getAttribute('album-id');
+            mediaId = favButton.getAttribute('album-id');
         }
 
 
@@ -649,7 +649,6 @@ setupMusicKit.then(async (music) => {
             fetchURL = 'http://localhost:8000/api/favorite/item'
         } else if (mediaType == 'song-part') {
             console.log('This is the logic for song-part')
-            console.log(looper.mediaItem.id)
             fetchOptions = {
                 method: requestMethod,
                 credentials: 'include',
@@ -659,9 +658,9 @@ setupMusicKit.then(async (music) => {
                 },
                 body: JSON.stringify({
                     'media_type': mediaType,
-                    'media_id': looper.mediaItem.id,
-                    'loop_start_time': looper.startTime,
-                    'loop_end_time':looper.endTime
+                    'media_id': favButton.getAttribute('song-id'),
+                    'loop_start_time': Number(favButton.getAttribute('start-time')),
+                    'loop_end_time':Number(favButton.getAttribute('end-time'))
                 })
             }
             fetchURL = 'http://localhost:8000/api/favorite/part'
@@ -983,7 +982,7 @@ setupMusicKit.then(async (music) => {
         const wrapperDiv = document.createElement("div")
 
         // Songs
-        if (songsDataArray.length > 0) {
+        if (songsDataArray != null) {
             const headerSongs = document.createElement("h2");
             headerSongs.textContent = 'Songs';
             wrapperDiv.appendChild(headerSongs);
@@ -991,7 +990,7 @@ setupMusicKit.then(async (music) => {
         }
 
         // Albums
-        if (albumsDataArray.length > 0) {
+        if (albumsDataArray != null) {
             const headerAlbums = document.createElement("h2");
             headerAlbums.textContent = 'Albums';
             wrapperDiv.appendChild(headerAlbums);
