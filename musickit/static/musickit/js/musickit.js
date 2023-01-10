@@ -982,7 +982,7 @@ setupMusicKit.then(async (music) => {
         const wrapperDiv = document.createElement("div")
 
         // Songs
-        if (songsDataArray != null) {
+        if (songsDataArray) {
             const headerSongs = document.createElement("h2");
             headerSongs.textContent = 'Songs';
             wrapperDiv.appendChild(headerSongs);
@@ -990,7 +990,7 @@ setupMusicKit.then(async (music) => {
         }
 
         // Albums
-        if (albumsDataArray != null) {
+        if (albumsDataArray) {
             const headerAlbums = document.createElement("h2");
             headerAlbums.textContent = 'Albums';
             wrapperDiv.appendChild(headerAlbums);
