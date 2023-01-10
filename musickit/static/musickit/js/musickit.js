@@ -230,7 +230,6 @@ setupMusicKit.then(async (music) => {
         });
 
         const favoritePart = document.getElementById('favorite-part');
-        favoritePart.textContent = ''
         let favButton = generateFavButton('song-part',looper.mediaItem.parentId, looper.mediaItem.id)
         favoritePart.appendChild(favButton)
     }
@@ -417,15 +416,27 @@ setupMusicKit.then(async (music) => {
         };
 
         setStartTime(startAt) {
+            let button = this.favoriteButton.getElementsByTagName('button')[0]
             if (startAt > this.endTime) {
                 this.endTime = startAt;
+                if (button != null) {
+                    button.setAttribute('start-time',this.endTime)
+                }
+                
             }
             this.startTime = startAt;
+            if (button != null) {
+                button.setAttribute('start-time',this.startTime)
+            }
         };
 
         setEndTime(endAt) {
+            let button = this.favoriteButton.getElementsByTagName('button')[0]
             if (endAt > this.startTime) {
                 this.endTime = endAt;
+                if (button != null) {
+                    button.setAttribute('end-time',this.endTime)
+                }
             } else if (this.isOn == true) {
                 console.log('End time must be larger than start time.')
             }
