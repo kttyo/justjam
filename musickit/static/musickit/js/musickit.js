@@ -680,7 +680,7 @@ setupMusicKit.then(async (music) => {
     }
 
     function checkExisitingFavoriteData(mediaType, comparisonId){
-        if (! favoriteDataInstance){
+        if (! favoriteDataInstance.favorite){
             return false
         }else if (mediaType == 'song' || mediaType == 'album'){
             for (existingFavorite of favoriteDataInstance.favorite) {
@@ -691,17 +691,17 @@ setupMusicKit.then(async (music) => {
         }
     }
 
-    // function checkExisitingFavoritePart(mediaType,comparisonId, startTime, endTime){
-    //     if (! favoritePartInstance){
-    //         return false
-    //     }else if (mediaType == 'song-part'){
-    //         for (existingFavorite of favoriteDataInstance.favorite) {
-    //             if (existingFavorite.media_id == comparisonId && existingFavorite.loop_start_time == startTime && existingFavorite.loop_end_time == endTime) {
-    //                 return true
-    //             }
-    //         }
-    //     }
-    // }
+    function checkExisitingFavoritePart(mediaType, songId, startTime, endTime){
+        if (! favoritePartInstance.favorite){
+            return false
+        }else if (mediaType == 'song-part'){
+            for (existingFavorite of favoritePartInstance.favorite) {
+                if (existingFavorite.media_id == songId && existingFavorite.loop_start_time == startTime && existingFavorite.loop_end_time == endTime) {
+                    return true
+                }
+            }
+        }
+    }
 
     // Favorite Button
     function generateFavButton(mediaType, albumId, songId) {
@@ -714,9 +714,6 @@ setupMusicKit.then(async (music) => {
         
         if (mediaType == 'song') {
             favButton.setAttribute('song-id', songId);
-        } else if (mediaType == 'song-part') {
-            favButton.setAttribute('song-id', songId);
-            favButton.classList.add('part');
         }
 
         favButton.textContent = 'Add to Favorite'
@@ -730,11 +727,44 @@ setupMusicKit.then(async (music) => {
             comparisonId = albumId
         }
 
+        let existsInFavorite = checkExisitingFavoriteData(mediaType, comparisonId)
+        
+        if (existsInFavorite) {
+            favButton.textContent = 'Remove from Favorite'
+            favButton.classList.remove('not-fav')
+            favButton.classList.add('fav')
+        }
+        
+        // Define click event
+        favButton.addEventListener('click', favButtonClick)
+
+        return favButton
+    }
+
+    // Favorite Button
+    function generateFavButtonForPart(mediaType, albumId, songId, startTime, endTime) {
+        // Favorite Button for Song-part
+        const favButton = document.createElement('button');
+        favButton.setAttribute('type', 'button');
+        favButton.setAttribute('class','btn btn-outline-primary btn-sm')
+        favButton.setAttribute('media-type', mediaType);
+        favButton.setAttribute('album-id', albumId);
+        
+        if (mediaType == 'song-part') {
+            favButton.setAttribute('song-id', songId);
+            favButton.classList.add('part');
+        }
+
+        favButton.textContent = 'Add to Favorite'
+        favButton.classList.add('not-fav')
+
+        // Update attributes if the media already exists as favorite
+
         let existsInFavorite;
-        if (mediaType == 'song' || mediaType == 'album'){
-            existsInFavorite = checkExisitingFavoriteData(mediaType, comparisonId)
-        } else if (mediaType == 'song-part'){
-            existsInFavorite = true // checkExisitingFavoritePart(mediaType, looper.mediaItem, looper.startTime, looper.endTime)
+        if (mediaType == 'song-part'){
+            console.log('Logic for song-part')
+            console.log(mediaType)
+            existsInFavorite = checkExisitingFavoritePart(mediaType, songId, startTime, endTime)
         }
         
         if (existsInFavorite) {
@@ -784,7 +814,6 @@ setupMusicKit.then(async (music) => {
     }
 
     async function getLoopCards(loopItemList) {
-        console.log(loopItemList)
         const wrapperDiv = document.createElement("div");
 
         loopItemIdList = []
@@ -801,7 +830,6 @@ setupMusicKit.then(async (music) => {
                     loopItem.songInfo = song
                 }
             }
-            console.log(loopItem)
 
             // Get Card Layout
             const cardDiv = createMediaCardLayout()
@@ -842,11 +870,11 @@ setupMusicKit.then(async (music) => {
                 looper.setStartTime(Number(e.target.getAttribute('start-time')))
                 looper.setEndTime(Number(e.target.getAttribute('end-time')))
                 looper.switchOn()
-                console.log(looper)
 
             })
-
-            let favButton = generateFavButton('song-part', loopItem.songInfo.relationships.albums.data[0].id, loopItem.media_id)
+            console.log('loopItem')
+            console.log(loopItem)
+            let favButton = generateFavButtonForPart('song-part', loopItem.songInfo.relationships.albums.data[0].id, loopItem.media_id, loopItem.loop_start_time, loopItem.loop_end_time)
             favButton.setAttribute('start-time',loopItem.loop_start_time)
             favButton.setAttribute('end-time',loopItem.loop_end_time)
             // Favorite Button
