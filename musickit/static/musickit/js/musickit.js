@@ -218,11 +218,6 @@ setupMusicKit.then(async (music) => {
     async function resetLoopSegment(){
         let song = await music.api.song(music.player.nowPlayingItem.id)
 
-        // Reset loop segment
-        looperStartDotPos.style.left = '0%';
-        looperEndDotPos.style.left = '100%';
-        looper.setStartTime(0);
-        looper.setEndTime(music.player.currentPlaybackDuration);
         looper.setMediaItem({
             'id': music.player.nowPlayingItem.id,
             'parentId': song.relationships.albums.data[0].id,
@@ -233,6 +228,11 @@ setupMusicKit.then(async (music) => {
         favoritePart.textContent = ''
         let favButton = generateFavButton('song-part',looper.mediaItem.parentId, looper.mediaItem.id)
         favoritePart.appendChild(favButton)
+
+        looperStartDotPos.style.left = '0%';
+        looperEndDotPos.style.left = '100%';
+        looper.setStartTime(0);
+        looper.setEndTime(music.player.currentPlaybackDuration);
     }
 
 
