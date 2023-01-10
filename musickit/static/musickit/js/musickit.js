@@ -229,6 +229,8 @@ setupMusicKit.then(async (music) => {
         let favButton = generateFavButtonForPart('song-part', looper.mediaItem.parentId, looper.mediaItem.id, 0, music.player.currentPlaybackDuration)
         favoritePart.appendChild(favButton)
 
+        checkExisitingFavoritePart(favButton, looper.mediaItem.id, 0, music.player.currentPlaybackDuration)
+
         looperStartDotPos.style.left = '0%';
         looperEndDotPos.style.left = '100%';
         looper.setStartTime(0);
