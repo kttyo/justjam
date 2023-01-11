@@ -19,6 +19,7 @@ const setupMusicKit = new Promise((resolve) => {
 
 // Wait till MusicKit.configure gets completed
 setupMusicKit.then(async (music) => {
+    console.log(music)
     console.log('Entered Main Script')
 
     function getCookie(name) {
@@ -643,7 +644,7 @@ setupMusicKit.then(async (music) => {
                 method: requestMethod,
                 credentials: 'include',
                 headers: {
-                    "X-CSRFToken": getCookie('csrftoken'),
+                    'X-CSRFToken': getCookie('csrftoken'),
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
