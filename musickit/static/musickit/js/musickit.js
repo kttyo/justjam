@@ -792,6 +792,49 @@ setupMusicKit.then(async (music) => {
         return div1
     }
 
+    async function itemClickedForPlaying(event) {
+        const itemTag = event.target
+        if (itemTag.getAttribute('media-type') == 'song' || itemTag.getAttribute('media-type') == 'album'){
+            looper.switchOff()
+        }
+        // Enqueue the album
+        await music.setQueue({
+            album: itemTag.getAttribute('album-id')
+        })
+
+        // Play the song
+        if (itemTag.getAttribute('media-type') == 'song-part'){
+            await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
+            await music.player.seekToTime(Number(itemTag.getAttribute('start-time')))
+
+        } else if (itemTag.getAttribute('media-type') == 'song'){
+            await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
+        
+        } else if (itemTag.getAttribute('media-type') == 'album'){
+            await music.play()
+        
+        }
+
+        // Looper Update for song-part
+        if (itemTag.getAttribute('media-type') == 'song-part'){
+            looper.setMediaItem({
+                'id': itemTag.getAttribute('song-id'),
+                'parentId': itemTag.getAttribute('album-id'),
+                'type': itemTag.getAttribute('media-type')
+            });
+            looper.setStartTime(Number(itemTag.getAttribute('start-time')))
+            looper.setEndTime(Number(itemTag.getAttribute('end-time')))
+            looper.switchOn()
+        }
+
+        // Display
+        playPauseButton.textContent = '⏸'
+        mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
+        mainScreen.displayNowPlayingAlbum()
+
+        refreshMainLoopFavButton()
+    }
+
     async function getLoopCards(loopItemList) {
         const wrapperDiv = document.createElement("div");
 
@@ -827,34 +870,7 @@ setupMusicKit.then(async (music) => {
             ptag.setAttribute('album-id', loopItem.songInfo.relationships.albums.data[0].id)
             const node = document.createTextNode(loopItem.loop_start_time + ' - ' + loopItem.loop_end_time + ' - ' + loopItem.songInfo.attributes.name + ' - ' + loopItem.songInfo.attributes.artistName);
             ptag.appendChild(node);
-            ptag.addEventListener('click', async (event) => {
-                const itemTag = event.target
-
-                // Queue and Player
-                await music.setQueue({
-                    album: itemTag.getAttribute('album-id')
-                })
-
-                await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
-                await music.player.seekToTime(Number(itemTag.getAttribute('start-time')))
-
-                // Looper
-                looper.setMediaItem({
-                    'id': itemTag.getAttribute('song-id'),
-                    'parentId': itemTag.getAttribute('album-id'),
-                    'type': itemTag.getAttribute('media-type')
-                });
-                looper.setStartTime(Number(itemTag.getAttribute('start-time')))
-                looper.setEndTime(Number(itemTag.getAttribute('end-time')))
-                looper.switchOn()
-
-                // Display
-                playPauseButton.textContent = '⏸'
-                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
-                mainScreen.displayNowPlayingAlbum()
-
-                refreshMainLoopFavButton()
-            })
+            ptag.addEventListener('click', itemClickedForPlaying)
             console.log('loopItem')
             console.log(loopItem)
             let favButton = generateFavButtonForPart('song-part', loopItem.songInfo.relationships.albums.data[0].id, loopItem.media_id, loopItem.loop_start_time, loopItem.loop_end_time)
@@ -900,23 +916,7 @@ setupMusicKit.then(async (music) => {
             ptag.setAttribute('album-id', song.relationships.albums.data[0].id)
             const node = document.createTextNode(song.attributes.name + ' - ' + song.attributes.albumName);
             ptag.appendChild(node);
-            ptag.addEventListener('click', async (event) => {
-                const itemTag = event.target
-                looper.switchOff()
-
-                // Queue and Player
-                await music.setQueue({
-                    album: itemTag.getAttribute('album-id')
-                })
-                await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
-
-                // Display
-                playPauseButton.textContent = '⏸'
-                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
-                mainScreen.displayNowPlayingAlbum()
-                
-                refreshMainLoopFavButton()
-            })
+            ptag.addEventListener('click', itemClickedForPlaying)
 
             // Favorite Button
             let favButton = generateFavButton('song', song.relationships.albums.data[0].id, song.id)
@@ -949,23 +949,7 @@ setupMusicKit.then(async (music) => {
             ptag.setAttribute('album-id', album.id);
             const node = document.createTextNode(album.attributes.name + ' - ' + album.attributes.artistName);
             ptag.appendChild(node);
-            ptag.addEventListener('click', async (event) => {
-                const itemTag = event.target
-                looper.switchOff()
-
-                // Queue and Player
-                await music.setQueue({
-                    album: itemTag.getAttribute('album-id')
-                })
-                await music.play()
-
-                // Display
-                playPauseButton.textContent = '⏸'
-                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
-                mainScreen.displayNowPlayingAlbum()
-
-                refreshMainLoopFavButton()
-            })
+            ptag.addEventListener('click', itemClickedForPlaying)
             cardBody.appendChild(ptag);
 
             // Favorite Button
