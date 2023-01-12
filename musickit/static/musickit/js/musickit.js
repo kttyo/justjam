@@ -230,7 +230,7 @@ setupMusicKit.then(async (music) => {
         looperEndDotPos.style.left = '100%';
     }
 
-    async function regenerateFavButton(){
+    async function refreshMainLoopFavButton(){
         const favoritePart = document.getElementById('favorite-part');
         favoritePart.textContent = ''
         let favButton = generateFavButtonForPart('song-part', looper.mediaItem.parentId, looper.mediaItem.id, looper.startTime, looper.endTime)
@@ -853,7 +853,7 @@ setupMusicKit.then(async (music) => {
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
 
-                regenerateFavButton()
+                refreshMainLoopFavButton()
             })
             console.log('loopItem')
             console.log(loopItem)
@@ -915,7 +915,7 @@ setupMusicKit.then(async (music) => {
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
                 
-                regenerateFavButton()
+                refreshMainLoopFavButton()
             })
 
             // Favorite Button
@@ -964,7 +964,7 @@ setupMusicKit.then(async (music) => {
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
 
-                regenerateFavButton()
+                refreshMainLoopFavButton()
             })
             cardBody.appendChild(ptag);
 
