@@ -916,16 +916,6 @@ setupMusicKit.then(async (music) => {
                 mainScreen.displayNowPlayingAlbum()
                 
                 regenerateFavButton()
-                // // Looper
-                // looper.setMediaItem({
-                //     'id': itemTag.getAttribute('song-id'),
-                //     'parentId': itemTag.getAttribute('album-id'),
-                //     'type': 'song'
-                // });
-                // looperStartDotPos.style.left = '0%';
-                // looperEndDotPos.style.left = '100%';
-                // looper.setStartTime(0);
-                // looper.setEndTime(music.player.currentPlaybackDuration);
             })
 
             // Favorite Button
@@ -975,16 +965,6 @@ setupMusicKit.then(async (music) => {
                 mainScreen.displayNowPlayingAlbum()
 
                 regenerateFavButton()
-                // Looper
-                // looper.setMediaItem({
-                //     'id': music.player.nowPlayingItem.id,
-                //     'parentId': itemTag.getAttribute('album-id'),
-                //     'type': 'album'
-                // });
-                // looperStartDotPos.style.left = '0%';
-                // looperEndDotPos.style.left = '100%';
-                // looper.setStartTime(0);
-                // looper.setEndTime(music.player.currentPlaybackDuration);
             })
             cardBody.appendChild(ptag);
 
