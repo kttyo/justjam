@@ -216,29 +216,28 @@ setupMusicKit.then(async (music) => {
     }
 
 
-    async function resetLoopSegment(){
-        let song = await music.api.song(music.player.nowPlayingItem.id)
+    async function regenerateFavButton(){
+        const favoritePart = document.getElementById('favorite-part');
+        favoritePart.textContent = ''
+        let favButton = generateFavButtonForPart('song-part', looper.mediaItem.parentId, looper.mediaItem.id, 0, music.player.currentPlaybackDuration)
+        favoritePart.appendChild(favButton)
+        checkExisitingFavoritePart(favButton, looper.mediaItem.id, 0, music.player.currentPlaybackDuration)
 
+    }
+
+
+    music.addEventListener('mediaItemDidChange', async (event) => {
+        console.log('mediaItemDidChange')
+        updateCurrentPlayingItem ()
+
+        const song = await music.api.song(music.player.nowPlayingItem.id)
         looper.setMediaItem({
             'id': music.player.nowPlayingItem.id,
             'parentId': song.relationships.albums.data[0].id,
             'type': music.player.nowPlayingItem.type
         });
 
-        const favoritePart = document.getElementById('favorite-part');
-        favoritePart.textContent = ''
-        let favButton = generateFavButtonForPart('song-part', looper.mediaItem.parentId, looper.mediaItem.id, 0, music.player.currentPlaybackDuration)
-        favoritePart.appendChild(favButton)
-
-        checkExisitingFavoritePart(favButton, looper.mediaItem.id, 0, music.player.currentPlaybackDuration)
-
-    }
-
-
-    music.addEventListener('mediaItemDidChange', (event) => {
-        console.log('mediaItemDidChange')
-        updateCurrentPlayingItem ()
-        resetLoopSegment()
+        regenerateFavButton()
     })
 
     music.addEventListener('playbackTimeDidChange', async () => {
@@ -833,7 +832,6 @@ setupMusicKit.then(async (music) => {
             ptag.appendChild(node);
             ptag.addEventListener('click', async (event) => {
                 const itemTag = event.target
-
                 await music.setQueue({
                     album: itemTag.getAttribute('album-id')
                 })
@@ -904,16 +902,17 @@ setupMusicKit.then(async (music) => {
             ptag.addEventListener('click', async (event) => {
                 const itemTag = event.target
                 looper.switchOff()
-                looperStartDotPos.style.left = '0%';
-                looperEndDotPos.style.left = '100%';
-                looper.setStartTime(0);
-                looper.setEndTime(music.player.currentPlaybackDuration);
 
                 await music.setQueue({
                     album: itemTag.getAttribute('album-id')
                 })
                 await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
                 playPauseButton.textContent = '⏸'
+                
+                looperStartDotPos.style.left = '0%';
+                looperEndDotPos.style.left = '100%';
+                looper.setStartTime(0);
+                looper.setEndTime(music.player.currentPlaybackDuration);
 
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()  
@@ -953,15 +952,16 @@ setupMusicKit.then(async (music) => {
             ptag.addEventListener('click', async (event) => {
                 const itemTag = event.target
                 looper.switchOff()
-                looperStartDotPos.style.left = '0%';
-                looperEndDotPos.style.left = '100%';
-                looper.setStartTime(0);
-                looper.setEndTime(music.player.currentPlaybackDuration);
                 await music.setQueue({
                     album: itemTag.getAttribute('album-id')
                 })
                 await music.play()
                 playPauseButton.textContent = '⏸'
+
+                looperStartDotPos.style.left = '0%';
+                looperEndDotPos.style.left = '100%';
+                looper.setStartTime(0);
+                looper.setEndTime(music.player.currentPlaybackDuration);
 
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
