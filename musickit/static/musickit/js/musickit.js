@@ -242,7 +242,7 @@ setupMusicKit.then(async (music) => {
     music.addEventListener('mediaItemDidChange', async (event) => {
         console.log('mediaItemDidChange')
         updateCurrentPlayingItem ()
-        refreshLooper()
+        await refreshLooper()
         refreshMainLoopFavButton()
     })
 
@@ -425,12 +425,14 @@ setupMusicKit.then(async (music) => {
             let button = this.favoriteButton.getElementsByTagName('button')[0]
             if (startAt > this.endTime) {
                 this.endTime = startAt;
+                setLooperDotPos(this.endTime, this.looperEndDotPos)
                 if (button != null) {
                     button.setAttribute('start-time',this.endTime)
                 }
                 
             }
             this.startTime = startAt;
+            setLooperDotPos(this.startTime, this.looperStartDotPos)
             if (button != null) {
                 button.setAttribute('start-time',this.startTime)
             }
@@ -440,6 +442,7 @@ setupMusicKit.then(async (music) => {
             let button = this.favoriteButton.getElementsByTagName('button')[0]
             if (endAt > this.startTime) {
                 this.endTime = endAt;
+                setLooperDotPos(this.endTime, this.looperEndDotPos)
                 if (button != null) {
                     button.setAttribute('end-time',this.endTime)
                 }
@@ -465,6 +468,14 @@ setupMusicKit.then(async (music) => {
     let looperEndDotPos = document.getElementById('looper-end-dot-position');
     let looperEndDot = document.getElementById('looper-end-dot');
     let favoriteButton = document.getElementById('favorite-part');
+
+    function setLooperDotPos(timeInSeconds, dotPosElement){
+        let barWidth = timeScope.offsetWidth;
+        let duration = music.player.currentPlaybackDuration;
+        let percentage = timeInSeconds / duration
+        let positionInPixels = Math.round(barWidth * percentage)
+        dotPosElement.style.left = positionInPixels + 'px'
+    }
 
     looperStartDot.addEventListener('dragend', async (e) => {
         let barWidth = timeScope.offsetWidth;
