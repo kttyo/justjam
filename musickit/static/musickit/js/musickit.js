@@ -794,9 +794,10 @@ setupMusicKit.then(async (music) => {
 
     async function itemClickedForPlaying(event) {
         const itemTag = event.target
-        if (itemTag.getAttribute('media-type') == 'song' || itemTag.getAttribute('media-type') == 'album'){
+        if (itemTag.getAttribute('media-type') != 'song-part'){
             looper.switchOff()
         }
+        
         // Enqueue the album
         await music.setQueue({
             album: itemTag.getAttribute('album-id')
