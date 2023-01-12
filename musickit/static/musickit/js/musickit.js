@@ -835,27 +835,31 @@ setupMusicKit.then(async (music) => {
             ptag.setAttribute('album-id', loopItem.songInfo.relationships.albums.data[0].id)
             const node = document.createTextNode(loopItem.loop_start_time + ' - ' + loopItem.loop_end_time + ' - ' + loopItem.songInfo.attributes.name + ' - ' + loopItem.songInfo.attributes.artistName);
             ptag.appendChild(node);
-            ptag.addEventListener('click', async (e) => {
+            ptag.addEventListener('click', async (event) => {
+                const itemTag = event.target
+
+                looper.switchOff()
+
                 await music.setQueue({
-                    album: e.target.getAttribute('album-id')
+                    album: itemTag.getAttribute('album-id')
                 })
 
-                await music.changeToMediaAtIndex(music.player.queue.indexForItem(e.target.getAttribute('song-id')))
+                await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
                 playPauseButton.textContent = '⏸'
 
 
-                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
+                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
 
-                await music.player.seekToTime(Number(e.target.getAttribute('start-time')))
+                await music.player.seekToTime(Number(itemTag.getAttribute('start-time')))
 
                 looper.setMediaItem({
-                    'id': e.target.getAttribute('song-id'),
-                    'parentId': e.target.getAttribute('album-id'),
+                    'id': itemTag.getAttribute('song-id'),
+                    'parentId': itemTag.getAttribute('album-id'),
                     'type': 'song-part'
                 });
-                looper.setStartTime(Number(e.target.getAttribute('start-time')))
-                looper.setEndTime(Number(e.target.getAttribute('end-time')))
+                looper.setStartTime(Number(itemTag.getAttribute('start-time')))
+                looper.setEndTime(Number(itemTag.getAttribute('end-time')))
                 looper.switchOn()
 
             })
@@ -904,15 +908,16 @@ setupMusicKit.then(async (music) => {
             ptag.setAttribute('album-id', song.relationships.albums.data[0].id)
             const node = document.createTextNode(song.attributes.name + ' - ' + song.attributes.albumName);
             ptag.appendChild(node);
-            ptag.addEventListener('click', async (e) => {
+            ptag.addEventListener('click', async (event) => {
+                const itemTag = event.target
                 looper.switchOff()
                 await music.setQueue({
-                    album: e.target.getAttribute('album-id')
+                    album: itemTag.getAttribute('album-id')
                 })
-                await music.changeToMediaAtIndex(music.player.queue.indexForItem(e.target.getAttribute('song-id')))
+                await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
                 playPauseButton.textContent = '⏸'
 
-                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
+                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()  
             })
 
@@ -947,15 +952,16 @@ setupMusicKit.then(async (music) => {
             ptag.setAttribute('album-id', album.id);
             const node = document.createTextNode(album.attributes.name + ' - ' + album.attributes.artistName);
             ptag.appendChild(node);
-            ptag.addEventListener('click', async (e) => {
+            ptag.addEventListener('click', async (event) => {
+                const itemTag = event.target
                 looper.switchOff()
                 await music.setQueue({
-                    album: e.target.getAttribute('album-id')
+                    album: itemTag.getAttribute('album-id')
                 })
                 await music.play()
                 playPauseButton.textContent = '⏸'
 
-                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(e.target.getAttribute('album-id')))
+                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
             })
             cardBody.appendChild(ptag);
