@@ -232,11 +232,6 @@ setupMusicKit.then(async (music) => {
 
         checkExisitingFavoritePart(favButton, looper.mediaItem.id, 0, music.player.currentPlaybackDuration)
 
-        looperStartDotPos.style.left = '0%';
-        looperEndDotPos.style.left = '100%';
-        looper.setStartTime(0);
-        looper.setEndTime(music.player.currentPlaybackDuration);
-
     }
 
 
@@ -583,7 +578,7 @@ setupMusicKit.then(async (music) => {
         for (const track of albumTracks) {
             const divtag = document.createElement("div");
             const para = document.createElement("p");
-            para.setAttribute('class', 'song');
+            para.setAttribute('media-type', 'song');
             para.setAttribute('song-id', track.attributes.playParams.id);
             para.setAttribute('album-id', albumId)
             para.setAttribute('id', track.attributes.playParams.id)
@@ -829,7 +824,7 @@ setupMusicKit.then(async (music) => {
             artwork.setAttribute('src', MusicKit.formatArtworkURL(loopItem.songInfo.attributes.artwork, 50, 50))
 
             // Card Text
-            ptag.setAttribute('class', 'song-part');
+            ptag.setAttribute('media-type', 'song-part');
             ptag.setAttribute('start-time', loopItem.loop_start_time)
             ptag.setAttribute('end-time', loopItem.loop_end_time)
             ptag.setAttribute('song-id', loopItem.media_id);
@@ -839,15 +834,12 @@ setupMusicKit.then(async (music) => {
             ptag.addEventListener('click', async (event) => {
                 const itemTag = event.target
 
-                looper.switchOff()
-
                 await music.setQueue({
                     album: itemTag.getAttribute('album-id')
                 })
 
                 await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
                 playPauseButton.textContent = '⏸'
-
 
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
@@ -857,7 +849,7 @@ setupMusicKit.then(async (music) => {
                 looper.setMediaItem({
                     'id': itemTag.getAttribute('song-id'),
                     'parentId': itemTag.getAttribute('album-id'),
-                    'type': 'song-part'
+                    'type': itemTag.getAttribute('media-type')
                 });
                 looper.setStartTime(Number(itemTag.getAttribute('start-time')))
                 looper.setEndTime(Number(itemTag.getAttribute('end-time')))
@@ -904,7 +896,7 @@ setupMusicKit.then(async (music) => {
             artwork.setAttribute('src', MusicKit.formatArtworkURL(song.attributes.artwork, 50, 50))
             
             // Card Text
-            ptag.setAttribute('class', 'song');
+            ptag.setAttribute('media-type', 'song');
             ptag.setAttribute('song-id', song.id);
             ptag.setAttribute('album-id', song.relationships.albums.data[0].id)
             const node = document.createTextNode(song.attributes.name + ' - ' + song.attributes.albumName);
@@ -912,6 +904,11 @@ setupMusicKit.then(async (music) => {
             ptag.addEventListener('click', async (event) => {
                 const itemTag = event.target
                 looper.switchOff()
+                looperStartDotPos.style.left = '0%';
+                looperEndDotPos.style.left = '100%';
+                looper.setStartTime(0);
+                looper.setEndTime(music.player.currentPlaybackDuration);
+
                 await music.setQueue({
                     album: itemTag.getAttribute('album-id')
                 })
@@ -949,13 +946,17 @@ setupMusicKit.then(async (music) => {
             artwork.setAttribute('src', MusicKit.formatArtworkURL(album.attributes.artwork, 50, 50))
 
             // Card Text
-            ptag.setAttribute('class', 'album');
+            ptag.setAttribute('media-type', 'album');
             ptag.setAttribute('album-id', album.id);
             const node = document.createTextNode(album.attributes.name + ' - ' + album.attributes.artistName);
             ptag.appendChild(node);
             ptag.addEventListener('click', async (event) => {
                 const itemTag = event.target
                 looper.switchOff()
+                looperStartDotPos.style.left = '0%';
+                looperEndDotPos.style.left = '100%';
+                looper.setStartTime(0);
+                looper.setEndTime(music.player.currentPlaybackDuration);
                 await music.setQueue({
                     album: itemTag.getAttribute('album-id')
                 })
