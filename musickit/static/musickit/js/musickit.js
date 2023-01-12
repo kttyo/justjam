@@ -243,6 +243,7 @@ setupMusicKit.then(async (music) => {
         console.log('mediaItemDidChange')
         updateCurrentPlayingItem ()
         refreshLooper()
+        refreshMainLoopFavButton()
     })
 
     music.addEventListener('playbackTimeDidChange', async () => {
@@ -797,7 +798,7 @@ setupMusicKit.then(async (music) => {
         if (itemTag.getAttribute('media-type') != 'song-part'){
             looper.switchOff()
         }
-        
+
         // Enqueue the album
         await music.setQueue({
             album: itemTag.getAttribute('album-id')
