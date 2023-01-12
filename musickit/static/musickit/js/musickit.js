@@ -216,28 +216,33 @@ setupMusicKit.then(async (music) => {
     }
 
 
-    async function regenerateFavButton(){
-        const favoritePart = document.getElementById('favorite-part');
-        favoritePart.textContent = ''
-        let favButton = generateFavButtonForPart('song-part', looper.mediaItem.parentId, looper.mediaItem.id, 0, music.player.currentPlaybackDuration)
-        favoritePart.appendChild(favButton)
-        checkExisitingFavoritePart(favButton, looper.mediaItem.id, 0, music.player.currentPlaybackDuration)
-
-    }
-
-
-    music.addEventListener('mediaItemDidChange', async (event) => {
-        console.log('mediaItemDidChange')
-        updateCurrentPlayingItem ()
-
+    async function refreshLooper(){
         const song = await music.api.song(music.player.nowPlayingItem.id)
         looper.setMediaItem({
             'id': music.player.nowPlayingItem.id,
             'parentId': song.relationships.albums.data[0].id,
             'type': music.player.nowPlayingItem.type
         });
+        looper.setStartTime(0);
+        looper.setEndTime(music.player.currentPlaybackDuration);
 
-        regenerateFavButton()
+        looperStartDotPos.style.left = '0%';
+        looperEndDotPos.style.left = '100%';
+    }
+
+    async function regenerateFavButton(){
+        const favoritePart = document.getElementById('favorite-part');
+        favoritePart.textContent = ''
+        let favButton = generateFavButtonForPart('song-part', looper.mediaItem.parentId, looper.mediaItem.id, looper.startTime, looper.endTime)
+        favoritePart.appendChild(favButton)
+        checkExisitingFavoritePart(favButton, looper.mediaItem.id, looper.startTime, looper.endTime)
+    }
+
+
+    music.addEventListener('mediaItemDidChange', async (event) => {
+        console.log('mediaItemDidChange')
+        updateCurrentPlayingItem ()
+        refreshLooper()
     })
 
     music.addEventListener('playbackTimeDidChange', async () => {
@@ -522,17 +527,9 @@ setupMusicKit.then(async (music) => {
         if (looper.isOn) {
             console.log('looper.switchOff()')
             looper.switchOff()
-            // looperSwitch.textContent = 'Looper Off'
-            // looperStartDot.style.display = 'inline-block'
-            // looperEndDot.style.display = 'inline-block'
-            // favoriteButton.style.display = 'inline-block'
         } else {
             console.log('looper.switchOn()')
             looper.switchOn()
-            // looperSwitch.textContent = 'Looper On'
-            // looperStartDot.style.display = 'none'
-            // looperEndDot.style.display = 'none'
-            // favoriteButton.style.display = 'none'
         }
         console.log(looper)
     });
@@ -832,18 +829,16 @@ setupMusicKit.then(async (music) => {
             ptag.appendChild(node);
             ptag.addEventListener('click', async (event) => {
                 const itemTag = event.target
+
+                // Queue and Player
                 await music.setQueue({
                     album: itemTag.getAttribute('album-id')
                 })
 
                 await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
-                playPauseButton.textContent = '⏸'
-
-                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
-                mainScreen.displayNowPlayingAlbum()
-
                 await music.player.seekToTime(Number(itemTag.getAttribute('start-time')))
 
+                // Looper
                 looper.setMediaItem({
                     'id': itemTag.getAttribute('song-id'),
                     'parentId': itemTag.getAttribute('album-id'),
@@ -853,6 +848,12 @@ setupMusicKit.then(async (music) => {
                 looper.setEndTime(Number(itemTag.getAttribute('end-time')))
                 looper.switchOn()
 
+                // Display
+                playPauseButton.textContent = '⏸'
+                mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
+                mainScreen.displayNowPlayingAlbum()
+
+                regenerateFavButton()
             })
             console.log('loopItem')
             console.log(loopItem)
@@ -903,19 +904,28 @@ setupMusicKit.then(async (music) => {
                 const itemTag = event.target
                 looper.switchOff()
 
+                // Queue and Player
                 await music.setQueue({
                     album: itemTag.getAttribute('album-id')
                 })
                 await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
-                playPauseButton.textContent = '⏸'
-                
-                looperStartDotPos.style.left = '0%';
-                looperEndDotPos.style.left = '100%';
-                looper.setStartTime(0);
-                looper.setEndTime(music.player.currentPlaybackDuration);
 
+                // Display
+                playPauseButton.textContent = '⏸'
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
-                mainScreen.displayNowPlayingAlbum()  
+                mainScreen.displayNowPlayingAlbum()
+                
+                regenerateFavButton()
+                // // Looper
+                // looper.setMediaItem({
+                //     'id': itemTag.getAttribute('song-id'),
+                //     'parentId': itemTag.getAttribute('album-id'),
+                //     'type': 'song'
+                // });
+                // looperStartDotPos.style.left = '0%';
+                // looperEndDotPos.style.left = '100%';
+                // looper.setStartTime(0);
+                // looper.setEndTime(music.player.currentPlaybackDuration);
             })
 
             // Favorite Button
@@ -952,19 +962,29 @@ setupMusicKit.then(async (music) => {
             ptag.addEventListener('click', async (event) => {
                 const itemTag = event.target
                 looper.switchOff()
+
+                // Queue and Player
                 await music.setQueue({
                     album: itemTag.getAttribute('album-id')
                 })
                 await music.play()
+
+                // Display
                 playPauseButton.textContent = '⏸'
-
-                looperStartDotPos.style.left = '0%';
-                looperEndDotPos.style.left = '100%';
-                looper.setStartTime(0);
-                looper.setEndTime(music.player.currentPlaybackDuration);
-
                 mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
                 mainScreen.displayNowPlayingAlbum()
+
+                regenerateFavButton()
+                // Looper
+                // looper.setMediaItem({
+                //     'id': music.player.nowPlayingItem.id,
+                //     'parentId': itemTag.getAttribute('album-id'),
+                //     'type': 'album'
+                // });
+                // looperStartDotPos.style.left = '0%';
+                // looperEndDotPos.style.left = '100%';
+                // looper.setStartTime(0);
+                // looper.setEndTime(music.player.currentPlaybackDuration);
             })
             cardBody.appendChild(ptag);
 
