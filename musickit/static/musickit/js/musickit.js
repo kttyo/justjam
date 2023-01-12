@@ -241,6 +241,7 @@ setupMusicKit.then(async (music) => {
 
 
     music.addEventListener('mediaItemDidChange', (event) => {
+        console.log('mediaItemDidChange')
         updateCurrentPlayingItem ()
         resetLoopSegment()
     })
@@ -448,8 +449,8 @@ setupMusicKit.then(async (music) => {
 
         };
 
-        setMediaItem(mediaId) {
-            this.mediaItem = mediaId
+        setMediaItem(mediaData) {
+            this.mediaItem = mediaData
         };
 
         setMediaParent(parentId) {
