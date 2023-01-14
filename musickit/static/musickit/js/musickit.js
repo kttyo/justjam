@@ -1,9 +1,8 @@
 console.log('script file rendered')
 // Create Promise for document.addEventListener
 const setupMusicKit = new Promise((resolve) => {
-    console.log('setupMusicKit Promise creation')
-    document.addEventListener('musickitloaded', function (e) {
-        console.log(e)
+    document.addEventListener('musickitloaded', (event) => {
+        console.log(event)
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
         MusicKit.configure({
             developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzM2NTU1NTF9.8TrqF6qzXpsFh-RCj8AC6QJBSHWck230QiIiv3BnDjHV09FbFgTF3F8RUyjbJjZFOpZOeuQRSWe2yyweXj6KDw',
