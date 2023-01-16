@@ -505,7 +505,7 @@ setupMusicKit.then(async (music) => {
         await music.player.seekToTime(looper.startTime)
     })
 
-    looperEndDot.addEventListener('dragend', (e) => {
+    looperEndDot.addEventListener('dragend', async (e) => {
         let barWidth = timeScope.offsetWidth;
         let cursorLocation = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
         let duration = music.player.currentPlaybackDuration;
@@ -530,6 +530,12 @@ setupMusicKit.then(async (music) => {
             destinationTime = clickedSpotInSeconds
         }
         looper.setEndTime(Number(destinationTime))
+
+        if (destinationTime - 3 < looper.startTime) {
+            await music.player.seekToTime(looper.startTime)
+        } else {
+            await music.player.seekToTime(destinationTime - 3)
+        }
     })
 
     let looperSwitch = document.getElementById('looper-switch');
