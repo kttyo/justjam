@@ -5,7 +5,7 @@ const setupMusicKit = new Promise((resolve) => {
         console.log(event)
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
         MusicKit.configure({
-            developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzM2NTU1NTF9.8TrqF6qzXpsFh-RCj8AC6QJBSHWck230QiIiv3BnDjHV09FbFgTF3F8RUyjbJjZFOpZOeuQRSWe2yyweXj6KDw',
+            developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzUxNDQ0NzZ9.O9Cdrro4AkM9_z3D5vfwzp1FlTx57s8QOdQVCB90Dt5uIDnGx4DU8NLTydrRd7jCwOZjQRQ7-0vXEbwOa0ZViQ',
             app: {
                 name: 'My Cool Web App',
                 build: '2022.11.17'
@@ -592,9 +592,19 @@ setupMusicKit.then(async (music) => {
             const node = document.createTextNode(track.attributes.trackNumber + ': ' + track.attributes.name);
             para.appendChild(node);
 
-            para.addEventListener('click', async (e) => {
-                await music.changeToMediaAtIndex(music.player.queue.indexForItem(e.target.getAttribute('song-id')))
+            para.addEventListener('click', async (event) => {
+                const itemTag = event.target
+                looper.switchOff()
+                await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
                 playPauseButton.textContent = '⏸'
+                looper.setMediaItem({
+                    'id': itemTag.getAttribute('song-id'),
+                    'parentId': itemTag.getAttribute('album-id'),
+                    'type': itemTag.getAttribute('media-type')
+                });
+                looper.setStartTime(Number(itemTag.getAttribute('start-time')))
+                looper.setEndTime(Number(itemTag.getAttribute('end-time')))
+                looper.switchOn()
             })
             divtag.appendChild(para)
             let favButton = generateFavButton('song', albumId, track.attributes.playParams.id)
