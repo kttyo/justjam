@@ -896,7 +896,7 @@ setupMusicKit.then(async (music) => {
             ptag.setAttribute('end-time', loopItem.loop_end_time)
             ptag.setAttribute('song-id', loopItem.media_id);
             ptag.setAttribute('album-id', loopItem.songInfo.relationships.albums.data[0].id)
-            const node = document.createTextNode(loopItem.loop_start_time + ' - ' + loopItem.loop_end_time + ' - ' + loopItem.songInfo.attributes.name + ' - ' + loopItem.songInfo.attributes.artistName);
+            const node = document.createTextNode(getFormattedTime(loopItem.loop_start_time) + ' - ' + getFormattedTime(loopItem.loop_end_time) + ' - ' + loopItem.songInfo.attributes.name + ' - ' + loopItem.songInfo.attributes.artistName);
             ptag.appendChild(node);
             ptag.addEventListener('click', itemClickedForPlaying)
             console.log('loopItem')
