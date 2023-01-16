@@ -200,18 +200,23 @@ setupMusicKit.then(async (music) => {
         mainScreen.displayFavorite()
     })
 
+    function getFormattedTime(timeInSeconds){
+
+        let seconds = ((timeInSeconds % 60) < 10 ? '0' : '') + (timeInSeconds % 60);
+        let minutes = (MusicKit.formattedSeconds(timeInSeconds).minutes < 10 ? '0' : '') + MusicKit.formattedSeconds(timeInSeconds).minutes;
+        let hours = MusicKit.formattedSeconds(timeInSeconds).hours;
+
+        let durationString = hours >= 1 ? hours + ':' + minutes + ':' + seconds : minutes + ':' + seconds;
+
+        return durationString
+    }
 
     function updateCurrentPlayingItem (){
         songName.textContent = music.player.nowPlayingItem.title
         currentAlgumInfo.textContent = music.player.nowPlayingItem.artistName + ' | ' + music.player.nowPlayingItem.albumName
         artworkImg.setAttribute('src', MusicKit.formatArtworkURL(music.player.nowPlayingItem.attributes.artwork, 100, 100))
 
-        let seconds = ((music.player.currentPlaybackDuration % 60) < 10 ? '0' : '') + (music.player.currentPlaybackDuration % 60);
-        let minutes = (MusicKit.formattedSeconds(music.player.currentPlaybackDuration).minutes < 10 ? '0' : '') + MusicKit.formattedSeconds(music.player.currentPlaybackDuration).minutes;
-        let hours = MusicKit.formattedSeconds(music.player.currentPlaybackDuration).hours;
-
-        let durationString = hours >= 1 ? hours + ':' + minutes + ':' + seconds : minutes + ':' + seconds;
-        playbackDuration.textContent = durationString;
+        playbackDuration.textContent = getFormattedTime(music.player.currentPlaybackDuration)
     }
 
 
@@ -254,12 +259,7 @@ setupMusicKit.then(async (music) => {
         }
 
         // Time Display
-        let seconds = ((music.player.currentPlaybackTime % 60) < 10 ? '0' : '') + (music.player.currentPlaybackTime % 60);
-        let minutes = (MusicKit.formattedSeconds(music.player.currentPlaybackTime).minutes < 10 ? '0' : '') + MusicKit.formattedSeconds(music.player.currentPlaybackTime).minutes;
-        let hours = MusicKit.formattedSeconds(music.player.currentPlaybackTime).hours;
-
-        let playbackTimeString = music.player.currentPlaybackDuration >= 3600 ? hours + ':' + minutes + ':' + seconds : minutes + ':' + seconds;
-        playbackTime.textContent = playbackTimeString;
+        playbackTime.textContent = getFormattedTime(music.player.currentPlaybackTime)
 
         let portionPlayed = music.player.currentPlaybackTime / music.player.currentPlaybackDuration;
         let pixedToBeColored = Math.floor(portionPlayed * timeScope.offsetWidth);
