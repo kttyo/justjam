@@ -857,8 +857,11 @@ setupMusicKit.then(async (music) => {
 
         // Display
         playPauseButton.textContent = '⏸'
-        mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
-        mainScreen.displayNowPlayingAlbum()
+
+        if (itemTag.getAttribute('media-type') != 'song-part'){
+            mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
+            mainScreen.displayNowPlayingAlbum()
+        }
 
         refreshMainLoopFavButton()
     }
