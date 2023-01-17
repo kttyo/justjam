@@ -258,7 +258,9 @@ Promise.all(promises).then(async (results) => {
         console.log('mediaItemDidChange')
         updateCurrentPlayingItem()
         await refreshLooper()
-        refreshMainLoopFavButton()
+        if (user.authenticated) {
+            refreshMainLoopFavButton()
+        }
     })
 
     music.addEventListener('playbackTimeDidChange', async () => {
@@ -624,9 +626,11 @@ Promise.all(promises).then(async (results) => {
                 looper.switchOn()
             })
             divtag.appendChild(para)
-            let favButton = generateFavButton('song', albumId, track.attributes.playParams.id)
-            checkExisitingFavoriteData(favButton, 'song', track.attributes.playParams.id)
-            divtag.appendChild(favButton);
+            if (user.authenticated) {
+                let favButton = generateFavButton('song', albumId, track.attributes.playParams.id)
+                checkExisitingFavoriteData(favButton, 'song', track.attributes.playParams.id)
+                divtag.appendChild(favButton);    
+            }
             wrapperDiv.appendChild(divtag)
         }
         return wrapperDiv
@@ -873,8 +877,9 @@ Promise.all(promises).then(async (results) => {
             mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
             mainScreen.displayNowPlayingAlbum()
         }
-
-        refreshMainLoopFavButton()
+        if (user.authenticated) {
+            refreshMainLoopFavButton()
+        }
     }
 
     async function getLoopCards(loopItemList) {
