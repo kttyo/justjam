@@ -2,7 +2,6 @@ console.log('script file rendered')
 // Create Promise for document.addEventListener
 const setupMusicKit = new Promise((resolve) => {
     document.addEventListener('musickitloaded', (event) => {
-        console.log(event)
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
         MusicKit.configure({
             developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzUxNDQ0NzZ9.O9Cdrro4AkM9_z3D5vfwzp1FlTx57s8QOdQVCB90Dt5uIDnGx4DU8NLTydrRd7jCwOZjQRQ7-0vXEbwOa0ZViQ',
@@ -22,8 +21,6 @@ Promise.all(promises).then(async (results) => {
     const music = results[0]
     const user = results[1]
     //setupMusicKit.then(async (music) => {
-    console.log(music)
-    console.log(user)
     console.log('Entered Main Script')
 
     function getCookie(name) {
@@ -917,8 +914,6 @@ Promise.all(promises).then(async (results) => {
             const node = document.createTextNode(getFormattedTime(loopItem.loop_start_time) + ' - ' + getFormattedTime(loopItem.loop_end_time) + ' - ' + loopItem.songInfo.attributes.name + ' - ' + loopItem.songInfo.attributes.artistName);
             ptag.appendChild(node);
             ptag.addEventListener('click', itemClickedForPlaying)
-            console.log('loopItem')
-            console.log(loopItem)
             if (user.authenticated) {
                 let favButton = generateFavButtonForPart('song-part', loopItem.songInfo.relationships.albums.data[0].id, loopItem.media_id, loopItem.loop_start_time, loopItem.loop_end_time)
 
