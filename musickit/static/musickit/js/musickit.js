@@ -619,7 +619,6 @@ Promise.all(promises).then(async (results) => {
                 });
                 looper.setStartTime(Number(itemTag.getAttribute('start-time')))
                 looper.setEndTime(Number(itemTag.getAttribute('end-time')))
-                looper.switchOn()
             })
             divtag.appendChild(para)
             if (user.authenticated) {
@@ -868,9 +867,8 @@ Promise.all(promises).then(async (results) => {
 
         // Display
         playPauseButton.textContent = '⏸'
-
+        mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
         if (itemTag.getAttribute('media-type') != 'song-part') {
-            mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
             mainScreen.displayNowPlayingAlbum()
         }
         if (user.authenticated) {
