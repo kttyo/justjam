@@ -16,9 +16,14 @@ const setupMusicKit = new Promise((resolve) => {
     })
 });
 
+const promises = [setupMusicKit, getUserStatus()]
 // Wait till MusicKit.configure gets completed
-setupMusicKit.then(async (music) => {
+Promise.all(promises).then(async (results) => {
+    const music = results[0]
+    const user = results[1]
+    //setupMusicKit.then(async (music) => {
     console.log(music)
+    console.log(user)
     console.log('Entered Main Script')
 
     function getCookie(name) {
@@ -114,22 +119,24 @@ setupMusicKit.then(async (music) => {
 
     // Favorite Item Class
     class FavoriteItem {
-        constructor(){
+        constructor() {
             this.favorite = null
         };
 
-        async refreshFavoriteData(){
+        async refreshFavoriteData() {
             let fetchResponse = await fetch('http://localhost:8000/api/favorite/item',
-            {
-                credentials: 'include'
-            }
+                {
+                    credentials: 'include'
+                }
             )
             this.favorite = await fetchResponse.json()
         };
     }
 
-    let favoriteDataInstance = new FavoriteItem()
-    await favoriteDataInstance.refreshFavoriteData()
+    if (user.authenticated) {
+        let favoriteDataInstance = new FavoriteItem()
+        await favoriteDataInstance.refreshFavoriteData()
+    }
 
     // Favorite Part Class
     class FavoritePart {
@@ -139,16 +146,18 @@ setupMusicKit.then(async (music) => {
 
         async refreshFavoriteData() {
             let fetchResponse = await fetch('http://localhost:8000/api/favorite/part',
-            {
-                credentials: 'include'
-            }
+                {
+                    credentials: 'include'
+                }
             )
             this.favorite = await fetchResponse.json()
         };
     }
 
-    let favoritePartInstance = new FavoritePart()
-    await favoritePartInstance.refreshFavoriteData()
+    if (user.authenticated) {
+        let favoritePartInstance = new FavoritePart()
+        await favoritePartInstance.refreshFavoriteData()
+    }
 
     // Initialize Favorite Tab
     async function refreshFavoriteTab() {
@@ -193,14 +202,16 @@ setupMusicKit.then(async (music) => {
 
         mainScreen.setFavorite(wrapperDiv)
     }
-    refreshFavoriteTab()
+    if (user.authenticated) {
+        refreshFavoriteTab()
+    }
 
     let favoriteTabLink = document.getElementById('favorite-tab');
-        favoriteTabLink.addEventListener('click', () => {
+    favoriteTabLink.addEventListener('click', () => {
         mainScreen.displayFavorite()
     })
 
-    function getFormattedTime(timeInSeconds){
+    function getFormattedTime(timeInSeconds) {
 
         let seconds = ((timeInSeconds % 60) < 10 ? '0' : '') + (timeInSeconds % 60);
         let minutes = (MusicKit.formattedSeconds(timeInSeconds).minutes < 10 ? '0' : '') + MusicKit.formattedSeconds(timeInSeconds).minutes;
@@ -211,7 +222,7 @@ setupMusicKit.then(async (music) => {
         return durationString
     }
 
-    function updateCurrentPlayingItem (){
+    function updateCurrentPlayingItem() {
         songName.textContent = music.player.nowPlayingItem.title
         currentAlgumInfo.textContent = music.player.nowPlayingItem.artistName + ' | ' + music.player.nowPlayingItem.albumName
         artworkImg.setAttribute('src', MusicKit.formatArtworkURL(music.player.nowPlayingItem.attributes.artwork, 100, 100))
@@ -220,7 +231,7 @@ setupMusicKit.then(async (music) => {
     }
 
 
-    async function refreshLooper(){
+    async function refreshLooper() {
         const song = await music.api.song(music.player.nowPlayingItem.id)
         looper.setMediaItem({
             'id': music.player.nowPlayingItem.id,
@@ -234,7 +245,7 @@ setupMusicKit.then(async (music) => {
         looperEndDotPos.style.left = '100%';
     }
 
-    async function refreshMainLoopFavButton(){
+    async function refreshMainLoopFavButton() {
         const favoritePart = document.getElementById('favorite-part');
         favoritePart.textContent = ''
         let favButton = generateFavButtonForPart('song-part', looper.mediaItem.parentId, looper.mediaItem.id, looper.startTime, looper.endTime)
@@ -245,7 +256,7 @@ setupMusicKit.then(async (music) => {
 
     music.addEventListener('mediaItemDidChange', async (event) => {
         console.log('mediaItemDidChange')
-        updateCurrentPlayingItem ()
+        updateCurrentPlayingItem()
         await refreshLooper()
         refreshMainLoopFavButton()
     })
@@ -426,14 +437,14 @@ setupMusicKit.then(async (music) => {
                 this.endTime = startAt;
                 setLooperDotPos(this.endTime, this.looperEndDotPos)
                 if (button != null) {
-                    button.setAttribute('start-time',this.endTime)
+                    button.setAttribute('start-time', this.endTime)
                 }
-                
+
             }
             this.startTime = startAt;
             setLooperDotPos(this.startTime, this.looperStartDotPos)
             if (button != null) {
-                button.setAttribute('start-time',this.startTime)
+                button.setAttribute('start-time', this.startTime)
             }
         };
 
@@ -443,7 +454,7 @@ setupMusicKit.then(async (music) => {
                 this.endTime = endAt;
                 setLooperDotPos(this.endTime, this.looperEndDotPos)
                 if (button != null) {
-                    button.setAttribute('end-time',this.endTime)
+                    button.setAttribute('end-time', this.endTime)
                 }
             } else if (this.isOn == true) {
                 console.log('End time must be larger than start time.')
@@ -468,7 +479,7 @@ setupMusicKit.then(async (music) => {
     let looperEndDot = document.getElementById('looper-end-dot');
     let favoriteButton = document.getElementById('favorite-part');
 
-    function setLooperDotPos(timeInSeconds, dotPosElement){
+    function setLooperDotPos(timeInSeconds, dotPosElement) {
         let barWidth = timeScope.offsetWidth;
         let duration = music.player.currentPlaybackDuration;
         let percentage = timeInSeconds / duration
@@ -569,7 +580,7 @@ setupMusicKit.then(async (music) => {
             renderSearchResult(searchResults)
         }
     });
-    
+
 
     // Now-playin Album Info for MainScreen Class
     async function getNowPlayingAlbumInfo(albumId) {
@@ -614,7 +625,7 @@ setupMusicKit.then(async (music) => {
             })
             divtag.appendChild(para)
             let favButton = generateFavButton('song', albumId, track.attributes.playParams.id)
-            checkExisitingFavoriteData(favButton,'song',track.attributes.playParams.id)
+            checkExisitingFavoriteData(favButton, 'song', track.attributes.playParams.id)
             divtag.appendChild(favButton);
             wrapperDiv.appendChild(divtag)
         }
@@ -622,14 +633,14 @@ setupMusicKit.then(async (music) => {
     }
 
     // Fav Button Clicked
-    function favButtonClick(event){
+    function favButtonClick(event) {
         console.log('favButton clicked')
-        let favButton =  event.target
+        let favButton = event.target
         let mediaType = favButton.getAttribute('media-type');
         let requestMethod;
         console.log(looper)
 
-        if (favButton.classList.contains('not-fav')){
+        if (favButton.classList.contains('not-fav')) {
             // Adding to Favorite
             console.log('Requested to Add')
             favButton.classList.remove('not-fav')
@@ -637,7 +648,7 @@ setupMusicKit.then(async (music) => {
             favButton.textContent = 'Remove from Favorite'
             requestMethod = 'POST'
 
-        } else if (favButton.classList.contains('fav')){
+        } else if (favButton.classList.contains('fav')) {
             // Removing from Favorite
             console.log('Requested to Remove')
             favButton.classList.remove('fav')
@@ -685,7 +696,7 @@ setupMusicKit.then(async (music) => {
                     'media_type': mediaType,
                     'media_id': favButton.getAttribute('song-id'),
                     'loop_start_time': Number(favButton.getAttribute('start-time')),
-                    'loop_end_time':Number(favButton.getAttribute('end-time'))
+                    'loop_end_time': Number(favButton.getAttribute('end-time'))
                 })
             }
             fetchURL = 'http://localhost:8000/api/favorite/part'
@@ -703,11 +714,11 @@ setupMusicKit.then(async (music) => {
 
     }
 
-    function checkExisitingFavoriteData(button, mediaType, comparisonId){
+    function checkExisitingFavoriteData(button, mediaType, comparisonId) {
         button.textContent = 'Add to Favorite'
         button.classList.add('not-fav')
 
-        if (mediaType == 'song' || mediaType == 'album'){
+        if (mediaType == 'song' || mediaType == 'album') {
             for (existingFavorite of favoriteDataInstance.favorite) {
                 if (existingFavorite.media_type == mediaType && existingFavorite.media_id == comparisonId) {
                     button.textContent = 'Remove from Favorite'
@@ -718,14 +729,14 @@ setupMusicKit.then(async (music) => {
         }
     }
 
-    function checkExisitingFavoritePart(button, songId, startTime, endTime){
+    function checkExisitingFavoritePart(button, songId, startTime, endTime) {
 
         button.textContent = 'Add to Favorite'
         button.classList.add('not-fav')
 
-        if (! favoritePartInstance.favorite){
+        if (!favoritePartInstance.favorite) {
             return false
-        }else {
+        } else {
             for (existingFavorite of favoritePartInstance.favorite) {
                 if (existingFavorite.media_id == songId && existingFavorite.loop_start_time == startTime && existingFavorite.loop_end_time == endTime) {
                     button.textContent = 'Remove from Favorite'
@@ -741,10 +752,10 @@ setupMusicKit.then(async (music) => {
         // Favorite Button for Songs
         const favButton = document.createElement('button');
         favButton.setAttribute('type', 'button');
-        favButton.setAttribute('class','btn btn-outline-primary btn-sm')
+        favButton.setAttribute('class', 'btn btn-outline-primary btn-sm')
         favButton.setAttribute('media-type', mediaType);
         favButton.setAttribute('album-id', albumId);
-        
+
         if (mediaType == 'song') {
             favButton.setAttribute('song-id', songId);
         }
@@ -756,7 +767,7 @@ setupMusicKit.then(async (music) => {
         } else if (mediaType == 'album') {
             comparisonId = albumId
         }
-        
+
         // Define click event
         favButton.addEventListener('click', favButtonClick)
 
@@ -768,17 +779,17 @@ setupMusicKit.then(async (music) => {
         // Favorite Button for Song-part
         const favButton = document.createElement('button');
         favButton.setAttribute('type', 'button');
-        favButton.setAttribute('class','btn btn-outline-primary btn-sm')
+        favButton.setAttribute('class', 'btn btn-outline-primary btn-sm')
         favButton.setAttribute('media-type', mediaType);
         favButton.setAttribute('album-id', albumId);
         favButton.setAttribute('start-time', startTime);
         favButton.setAttribute('end-time', endTime);
-        
+
         if (mediaType == 'song-part') {
             favButton.setAttribute('song-id', songId);
             favButton.classList.add('part');
         }
-        
+
         // Define click event
         favButton.addEventListener('click', favButtonClick)
 
@@ -821,7 +832,7 @@ setupMusicKit.then(async (music) => {
 
     async function itemClickedForPlaying(event) {
         const itemTag = event.target
-        if (itemTag.getAttribute('media-type') != 'song-part'){
+        if (itemTag.getAttribute('media-type') != 'song-part') {
             looper.switchOff()
         }
 
@@ -831,20 +842,20 @@ setupMusicKit.then(async (music) => {
         })
 
         // Play the song
-        if (itemTag.getAttribute('media-type') == 'song-part'){
+        if (itemTag.getAttribute('media-type') == 'song-part') {
             await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
             await music.player.seekToTime(Number(itemTag.getAttribute('start-time')))
 
-        } else if (itemTag.getAttribute('media-type') == 'song'){
+        } else if (itemTag.getAttribute('media-type') == 'song') {
             await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
-        
-        } else if (itemTag.getAttribute('media-type') == 'album'){
+
+        } else if (itemTag.getAttribute('media-type') == 'album') {
             await music.play()
-        
+
         }
 
         // Looper Update for song-part
-        if (itemTag.getAttribute('media-type') == 'song-part'){
+        if (itemTag.getAttribute('media-type') == 'song-part') {
             looper.setMediaItem({
                 'id': itemTag.getAttribute('song-id'),
                 'parentId': itemTag.getAttribute('album-id'),
@@ -858,7 +869,7 @@ setupMusicKit.then(async (music) => {
         // Display
         playPauseButton.textContent = '⏸'
 
-        if (itemTag.getAttribute('media-type') != 'song-part'){
+        if (itemTag.getAttribute('media-type') != 'song-part') {
             mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
             mainScreen.displayNowPlayingAlbum()
         }
@@ -904,17 +915,19 @@ setupMusicKit.then(async (music) => {
             ptag.addEventListener('click', itemClickedForPlaying)
             console.log('loopItem')
             console.log(loopItem)
-            let favButton = generateFavButtonForPart('song-part', loopItem.songInfo.relationships.albums.data[0].id, loopItem.media_id, loopItem.loop_start_time, loopItem.loop_end_time)
+            if (user.authenticated) {
+                let favButton = generateFavButtonForPart('song-part', loopItem.songInfo.relationships.albums.data[0].id, loopItem.media_id, loopItem.loop_start_time, loopItem.loop_end_time)
 
-            favButton.setAttribute('start-time', loopItem.loop_start_time)
-            favButton.setAttribute('end-time', loopItem.loop_end_time)
+                favButton.setAttribute('start-time', loopItem.loop_start_time)
+                favButton.setAttribute('end-time', loopItem.loop_end_time)
 
-            // Update attributes if the media already exists as favorite
-            checkExisitingFavoritePart(favButton, loopItem.media_id, loopItem.loop_start_time, loopItem.loop_end_time)
 
-            // Favorite Button
-            cardBody.appendChild(favButton);
+                // Update attributes if the media already exists as favorite
+                checkExisitingFavoritePart(favButton, loopItem.media_id, loopItem.loop_start_time, loopItem.loop_end_time)
 
+                // Favorite Button
+                cardBody.appendChild(favButton);
+            }
             wrapperDiv.appendChild(cardDiv);
         }
         return wrapperDiv
@@ -940,7 +953,7 @@ setupMusicKit.then(async (music) => {
 
             // Artwork
             artwork.setAttribute('src', MusicKit.formatArtworkURL(song.attributes.artwork, 50, 50))
-            
+
             // Card Text
             ptag.setAttribute('media-type', 'song');
             ptag.setAttribute('song-id', song.id);
@@ -950,10 +963,12 @@ setupMusicKit.then(async (music) => {
             ptag.addEventListener('click', itemClickedForPlaying)
 
             // Favorite Button
-            let favButton = generateFavButton('song', song.relationships.albums.data[0].id, song.id)
-            checkExisitingFavoriteData(favButton, 'song', song.id)
+            if (user.authenticated) {
+                let favButton = generateFavButton('song', song.relationships.albums.data[0].id, song.id)
+                checkExisitingFavoriteData(favButton, 'song', song.id)
 
-            cardBody.appendChild(favButton);
+                cardBody.appendChild(favButton);
+            }
 
             wrapperDiv.appendChild(cardDiv);
         }
@@ -984,9 +999,11 @@ setupMusicKit.then(async (music) => {
             cardBody.appendChild(ptag);
 
             // Favorite Button
-            let favButton = generateFavButton('album', album.id, null)
-            checkExisitingFavoriteData(favButton, 'album', album.id)
-            cardBody.appendChild(favButton);
+            if (user.authenticated) {
+                let favButton = generateFavButton('album', album.id, null)
+                checkExisitingFavoriteData(favButton, 'album', album.id)
+                cardBody.appendChild(favButton);
+            }
 
             wrapperDiv.appendChild(cardDiv);
         }
@@ -1025,4 +1042,6 @@ setupMusicKit.then(async (music) => {
         mainScreen.setSearchResult(wrapperDiv)
         mainScreen.displaySearchResult()
     }
+}).catch((error) => {
+    console.log(error)
 })
