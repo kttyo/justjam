@@ -132,9 +132,8 @@ Promise.all(promises).then(async (results) => {
             this.favorite = await fetchResponse.json()
         };
     }
-
+    let favoriteDataInstance = new FavoriteItem()
     if (user.authenticated) {
-        let favoriteDataInstance = new FavoriteItem()
         await favoriteDataInstance.refreshFavoriteData()
     }
 
@@ -154,8 +153,8 @@ Promise.all(promises).then(async (results) => {
         };
     }
 
+    let favoritePartInstance = new FavoritePart()
     if (user.authenticated) {
-        let favoritePartInstance = new FavoritePart()
         await favoritePartInstance.refreshFavoriteData()
     }
 
@@ -629,7 +628,7 @@ Promise.all(promises).then(async (results) => {
             if (user.authenticated) {
                 let favButton = generateFavButton('song', albumId, track.attributes.playParams.id)
                 checkExisitingFavoriteData(favButton, 'song', track.attributes.playParams.id)
-                divtag.appendChild(favButton);    
+                divtag.appendChild(favButton);
             }
             wrapperDiv.appendChild(divtag)
         }
