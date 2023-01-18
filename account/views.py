@@ -42,6 +42,7 @@ def logout_view(request):
 
     return redirect(to='http://localhost:8080')
 
+
 def signup_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
