@@ -51,5 +51,5 @@ def signup_view(request):
             return redirect(to='http://localhost:8080')
 
     else:
-        form = LoginForm()
+        form = UserCreationForm()
         return render(request, 'registration/signup.html', {'form': form})
