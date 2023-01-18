@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import LoginForm
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from django.http import JsonResponse
 
@@ -40,3 +41,14 @@ def logout_view(request):
     logout(request)
 
     return redirect(to='http://localhost:8080')
+
+def signup_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(to='http://localhost:8080')
+
+    else:
+        form = LoginForm()
+        return render(request, 'registration/signup.html', {'form': form})
