@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ログイン</title>
+    <title>Log In</title>
 </head>
 <body>
-    <h1>ログイン</h1>
+    <h1>Log In</h1>
     <form action="{% url 'account:login' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <p><input type="submit" value="ログイン"></p>
+        <p><input type="submit" value="Log In"></p>
     </form>
 <a href="http://localhost:8080"><button>Cancel</button></a>
 </body>

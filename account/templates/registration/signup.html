@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>サインアップ</title>
+    <title>Sign Up</title>
 </head>
 <body>
-    <h1>サインアップ</h1>
+    <h1>SIgn Up</h1>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
     <form action="{% url 'account:signup' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <p><input type="submit" value="サインアップ"></p>
+        <p><input type="submit" value="Sign Up"></p>
     </form>
 </body>
 <a href="http://localhost:8080"><button>Cancel</button></a>
