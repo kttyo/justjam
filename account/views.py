@@ -28,13 +28,8 @@ def login_view(request):
                 return redirect(to='http://localhost:8080')
 
     else:
-        form = LoginForm()
-
-    context = {
-        'form': form,
-    }
-
-    return render(request, 'registration/login.html', context)
+        context = {'form': LoginForm()}
+        return render(request, 'registration/login.html', context)
 
 
 def logout_view(request):
@@ -49,7 +44,9 @@ def signup_view(request):
         if form.is_valid():
             form.save()
             return redirect(to='http://localhost:8080')
+        else:
+            return redirect(to='http://localhost:8000/account/signup')
 
     else:
-        form = CustomUserCreationForm()
-        return render(request, 'registration/signup.html', {'form': form})
+        context = {'form': CustomUserCreationForm()}
+        return render(request, 'registration/signup.html', context)
