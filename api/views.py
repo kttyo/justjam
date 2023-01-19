@@ -9,7 +9,7 @@ from .models import FavoriteItem, FavoritePart
 @api_view(['GET','POST','DELETE'])
 def favorite_item(request):
     if request.user.id and request.method == 'GET':
-        favorite_items = FavoriteItem.objects.all()
+        favorite_items = FavoriteItem.objects.filter(user=request.user.id)
         serializer = FavoriteItemSerializer(favorite_items, many=True)
         return Response(serializer.data)
 
@@ -37,7 +37,7 @@ def favorite_item(request):
 @api_view(['GET','POST','DELETE'])
 def favorite_part(request):
     if request.user.id and request.method == 'GET':
-        favorite_parts = FavoritePart.objects.all()
+        favorite_parts = FavoritePart.objects.filter(user=request.user.id)
         serializer = FavoritePartSerializer(favorite_parts, many=True)
         return Response(serializer.data)
 
