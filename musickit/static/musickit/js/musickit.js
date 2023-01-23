@@ -5,8 +5,8 @@ function checkEvent(){
         window.location.reload();
     }
   };
-
 setTimeout(checkEvent, 200);
+
 const setupMusicKit = new Promise((resolve) => {
     document.addEventListener('musickitloaded', (event) => {
         eventFired = true
@@ -207,7 +207,8 @@ Promise.all(promises).then(async (results) => {
         mainScreen.setFavorite(wrapperDiv)
     }
     if (user.authenticated) {
-        refreshFavoriteTab()
+        await refreshFavoriteTab()
+        mainScreen.displayFavorite()
     }
 
     let favoriteTabLink = document.getElementById('favorite-tab');
