@@ -218,9 +218,9 @@ Promise.all(promises).then(async (results) => {
 
     function getFormattedTime(timeInSeconds) {
 
-        let seconds = ((timeInSeconds % 60) < 10 ? '0' : '') + (timeInSeconds % 60);
-        let minutes = (MusicKit.formattedSeconds(timeInSeconds).minutes < 10 ? '0' : '') + MusicKit.formattedSeconds(timeInSeconds).minutes;
         let hours = MusicKit.formattedSeconds(timeInSeconds).hours;
+        let minutes = (MusicKit.formattedSeconds(timeInSeconds).minutes < 10 && hours > 0 ? '0' : '') + MusicKit.formattedSeconds(timeInSeconds).minutes;
+        let seconds = ((timeInSeconds % 60) < 10 ? '0' : '') + (timeInSeconds % 60);
 
         let durationString = hours >= 1 ? hours + ':' + minutes + ':' + seconds : minutes + ':' + seconds;
 
