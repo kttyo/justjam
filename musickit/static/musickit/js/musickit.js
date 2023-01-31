@@ -328,7 +328,6 @@ Promise.all(promises).then(async (results) => {
     let previousButton = document.getElementById('previous-item');
     let nextButton = document.getElementById('next-item');
 
-
     // Click Control on the Player Progress
     timeScope.addEventListener('click', async (e) => {
         let barWidth = timeScope.offsetWidth;
@@ -364,7 +363,6 @@ Promise.all(promises).then(async (results) => {
             playPauseButton.textContent = '⏸'
         }
     })
-
 
     // Looper
     class Looper {
