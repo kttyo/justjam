@@ -47,11 +47,13 @@ Promise.all(promises).then(async (results) => {
         return cookieValue;
     }
 
-    let unauthenticateButton = document.getElementById('unauthenticate')
-    unauthenticateButton.addEventListener('click', async () => {
-        result = await music.unauthorize();
-    })
-
+    let unauthenticateButton = document.getElementById('unauthenticate');
+    if (unauthenticateButton) {
+        unauthenticateButton.addEventListener('click', async () => {
+            result = await music.unauthorize();
+        })
+    }
+    
     // let authenticateButton = document.getElementById('authenticate')
     // authenticateButton.addEventListener('click', async () => {
     //     await music.authorize()

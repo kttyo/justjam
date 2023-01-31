@@ -112,14 +112,9 @@
 <body>
     <header id="header" class="sticky-top flex-md-nowrap p-0 shadow justify-content-center">
         <div class="container" id="player-function">
-            <!-- nowPlayingItem.artworkURL -->
-            <!--
-                        <button id="authenticate" type="button" class="btn btn-outline-primary">Authenticate to Apple Music</button>
-                        -->
             <div class="row">
                 <div class="col">
-                    <button id="unauthenticate" type="button" class="btn btn-outline-primary">Unauthenticate from Apple
-                        Music</button>
+                    <div id="unauth"></div>
                     <div id="login-logout"></div>
                 </div>
             </div>
@@ -288,6 +283,26 @@
                 favoriteTabLink.style.display = 'none';
             }
         })
+
+        let tokenExists = false;
+        for (var i = 0, len = localStorage.length; i < len; ++i) {
+            let pattern = /^music\.[a-zA-Z0-9]+\.u$/;
+            if (pattern.test(localStorage.key(i))) {
+                tokenExists = true
+                break
+            }
+        }
+
+        if (tokenExists) {
+            const unauth = document.getElementById('unauth');
+            const button = document.createElement('button');
+            button.setAttribute('id','unauthenticate');
+            button.setAttribute('type','button');
+            button.setAttribute('class','btn btn-outline-primary');
+            button.textContent = 'Unauthenticate from Apple Music';
+
+            unauth.appendChild(button)
+        }
 
     </script>
     <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js"></script>
