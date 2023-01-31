@@ -581,6 +581,14 @@ Promise.all(promises).then(async (results) => {
 
         for (const track of albumTracks) {
             const divtag = document.createElement("div");
+            divtag.setAttribute('class', 'row');
+
+            const leftCol = document.createElement("div");
+            leftCol.setAttribute('class', 'col-1');
+
+            const rightCol = document.createElement("div");
+            rightCol.setAttribute('class', 'col-11');
+            
             const para = document.createElement("p");
             para.setAttribute('media-type', 'song');
             para.setAttribute('song-id', track.attributes.playParams.id);
@@ -602,12 +610,14 @@ Promise.all(promises).then(async (results) => {
                 looper.setStartTime(Number(itemTag.getAttribute('start-time')))
                 looper.setEndTime(Number(itemTag.getAttribute('end-time')))
             })
-            divtag.appendChild(para)
+            rightCol.appendChild(para)
             if (user.authenticated) {
                 let favButton = generateFavButton('song', albumId, track.attributes.playParams.id)
                 checkExisitingFavoriteData(favButton, 'song', track.attributes.playParams.id)
-                divtag.appendChild(favButton);
+                leftCol.appendChild(favButton);
             }
+            divtag.appendChild(leftCol)
+            divtag.appendChild(rightCol)
             wrapperDiv.appendChild(divtag)
         }
         return wrapperDiv
