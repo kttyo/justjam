@@ -113,12 +113,6 @@
     <header id="header" class="sticky-top flex-md-nowrap p-0 shadow justify-content-center">
         <div class="container" id="player-function">
             <div class="row">
-                <div class="col">
-                    <div id="unauth"></div>
-                    <div id="login-logout"></div>
-                </div>
-            </div>
-            <div class="row">
                 <div class="col-2">
                     <!--
                     <img id="artwork" style="width: 100%;">
@@ -192,6 +186,7 @@
         <div class="row">
             <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
                 <div class="position-sticky pt-3">
+                    <div class="nav-item" id="login-logout"></div>
                     <input id="search-bar" class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
                     <ul class="nav flex-column">
                         <li class="nav-item" id="search-result-tab">
@@ -213,9 +208,9 @@
                             </a>
                         </li>
                     </ul>
+                    <div id="unauth"></div>
                 </div>
             </nav>
-
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div id="main-screen"></div>
             </main>
@@ -233,22 +228,19 @@
 
 
         function getLogOutButton(){
-            const p = document.createElement('p')
             const a = document.createElement('a')
             a.setAttribute('href','http://localhost:8000/account/logout')
             a.innerHTML = 'Log Out'
-            p.appendChild(a)
-            return p
+            return a
         }
 
 
         function getLogInButton(){
-            const p = document.createElement('p')
-            let a = document.createElement('a')
+            const a = document.createElement('a')
             a.setAttribute('href','http://localhost:8000/account/login')
+            a.setAttribute('class','nav-link')
             a.innerHTML = 'Log In'
-            p.appendChild(a)
-            return p
+            return a
         }
         
 
@@ -256,6 +248,7 @@
             const p = document.createElement('p')
             let a = document.createElement('a')
             a.setAttribute('href','http://localhost:8000/account/signup')
+            a.setAttribute('class','nav-link')
             a.innerHTML = 'Sign Up'
             p.appendChild(a)
             return p
@@ -299,7 +292,7 @@
             button.setAttribute('id','unauthenticate');
             button.setAttribute('type','button');
             button.setAttribute('class','btn btn-outline-primary');
-            button.textContent = 'Unauthenticate from Apple Music';
+            button.textContent = 'Sign out from Apple Music';
 
             unauth.appendChild(button)
         }
