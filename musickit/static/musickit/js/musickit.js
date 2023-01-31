@@ -231,7 +231,11 @@ Promise.all(promises).then(async (results) => {
         songName.textContent = music.player.nowPlayingItem.title
         currentAlgumInfo.textContent = music.player.nowPlayingItem.artistName + ' | ' + music.player.nowPlayingItem.albumName
         artworkImg.setAttribute('src', MusicKit.formatArtworkURL(music.player.nowPlayingItem.attributes.artwork, 100, 100))
-
+        header = document.getElementById('header')
+        header.style.backgroundImage = "url( "+MusicKit.formatArtworkURL(music.player.nowPlayingItem.attributes.artwork)+" )";
+        header.style.backgroundSize = "cover";
+        header.style.backgroundColor = "rgba(255,255,255,0.9)";
+        header.style.backgroundBlendMode = "lighten";
         playbackDuration.textContent = getFormattedTime(music.player.currentPlaybackDuration)
     }
 
