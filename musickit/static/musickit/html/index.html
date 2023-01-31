@@ -40,7 +40,7 @@
             left: -50%;
         }
         #timescope {
-            width: 250px;
+            width: 500px;
             height: 3px;
             background-color: #DC3545;
             position: relative;
@@ -110,61 +110,62 @@
 </head>
 
 <body>
-    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow justify-content-center">
-        <div id="player-function">
-    
+    <header class="sticky-top bg-light flex-md-nowrap p-0 shadow justify-content-center">
+        <div class="container" id="player-function">
             <!-- nowPlayingItem.artworkURL -->
-    
-            <div class="card mb-3" style="max-width: 1080px;">
-                <button id="authenticate" type="button" class="btn btn-outline-primary">Authenticate to Apple Music</button>
-                <button id="unauthenticate" type="button" class="btn btn-outline-primary">Unauthenticate from Apple Music</button>
-                <div id="login-logout"></div>
-                <div class="row g-0">
-                    <div class="col-md-2">
-                        <img id="artwork" style="max-width: 50px;">
-                    </div>
-                    <div class="col-md-10">
-                        <div class="card-body">
-                            <h5 id="media-item-title" class="card-title"></h5>
-                            <p id="album-info" class="card-text"><small class="text-muted"></small></p>
-                            <span id="playback-time">0:00</span>
-                            <span id="timescope">
-                                <span id="timescope-after"></span>
-                                <span id="timescope-dot-position">
-                                    <span id="timescope-dot" draggable="true"></span>
-                                </span>
-                                <span id="looper-start-dot-position">
-                                    <span id="looper-start-dot" draggable="true"></span>
-                                </span>
-                                <span id="looper-end-dot-position">
-                                    <span id="looper-end-dot" draggable="true"></span>
-                                </span>
+            <!--
+                    <button id="authenticate" type="button" class="btn btn-outline-primary">Authenticate to Apple Music</button>
+                    -->
+                    <div class="row">
+            <button id="unauthenticate" type="button" class="btn btn-outline-primary">Unauthenticate from Apple
+                Music</button>
+            <div id="login-logout"></div>
+            </div>
+            <div class="row">
+                <div class="col-2">
+                    <img id="artwork" style="max-width: 50px;">
+                </div>
+                <div class="col-10">
+                    <div class="card-body">
+                        <h5 id="media-item-title" class="card-title"></h5>
+                        <p id="album-info" class="card-text"><small class="text-muted"></small></p>
+                        <span id="playback-time">0:00</span>
+                        <span id="timescope">
+                            <span id="timescope-after"></span>
+                            <span id="timescope-dot-position">
+                                <span id="timescope-dot" draggable="true"></span>
                             </span>
-                            <span id="playback-duration">0:00</span>
-                                                    <p>
-                            <div id="favorite-part"></div>
-                        </p>
-                        </div>
-                        <p>
-                            <button id="looper-switch" type="button" class="btn btn-outline-primary">Looper On</button>
-                        </p>
-                        <p>
-                            <span id="volume-scope">
-                                <span id="volume-scope-after"></span>
-                                <span id="volume-scope-dot-position">
-                                    <span id="volume-scope-dot" draggable="true"></span>
-                                </span>
+                            <span id="looper-start-dot-position">
+                                <span id="looper-start-dot" draggable="true"></span>
                             </span>
-                        </p>
-                        <p><button id="back-to-start" type="button" class="btn btn-outline-primary">Back to Start</button></p>
+                            <span id="looper-end-dot-position">
+                                <span id="looper-end-dot" draggable="true"></span>
+                            </span>
+                        </span>
+                        <span id="playback-duration">0:00</span>
                         <p>
-                            <button id="previous-item" type="button" class="btn btn-outline-primary">Prev</button>
-                            <button id="rewind" type="button" class="btn btn-outline-primary">-5 s</button>
-                            <button id="play-pause" type="button" class="btn btn-outline-primary">▶︎</button>
-                            <button id="fast-forward" type="button" class="btn btn-outline-primary">+5 s</button>
-                            <button id="next-item" type="button" class="btn btn-outline-primary">Next</button>
+                        <div id="favorite-part"></div>
                         </p>
                     </div>
+                    <p>
+                        <button id="looper-switch" type="button" class="btn btn-outline-primary">Looper On</button>
+                    </p>
+                    <p>
+                        <span id="volume-scope">
+                            <span id="volume-scope-after"></span>
+                            <span id="volume-scope-dot-position">
+                                <span id="volume-scope-dot" draggable="true"></span>
+                            </span>
+                        </span>
+                    </p>
+                    <p><button id="back-to-start" type="button" class="btn btn-outline-primary">Back to Start</button></p>
+                    <p>
+                        <button id="previous-item" type="button" class="btn btn-outline-primary">Prev</button>
+                        <button id="rewind" type="button" class="btn btn-outline-primary">-5 s</button>
+                        <button id="play-pause" type="button" class="btn btn-outline-primary">▶︎</button>
+                        <button id="fast-forward" type="button" class="btn btn-outline-primary">+5 s</button>
+                        <button id="next-item" type="button" class="btn btn-outline-primary">Next</button>
+                    </p>
                 </div>
             </div>
         </div>
