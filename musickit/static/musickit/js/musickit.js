@@ -360,9 +360,10 @@ Promise.all(promises).then(async (results) => {
             playPauseButton.textContent = '▶︎'
         } else {
             music.player.play();
-            playPauseButton.textContent = '⏸'
+            playPauseButton.textContent = '||'
         }
     })
+
 
     // Looper
     class Looper {
@@ -592,7 +593,7 @@ Promise.all(promises).then(async (results) => {
                 const itemTag = event.target
                 looper.switchOff()
                 await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
-                playPauseButton.textContent = '⏸'
+                playPauseButton.textContent = '||'
                 looper.setMediaItem({
                     'id': itemTag.getAttribute('song-id'),
                     'parentId': itemTag.getAttribute('album-id'),
@@ -847,7 +848,7 @@ Promise.all(promises).then(async (results) => {
         }
 
         // Display
-        playPauseButton.textContent = '⏸'
+        playPauseButton.textContent = '||'
         mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
         if (itemTag.getAttribute('media-type') != 'song-part') {
             mainScreen.displayNowPlayingAlbum()
