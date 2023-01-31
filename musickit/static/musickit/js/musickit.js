@@ -12,7 +12,7 @@ const setupMusicKit = new Promise((resolve) => {
         eventFired = true
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
         MusicKit.configure({
-            developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzUxNDQ0NzZ9.O9Cdrro4AkM9_z3D5vfwzp1FlTx57s8QOdQVCB90Dt5uIDnGx4DU8NLTydrRd7jCwOZjQRQ7-0vXEbwOa0ZViQ',
+            developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzYwMDk0MDR9.qtAeRjx-xus4-Qp92snk42YRx8N0nMupuKTYGvo_zJhVDnECcXl8-mGR8CJ9ygQ6QKYvyo4EWJWMOWyPsdhQ2g',
             app: {
                 name: 'My Cool Web App',
                 build: '2022.11.17'
@@ -62,7 +62,7 @@ Promise.all(promises).then(async (results) => {
     music.player.volume = 0.8;
 
     // Info Display
-    let artworkImg = document.getElementById('artwork');
+    // let artworkImg = document.getElementById('artwork');
     let timeScope = document.getElementById('timescope');
     let timeScopeAfter = document.getElementById('timescope-after');
     let timeScopeDotPos = document.getElementById('timescope-dot-position');
@@ -230,10 +230,11 @@ Promise.all(promises).then(async (results) => {
     function updateCurrentPlayingItem() {
         songName.textContent = music.player.nowPlayingItem.title
         currentAlgumInfo.textContent = music.player.nowPlayingItem.artistName + ' | ' + music.player.nowPlayingItem.albumName
-        artworkImg.setAttribute('src', MusicKit.formatArtworkURL(music.player.nowPlayingItem.attributes.artwork, 100, 100))
+        // artworkImg.setAttribute('src', MusicKit.formatArtworkURL(music.player.nowPlayingItem.attributes.artwork, 100, 100))
         header = document.getElementById('header')
         header.style.backgroundImage = "url( "+MusicKit.formatArtworkURL(music.player.nowPlayingItem.attributes.artwork)+" )";
         header.style.backgroundSize = "cover";
+        header.style.backgroundPosition = "center";
         header.style.backgroundColor = "rgba(255,255,255,0.9)";
         header.style.backgroundBlendMode = "lighten";
         playbackDuration.textContent = getFormattedTime(music.player.currentPlaybackDuration)
