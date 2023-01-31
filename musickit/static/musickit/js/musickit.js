@@ -626,7 +626,9 @@ Promise.all(promises).then(async (results) => {
             console.log('Requested to Add')
             favButton.classList.remove('not-fav')
             favButton.classList.add('fav')
-            favButton.textContent = 'Remove from Favorite'
+            favButton.classList.remove('btn-outline-primary')
+            favButton.classList.add('btn-primary')
+            favButton.textContent = '♡'
             requestMethod = 'POST'
 
         } else if (favButton.classList.contains('fav')) {
@@ -634,7 +636,9 @@ Promise.all(promises).then(async (results) => {
             console.log('Requested to Remove')
             favButton.classList.remove('fav')
             favButton.classList.add('not-fav')
-            favButton.textContent = 'Add to Favorite'
+            favButton.classList.remove('btn-primary')
+            favButton.classList.add('btn-outline-primary')
+            favButton.textContent = '♡'
             requestMethod = 'DELETE'
         }
 
@@ -696,15 +700,17 @@ Promise.all(promises).then(async (results) => {
     }
 
     function checkExisitingFavoriteData(button, mediaType, comparisonId) {
-        button.textContent = 'Add to Favorite'
+        button.textContent = '♡'
         button.classList.add('not-fav')
 
         if (mediaType == 'song' || mediaType == 'album') {
             for (existingFavorite of favoriteDataInstance.favorite) {
                 if (existingFavorite.media_type == mediaType && existingFavorite.media_id == comparisonId) {
-                    button.textContent = 'Remove from Favorite'
+                    button.textContent = '♡'
                     button.classList.remove('not-fav')
                     button.classList.add('fav')
+                    button.classList.remove('btn-outline-primary')
+                    button.classList.add('btn-primary')
                 }
             }
         }
@@ -712,7 +718,7 @@ Promise.all(promises).then(async (results) => {
 
     function checkExisitingFavoritePart(button, songId, startTime, endTime) {
 
-        button.textContent = 'Add to Favorite'
+        button.textContent = '♡'
         button.classList.add('not-fav')
 
         if (!favoritePartInstance.favorite) {
@@ -720,9 +726,11 @@ Promise.all(promises).then(async (results) => {
         } else {
             for (existingFavorite of favoritePartInstance.favorite) {
                 if (existingFavorite.media_id == songId && existingFavorite.loop_start_time == startTime && existingFavorite.loop_end_time == endTime) {
-                    button.textContent = 'Remove from Favorite'
+                    button.textContent = '♡'
                     button.classList.remove('not-fav')
                     button.classList.add('fav')
+                    button.classList.remove('btn-outline-primary')
+                    button.classList.add('btn-primary')
                 }
             }
         }
