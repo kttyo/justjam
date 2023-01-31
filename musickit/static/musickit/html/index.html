@@ -124,18 +124,16 @@
             <div class="row">
                 <div class="col-2">
                     <img id="artwork" style="width: 100%;">
+                    <p>
+                        <button id="previous-item" type="button" class="btn btn-outline-primary btn-sm">Prev</button>
+                        <button id="play-pause" type="button" class="btn btn-outline-primary btn-sm">▶︎</button>
+                        <button id="next-item" type="button" class="btn btn-outline-primary btn-sm">Next</button>
+                    </p>
                 </div>
                 <div class="col-9">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-4">
-                                <p>
-                                    <button id="previous-item" type="button" class="btn btn-outline-primary">Prev</button>
-                                    <button id="play-pause" type="button" class="btn btn-outline-primary">▶︎</button>
-                                    <button id="next-item" type="button" class="btn btn-outline-primary">Next</button>
-                                </p>
-                            </div>
-                            <div class="col-8">
+                            <div class="col">
                                 <h5 id="media-item-title" class="card-title"></h5>
                                 <p id="album-info" class="card-text"><small class="text-muted"></small></p>
                             </div>
@@ -157,7 +155,6 @@
                                         <span id="looper-end-dot" draggable="true"></span>
                                     </span>
                                 </span>
-                                <div id="favorite-part"></div>
                             </div>
                             <div class="col-1">
                                 <span id="playback-duration">0:00</span>
@@ -178,6 +175,17 @@
                         <button id="looper-switch" type="button" class="btn btn-outline-primary">Looper On</button>
                     </p>
                 </div>
+            </div>
+            <div class="row">
+                <div class="col-2"></div>
+                <div class="col-9">
+                    <div class="row">
+                        <div class="col-1"></div>
+                        <div id="favorite-part" class="col-10"></div>
+                        <div class="col-1"></div>
+                    </div>
+                </div>
+                <div class="col-1"></div>
             </div>
         </div>
     </header>
