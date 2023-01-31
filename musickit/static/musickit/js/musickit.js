@@ -52,10 +52,10 @@ Promise.all(promises).then(async (results) => {
         result = await music.unauthorize();
     })
 
-    let authenticateButton = document.getElementById('authenticate')
-    authenticateButton.addEventListener('click', async () => {
-        await music.authorize()
-    })
+    // let authenticateButton = document.getElementById('authenticate')
+    // authenticateButton.addEventListener('click', async () => {
+    //     await music.authorize()
+    // })
 
     console.log('Main script starts')
 
@@ -327,9 +327,7 @@ Promise.all(promises).then(async (results) => {
     let playPauseButton = document.getElementById('play-pause');
     let previousButton = document.getElementById('previous-item');
     let nextButton = document.getElementById('next-item');
-    let rewindButton = document.getElementById('rewind');
-    let fastForwardButton = document.getElementById('fast-forward');
-    let backToStartButton = document.getElementById('back-to-start');
+
 
     // Click Control on the Player Progress
     timeScope.addEventListener('click', async (e) => {
@@ -367,30 +365,6 @@ Promise.all(promises).then(async (results) => {
         }
     })
 
-    rewindButton.addEventListener('click', function () {
-        let destination;
-        if (music.player.currentPlaybackTime <= 5) {
-            destination = 0;
-        } else {
-            destination = music.player.currentPlaybackTime - 5;
-        }
-        music.player.seekToTime(destination)
-    });
-
-    fastForwardButton.addEventListener('click', function () {
-        let destination;
-        if (music.player.currentPlaybackTime + 5 >= music.player.currentPlaybackDuration) {
-            destination = music.player.currentPlaybackDuration
-        } else {
-            destination = music.player.currentPlaybackTime + 5;
-        }
-        music.player.seekToTime(destination);
-    });
-
-
-    backToStartButton.addEventListener('click', function () {
-        music.player.seekToTime(0);
-    });
 
     // Looper
     class Looper {
