@@ -232,13 +232,6 @@ Promise.all(promises).then(async (results) => {
     function updateCurrentPlayingItem() {
         songName.textContent = music.player.nowPlayingItem.title
         currentAlgumInfo.textContent = music.player.nowPlayingItem.artistName + ' | ' + music.player.nowPlayingItem.albumName
-        // artworkImg.setAttribute('src', MusicKit.formatArtworkURL(music.player.nowPlayingItem.attributes.artwork, 100, 100))
-        header = document.getElementById('header')
-        header.style.backgroundImage = "url( "+MusicKit.formatArtworkURL(music.player.nowPlayingItem.attributes.artwork)+" )";
-        header.style.backgroundSize = "cover";
-        header.style.backgroundPosition = "center";
-        header.style.backgroundColor = "rgba(255,255,255,0.9)";
-        header.style.backgroundBlendMode = "lighten";
         playbackDuration.textContent = getFormattedTime(music.player.currentPlaybackDuration)
     }
 
@@ -807,7 +800,6 @@ Promise.all(promises).then(async (results) => {
     function createMediaCardLayout() {
         const div1 = document.createElement("div");
         div1.setAttribute('class', 'card mb-3')
-        div1.setAttribute('style', 'max-width: 540px;')
 
         const div2 = document.createElement("div");
         div2.setAttribute('class', 'row g-0')
@@ -884,7 +876,11 @@ Promise.all(promises).then(async (results) => {
     }
 
     async function getLoopCards(loopItemList) {
-        const wrapperDiv = document.createElement("div");
+        const containerDiv = document.createElement("div");
+        containerDiv.setAttribute('class','container');
+
+        const rowDiv = document.createElement("div");
+        rowDiv.setAttribute('class','row row-cols-3')
 
         loopItemIdList = []
         for (loopItem of loopItemList) {
@@ -909,6 +905,7 @@ Promise.all(promises).then(async (results) => {
 
             // Artwork
             artwork.setAttribute('src', MusicKit.formatArtworkURL(loopItem.songInfo.attributes.artwork, 50, 50))
+            artwork.setAttribute('width', '100%')
 
             // Card Text
             ptag.setAttribute('media-type', 'song-part');
@@ -932,13 +929,18 @@ Promise.all(promises).then(async (results) => {
                 // Favorite Button
                 cardBody.appendChild(favButton);
             }
-            wrapperDiv.appendChild(cardDiv);
+            rowDiv.appendChild(cardDiv);
+            containerDiv.appendChild(rowDiv);
         }
-        return wrapperDiv
+        return containerDiv
     }
 
     async function getSongCards(songArray) {
-        const wrapperDiv = document.createElement("div");
+        const containerDiv = document.createElement("div");
+        containerDiv.setAttribute('class','container');
+
+        const rowDiv = document.createElement("div");
+        rowDiv.setAttribute('class','row row-cols-3');
 
         // Bulk search the songs to capture relationships data
         let songIdList = []
@@ -957,6 +959,7 @@ Promise.all(promises).then(async (results) => {
 
             // Artwork
             artwork.setAttribute('src', MusicKit.formatArtworkURL(song.attributes.artwork, 50, 50))
+            artwork.setAttribute('width', '100%')
 
             // Card Text
             ptag.setAttribute('media-type', 'song');
@@ -974,14 +977,19 @@ Promise.all(promises).then(async (results) => {
                 cardBody.appendChild(favButton);
             }
 
-            wrapperDiv.appendChild(cardDiv);
+            rowDiv.appendChild(cardDiv);
+            containerDiv.appendChild(rowDiv);
         }
-        return wrapperDiv
+        return containerDiv
     }
 
 
     async function getAlbumCards(albumArray) {
-        const wrapperDiv = document.createElement("div");
+        const containerDiv = document.createElement("div");
+        containerDiv.setAttribute('class','container');
+
+        const rowDiv = document.createElement("div");
+        rowDiv.setAttribute('class','row row-cols-3');
 
         for (const album of albumArray) {
 
@@ -993,6 +1001,7 @@ Promise.all(promises).then(async (results) => {
 
             // Artwork
             artwork.setAttribute('src', MusicKit.formatArtworkURL(album.attributes.artwork, 50, 50))
+            artwork.setAttribute('width', '100%')
 
             // Card Text
             ptag.setAttribute('media-type', 'album');
@@ -1009,9 +1018,10 @@ Promise.all(promises).then(async (results) => {
                 cardBody.appendChild(favButton);
             }
 
-            wrapperDiv.appendChild(cardDiv);
+            rowDiv.appendChild(cardDiv);
+            containerDiv.appendChild(rowDiv);
         }
-        return wrapperDiv
+        return containerDiv
     }
 
 
