@@ -7,13 +7,15 @@
     <!-- Configuring MusicKit JS -->
 
     <title>MusicKit Features</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
         #looper-start-dot-position {
             width: 8px;
             position: absolute;
             left: 0%;
         }
+
         #looper-start-dot {
             width: 8px;
             height: 8px;
@@ -24,11 +26,13 @@
             top: 5px;
             left: -50%;
         }
+
         #looper-end-dot-position {
             width: 8px;
             position: absolute;
             left: 100%;
         }
+
         #looper-end-dot {
             width: 8px;
             height: 8px;
@@ -39,6 +43,7 @@
             top: 5px;
             left: -50%;
         }
+
         #timescope {
             width: 100%;
             height: 3px;
@@ -48,6 +53,7 @@
             display: inline-block;
             opacity: 0.5;
         }
+
         #timescope-after {
             width: 0px;
             height: 3px;
@@ -55,11 +61,13 @@
             position: absolute;
             display: inline-block;
         }
+
         #timescope-dot-position {
             width: 8px;
             position: absolute;
             left: 0%;
         }
+
         #timescope-dot {
             width: 8px;
             height: 8px;
@@ -84,6 +92,7 @@
             display: inline-block;
             opacity: 0.5;
         }
+
         #volume-scope-after {
             width: 0px;
             height: 3px;
@@ -91,11 +100,13 @@
             position: absolute;
             display: inline-block;
         }
+
         #volume-scope-dot-position {
             width: 8px;
             position: absolute;
             left: 80%;
         }
+
         #volume-scope-dot {
             width: 8px;
             height: 8px;
@@ -117,11 +128,19 @@
                     <!--
                     <img id="artwork" style="width: 100%;">
                     -->
-                    <p>
-                        <button id="previous-item" type="button" class="btn btn-outline-primary btn-sm">Prev</button>
-                        <button id="play-pause" type="button" class="btn btn-outline-primary btn-sm">▶︎</button>
-                        <button id="next-item" type="button" class="btn btn-outline-primary btn-sm">Next</button>
-                    </p>
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <button id="previous-item" type="button"
+                                class="btn btn-outline-primary btn-sm">Prev</button>
+                            <button id="play-pause" type="button" class="btn btn-outline-primary btn-sm">▶︎</button>
+                            <button id="next-item" type="button" class="btn btn-outline-primary btn-sm">Next</button>
+                        </div>
+                    </div>
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <button id="looper-switch" type="button" class="btn btn-outline-primary btn-sm">Looper On</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-9">
                     <div class="card-body">
@@ -163,9 +182,6 @@
                                 <span id="volume-scope-dot" draggable="true"></span>
                             </span>
                         </span>
-                    </p>
-                    <p>
-                        <button id="looper-switch" type="button" class="btn btn-outline-primary">Looper On</button>
                     </p>
                 </div>
             </div>
@@ -217,44 +233,44 @@
         </div>
     </div>
     <script>
-        async function getUserStatus(){
+        async function getUserStatus() {
             userStatusData = await fetch(
                 'http://localhost:8000/account/user-status',
-                {credentials: 'include'}
+                { credentials: 'include' }
             )
             userStatusJSON = await userStatusData.json()
             return userStatusJSON
         }
 
 
-        function getLogOutButton(){
+        function getLogOutButton() {
             const a = document.createElement('a')
-            a.setAttribute('href','http://localhost:8000/account/logout')
+            a.setAttribute('href', 'http://localhost:8000/account/logout')
             a.innerHTML = 'Log Out'
             return a
         }
 
 
-        function getLogInButton(){
+        function getLogInButton() {
             const a = document.createElement('a')
-            a.setAttribute('href','http://localhost:8000/account/login')
-            a.setAttribute('class','nav-link')
+            a.setAttribute('href', 'http://localhost:8000/account/login')
+            a.setAttribute('class', 'nav-link')
             a.innerHTML = 'Log In'
             return a
         }
-        
 
-        function getSignUpButton(){
+
+        function getSignUpButton() {
             const p = document.createElement('p')
             let a = document.createElement('a')
-            a.setAttribute('href','http://localhost:8000/account/signup')
-            a.setAttribute('class','nav-link')
+            a.setAttribute('href', 'http://localhost:8000/account/signup')
+            a.setAttribute('class', 'nav-link')
             a.innerHTML = 'Sign Up'
             p.appendChild(a)
             return p
         }
 
-        
+
         getUserStatus().then((value) => {
 
             const logInOut = document.getElementById('login-logout')
@@ -263,7 +279,7 @@
             p.innerHTML = value.username
             logInOut.appendChild(p)
 
-            if (value.authenticated){
+            if (value.authenticated) {
                 logInOut.appendChild(getLogOutButton())
 
                 const favoriteTabLink = document.getElementById('favorite-tab');
@@ -289,9 +305,9 @@
         if (tokenExists) {
             const unauth = document.getElementById('unauth');
             const button = document.createElement('button');
-            button.setAttribute('id','unauthenticate');
-            button.setAttribute('type','button');
-            button.setAttribute('class','btn btn-outline-primary');
+            button.setAttribute('id', 'unauthenticate');
+            button.setAttribute('type', 'button');
+            button.setAttribute('class', 'btn btn-outline-primary');
             button.textContent = 'Sign out from Apple Music';
 
             unauth.appendChild(button)
