@@ -1,15 +1,10 @@
-// Create Promise for document.addEventListener
-let eventFired = false
-function checkEvent(){
-    if (!eventFired) {
-        window.location.reload();
-    }
-  };
-setTimeout(checkEvent, 200);
+let scriptEle = document.createElement("script");
+scriptEle.setAttribute("src", "https://js-cdn.music.apple.com/musickit/v1/musickit.js");
+document.body.appendChild(scriptEle);
 
+// Create Promise for document.addEventListener
 const setupMusicKit = new Promise((resolve) => {
     document.addEventListener('musickitloaded', (event) => {
-        eventFired = true
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
         MusicKit.configure({
             developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzYwMDk0MDR9.qtAeRjx-xus4-Qp92snk42YRx8N0nMupuKTYGvo_zJhVDnECcXl8-mGR8CJ9ygQ6QKYvyo4EWJWMOWyPsdhQ2g',
