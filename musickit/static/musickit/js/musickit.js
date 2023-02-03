@@ -266,9 +266,9 @@ Promise.all(promises).then(async (results) => {
     music.addEventListener('playbackTimeDidChange', async () => {
         // Check Looper
         if (looper.isOn && music.player.currentPlaybackTime < looper.startTime) {
-            await music.player.seekToTime(looper.startTime)
+            await music.seekToTime(looper.startTime)
         } else if (looper.isOn && music.player.currentPlaybackTime >= looper.endTime) {
-            await music.player.seekToTime(looper.startTime)
+            await music.seekToTime(looper.startTime)
         }
 
         // Time Display
@@ -328,7 +328,7 @@ Promise.all(promises).then(async (results) => {
         let barWidth = timeScope.offsetWidth;
         let clickedSpot = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
         let clickedSpotInSeconds = Math.floor(clickedSpot / barWidth * music.player.currentPlaybackDuration)
-        await music.player.seekToTime(clickedSpotInSeconds)
+        await music.seekToTime(clickedSpotInSeconds)
     })
 
     timeScopeDot.addEventListener('dragend', async (e) => {
@@ -346,7 +346,7 @@ Promise.all(promises).then(async (results) => {
         } else {
             destinationTime = clickedSpotInSeconds
         }
-        await music.player.seekToTime(destinationTime)
+        await music.seekToTime(destinationTime)
     })
 
     playPauseButton.addEventListener('click', function () {
@@ -488,7 +488,7 @@ Promise.all(promises).then(async (results) => {
             destinationTime = clickedSpotInSeconds
         }
         looper.setStartTime(Number(destinationTime))
-        await music.player.seekToTime(looper.startTime)
+        await music.seekToTime(looper.startTime)
     })
 
     looperEndDot.addEventListener('dragend', async (e) => {
@@ -518,9 +518,9 @@ Promise.all(promises).then(async (results) => {
         looper.setEndTime(Number(destinationTime))
 
         if (destinationTime - 3 < looper.startTime) {
-            await music.player.seekToTime(looper.startTime)
+            await music.seekToTime(looper.startTime)
         } else {
-            await music.player.seekToTime(destinationTime - 3)
+            await music.seekToTime(destinationTime - 3)
         }
     })
 
@@ -841,7 +841,7 @@ Promise.all(promises).then(async (results) => {
         // Play the song
         if (itemTag.getAttribute('media-type') == 'song-part') {
             await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
-            await music.player.seekToTime(Number(itemTag.getAttribute('start-time')))
+            await music.seekToTime(Number(itemTag.getAttribute('start-time')))
             await music.play()
 
         } else if (itemTag.getAttribute('media-type') == 'song') {
