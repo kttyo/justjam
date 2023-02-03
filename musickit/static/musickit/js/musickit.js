@@ -829,6 +829,10 @@ Promise.all(promises).then(async (results) => {
             looper.switchOff()
         }
 
+        if (music.isPlaying) {
+            music.stop()
+        }
+
         // Enqueue the album
         await music.setQueue({
             album: itemTag.getAttribute('album-id')
@@ -838,9 +842,11 @@ Promise.all(promises).then(async (results) => {
         if (itemTag.getAttribute('media-type') == 'song-part') {
             await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
             await music.player.seekToTime(Number(itemTag.getAttribute('start-time')))
+            await music.play()
 
         } else if (itemTag.getAttribute('media-type') == 'song') {
             await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
+            await music.play()
 
         } else if (itemTag.getAttribute('media-type') == 'album') {
             await music.play()
