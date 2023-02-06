@@ -897,6 +897,9 @@ Promise.all(promises).then(async (results) => {
                     loopItem.songInfo = song
                 }
             }
+            if (!loopItem.songInfo) {
+                continue
+            }
 
             // Get Card Layout
             const cardDiv = createMediaCardLayout()
