@@ -325,18 +325,29 @@ Promise.all(promises).then(async (results) => {
 
     // Click Control on the Player Progress
     timeScope.addEventListener('click', async (e) => {
+        console.log('timeScope click')
         let barWidth = timeScope.offsetWidth;
         let clickedSpot = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
         let clickedSpotInSeconds = Math.floor(clickedSpot / barWidth * music.player.currentPlaybackDuration)
-        await music.seekToTime(clickedSpotInSeconds)
+        // Check Looper
+        if (looper.isOn && clickedSpotInSeconds < looper.startTime) {
+            await music.seekToTime(looper.startTime)
+        } else if (looper.isOn && clickedSpotInSeconds >= looper.endTime && looper.endTime - 2 >= looper.startTime) {
+            await music.seekToTime(looper.endTime - 2)
+        } else if (looper.isOn && clickedSpotInSeconds >= looper.endTime){
+            await music.seekToTime(looper.startTime)
+        } else {
+            await music.seekToTime(clickedSpotInSeconds)
+        }
     })
 
     timeScopeDot.addEventListener('dragend', async (e) => {
+        console.log('timeScope dragend')
         let barWidth = timeScope.offsetWidth;
-        let cursorLocation = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        let duration = music.player.currentPlaybackDuration;
-        let clickedSpotInSeconds = Math.round(cursorLocation / barWidth * duration)
-        timeScopeDotPos.style.left = cursorLocation + 'px'
+        let cursorPosision = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
+        const duration = music.player.currentPlaybackDuration;
+        const clickedSpotInSeconds = Math.round(cursorPosision / barWidth * duration)
+        timeScopeDotPos.style.left = cursorPosision + 'px'
 
         let destinationTime;
         if (clickedSpotInSeconds < 0) {
@@ -346,7 +357,16 @@ Promise.all(promises).then(async (results) => {
         } else {
             destinationTime = clickedSpotInSeconds
         }
-        await music.seekToTime(destinationTime)
+
+        if (looper.isOn && destinationTime < looper.startTime) {
+            await music.seekToTime(looper.startTime)
+        } else if (looper.isOn && destinationTime >= looper.endTime && looper.endTime - 2 >= looper.startTime) {
+            await music.seekToTime(looper.endTime - 2)
+        } else if (looper.isOn && clickedSpotInSeconds >= looper.endTime){
+            await music.seekToTime(looper.startTime)
+        } else {
+            await music.seekToTime(destinationTime)
+        }
     })
 
     playPauseButton.addEventListener('click', function () {
@@ -897,6 +917,7 @@ Promise.all(promises).then(async (results) => {
                     loopItem.songInfo = song
                 }
             }
+
             if (!loopItem.songInfo) {
                 continue
             }
