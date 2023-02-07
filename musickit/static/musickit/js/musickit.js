@@ -48,7 +48,7 @@ Promise.all(promises).then(async (results) => {
             result = await music.unauthorize();
         })
     }
-    
+
     // let authenticateButton = document.getElementById('authenticate')
     // authenticateButton.addEventListener('click', async () => {
     //     await music.authorize()
@@ -334,7 +334,7 @@ Promise.all(promises).then(async (results) => {
             await music.seekToTime(looper.startTime)
         } else if (looper.isOn && clickedSpotInSeconds >= looper.endTime && looper.endTime - 2 >= looper.startTime) {
             await music.seekToTime(looper.endTime - 2)
-        } else if (looper.isOn && clickedSpotInSeconds >= looper.endTime){
+        } else if (looper.isOn && clickedSpotInSeconds >= looper.endTime) {
             await music.seekToTime(looper.startTime)
         } else {
             await music.seekToTime(clickedSpotInSeconds)
@@ -362,7 +362,7 @@ Promise.all(promises).then(async (results) => {
             await music.seekToTime(looper.startTime)
         } else if (looper.isOn && destinationTime >= looper.endTime && looper.endTime - 2 >= looper.startTime) {
             await music.seekToTime(looper.endTime - 2)
-        } else if (looper.isOn && clickedSpotInSeconds >= looper.endTime){
+        } else if (looper.isOn && clickedSpotInSeconds >= looper.endTime) {
             await music.seekToTime(looper.startTime)
         } else {
             await music.seekToTime(destinationTime)
@@ -603,7 +603,7 @@ Promise.all(promises).then(async (results) => {
 
             const rightCol = document.createElement("div");
             rightCol.setAttribute('class', 'col-11');
-            
+
             const para = document.createElement("p");
             para.setAttribute('media-type', 'song');
             para.setAttribute('song-id', track.attributes.playParams.id);
@@ -860,8 +860,11 @@ Promise.all(promises).then(async (results) => {
 
         // Play the song
         if (itemTag.getAttribute('media-type') == 'song-part') {
-            await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
-            await music.seekToTime(Number(itemTag.getAttribute('start-time')))
+            const startTime = Number(itemTag.getAttribute('start-time'))
+            const indexForItem = music.player.queue.indexForItem(itemTag.getAttribute('song-id'))
+
+            await music.changeToMediaAtIndex(indexForItem)
+            await music.seekToTime(startTime)
             await music.play()
 
         } else if (itemTag.getAttribute('media-type') == 'song') {
@@ -898,10 +901,10 @@ Promise.all(promises).then(async (results) => {
 
     async function getLoopCards(loopItemList) {
         const containerDiv = document.createElement("div");
-        containerDiv.setAttribute('class','container');
+        containerDiv.setAttribute('class', 'container');
 
         const rowDiv = document.createElement("div");
-        rowDiv.setAttribute('class','row row-cols-3')
+        rowDiv.setAttribute('class', 'row row-cols-3')
 
         loopItemIdList = []
         for (loopItem of loopItemList) {
@@ -962,10 +965,10 @@ Promise.all(promises).then(async (results) => {
 
     async function getSongCards(songArray) {
         const containerDiv = document.createElement("div");
-        containerDiv.setAttribute('class','container');
+        containerDiv.setAttribute('class', 'container');
 
         const rowDiv = document.createElement("div");
-        rowDiv.setAttribute('class','row row-cols-3');
+        rowDiv.setAttribute('class', 'row row-cols-3');
 
         // Bulk search the songs to capture relationships data
         let songIdList = []
@@ -1011,10 +1014,10 @@ Promise.all(promises).then(async (results) => {
 
     async function getAlbumCards(albumArray) {
         const containerDiv = document.createElement("div");
-        containerDiv.setAttribute('class','container');
+        containerDiv.setAttribute('class', 'container');
 
         const rowDiv = document.createElement("div");
-        rowDiv.setAttribute('class','row row-cols-3');
+        rowDiv.setAttribute('class', 'row row-cols-3');
 
         for (const album of albumArray) {
 
