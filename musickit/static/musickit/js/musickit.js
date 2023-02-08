@@ -2,6 +2,15 @@ let scriptEle = document.createElement("script");
 scriptEle.setAttribute("src", "https://js-cdn.music.apple.com/musickit/v1/musickit.js");
 document.body.appendChild(scriptEle);
 
+let params = new URLSearchParams(window.location.search);
+let env = params.get("env");
+let referenceURL = "https://justjam.jppj.jp";
+
+if (env === "development") {
+  referenceURL = "http://localhost:8000";
+}
+
+
 // Create Promise for document.addEventListener
 const setupMusicKit = new Promise((resolve) => {
     document.addEventListener('musickitloaded', (event) => {
@@ -126,7 +135,7 @@ Promise.all(promises).then(async (results) => {
         };
 
         async refreshFavoriteData() {
-            let fetchResponse = await fetch('http://localhost:8000/api/favorite/item',
+            let fetchResponse = await fetch(referenceURL + '/api/favorite/item',
                 {
                     credentials: 'include'
                 }
@@ -146,7 +155,7 @@ Promise.all(promises).then(async (results) => {
         };
 
         async refreshFavoriteData() {
-            let fetchResponse = await fetch('http://localhost:8000/api/favorite/part',
+            let fetchResponse = await fetch(referenceURL + '/api/favorite/part',
                 {
                     credentials: 'include'
                 }
@@ -692,7 +701,7 @@ Promise.all(promises).then(async (results) => {
                     'media_id': mediaId
                 })
             }
-            fetchURL = 'http://localhost:8000/api/favorite/item'
+            fetchURL = referenceURL + '/api/favorite/item'
         } else if (mediaType == 'song-part') {
             console.log('This is the logic for song-part')
             fetchOptions = {
@@ -709,7 +718,7 @@ Promise.all(promises).then(async (results) => {
                     'loop_end_time': Number(favButton.getAttribute('end-time'))
                 })
             }
-            fetchURL = 'http://localhost:8000/api/favorite/part'
+            fetchURL = referenceURL + '/api/favorite/part'
         }
 
         console.log(fetchOptions)
