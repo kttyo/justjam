@@ -1,15 +1,18 @@
-let scriptEle = document.createElement("script");
-scriptEle.setAttribute("src", "https://js-cdn.music.apple.com/musickit/v1/musickit.js");
-document.body.appendChild(scriptEle);
+let scriptMusicKit = document.createElement("script");
+scriptMusicKit.setAttribute("src", "https://js-cdn.music.apple.com/musickit/v1/musickit.js");
+document.body.appendChild(scriptMusicKit);
+
+let scriptLodash = document.createElement("script");
+scriptLodash.setAttribute("src", "https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js");
+document.body.appendChild(scriptLodash);
 
 let params = new URLSearchParams(window.location.search);
 let env = params.get("env");
 let referenceURL = "https://justjam.jppj.jp";
 
 if (env === "development") {
-  referenceURL = "http://localhost:8000";
+    referenceURL = "http://localhost:8000";
 }
-
 
 // Create Promise for document.addEventListener
 const setupMusicKit = new Promise((resolve) => {
@@ -188,8 +191,9 @@ Promise.all(promises).then(async (results) => {
             const headerSongs = document.createElement("h2");
             headerSongs.textContent = 'Loops';
             wrapperDiv.appendChild(headerSongs);
-
-            wrapperDiv.appendChild(await getLoopCards(favoritePartInstance.favorite))
+            const favoriteParts = favoritePartInstance.favorite
+            const favoritePartsSorted = _.sortBy(favoriteParts, ['songInfo.attributes.artistName', 'songInfo.attributes.name', 'loop_start_time']);
+            wrapperDiv.appendChild(await getLoopCards(favoritePartsSorted))
         }
 
         if (songIdList.length > 0) {
@@ -197,8 +201,9 @@ Promise.all(promises).then(async (results) => {
             headerSongs.textContent = 'Songs';
             wrapperDiv.appendChild(headerSongs);
 
-            searchedSongs = await music.api.songs(songIdList)
-            wrapperDiv.appendChild(await getSongCards(searchedSongs))
+            const searchedSongs = await music.api.songs(songIdList)
+            const searchedSongsSorted = _.sortBy(searchedSongs, ['attributes.artistName', 'attributes.name']);
+            wrapperDiv.appendChild(await getSongCards(searchedSongsSorted))
         }
 
         if (albumIdList.length > 0) {
@@ -206,8 +211,9 @@ Promise.all(promises).then(async (results) => {
             headerAlbums.textContent = 'Albums';
             wrapperDiv.appendChild(headerAlbums);
 
-            searchedAlbums = await music.api.albums(albumIdList)
-            wrapperDiv.appendChild(await getAlbumCards(searchedAlbums))
+            const searchedAlbums = await music.api.albums(albumIdList)
+            const searchedAlbumsSorted = _.sortBy(searchedAlbums, ['attributes.artistName', 'attributes.name']);
+            wrapperDiv.appendChild(await getAlbumCards(searchedAlbumsSorted))
         }
 
         mainScreen.setFavorite(wrapperDiv)
