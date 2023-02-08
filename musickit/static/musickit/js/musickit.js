@@ -889,7 +889,7 @@ Promise.all(promises).then(async (results) => {
                 'parentId': itemTag.getAttribute('album-id'),
                 'type': itemTag.getAttribute('media-type')
             });
-            
+
             looper.setStartTime(Number(itemTag.getAttribute('start-time')))
             looper.setEndTime(Number(itemTag.getAttribute('end-time')))
             looper.switchOn()
