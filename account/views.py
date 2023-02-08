@@ -27,19 +27,25 @@ def login_view(request):
             if user:
                 login(request, user)
                 if settings.DEBUG:
-                    return redirect(to='http://localhost:8080?env=development')
+                    return redirect(to='http://localhost:8080/html?env=development')
+                else:
+                    return redirect(to='http://justjam.jppj.jp')
 
     else:
         context = {'form': LoginForm()}
         if settings.DEBUG:
-            context['main_page'] = 'http://localhost:8080?env=development'
+            context['main_page'] = 'http://localhost:8080/html?env=development'
+        else:
+            context['main_page'] = 'http://justjam.jppj.jp'
         return render(request, 'registration/login.html', context)
 
 
 def logout_view(request):
     logout(request)
     if settings.DEBUG:
-        return redirect(to='http://localhost:8080?env=development')
+        return redirect(to='http://localhost:8080/html?env=development')
+    else:
+        return redirect(to='http://justjam.jppj.jp')
 
 
 def signup_view(request):
@@ -48,14 +54,18 @@ def signup_view(request):
         if form.is_valid():
             form.save()
             if settings.DEBUG:
-                return redirect(to='http://localhost:8080?env=development')
+                return redirect(to='http://localhost:8080/html?env=development')
+            else:
+                return redirect(to='http://justjam.jppj.jp')
         else:
             context = {
                 'form': CustomUserCreationForm(),
                 'error_message': 'Some Error Happened'
             }
             if settings.DEBUG:
-                context['main_page'] = 'http://localhost:8080?env=development'
+                context['main_page'] = 'http://localhost:8080/html?env=development'
+            else:
+                context['main_page'] = 'http://justjam.jppj.jp'
             return render(request, 'registration/signup.html', context)
 
     else:
