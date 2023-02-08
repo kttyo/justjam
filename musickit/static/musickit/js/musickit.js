@@ -993,7 +993,6 @@ Promise.all(promises).then(async (results) => {
         searchedSongs = await music.api.songs(songIdList)
 
         for (const song of searchedSongs) {
-
             // Get Card Layout
             const cardDiv = createMediaCardLayout()
             const artwork = cardDiv.querySelector('img')
@@ -1008,7 +1007,7 @@ Promise.all(promises).then(async (results) => {
             ptag.setAttribute('media-type', 'song');
             ptag.setAttribute('song-id', song.id);
             ptag.setAttribute('album-id', song.relationships.albums.data[0].id)
-            const node = document.createTextNode(song.attributes.name + ' - ' + song.attributes.albumName);
+            const node = document.createTextNode(song.attributes.name + ' - ' + song.attributes.artistName);
             ptag.appendChild(node);
             ptag.addEventListener('click', itemClickedForPlaying)
 
