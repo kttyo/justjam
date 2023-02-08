@@ -54,6 +54,8 @@ def signup_view(request):
                 'form': CustomUserCreationForm(),
                 'error_message': 'Some Error Happened'
             }
+            if settings.DEBUG:
+                context['main_page'] = 'http://localhost:8080?env=development'
             return render(request, 'registration/signup.html', context)
 
     else:
