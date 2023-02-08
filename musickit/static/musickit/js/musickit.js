@@ -860,7 +860,9 @@ Promise.all(promises).then(async (results) => {
 
     async function itemClickedForPlaying(event) {
         const itemTag = event.target
-        if (itemTag.getAttribute('media-type') != 'song-part') {
+        const mediaType = itemTag.getAttribute('media-type')
+
+        if (mediaType != 'song-part') {
             looper.switchOff()
         }
 
@@ -874,7 +876,7 @@ Promise.all(promises).then(async (results) => {
         })
 
         // Play the song
-        if (itemTag.getAttribute('media-type') == 'song-part') {
+        if (mediaType == 'song-part') {
             const startTime = Number(itemTag.getAttribute('start-time'))
             const indexForItem = music.player.queue.indexForItem(itemTag.getAttribute('song-id'))
 
@@ -882,31 +884,30 @@ Promise.all(promises).then(async (results) => {
             await music.seekToTime(startTime)
             await music.play()
 
-        } else if (itemTag.getAttribute('media-type') == 'song') {
-            await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
-            await music.play()
-
-        } else if (itemTag.getAttribute('media-type') == 'album') {
-            await music.play()
-
-        }
-
-        // Looper Update for song-part
-        if (itemTag.getAttribute('media-type') == 'song-part') {
             looper.setMediaItem({
                 'id': itemTag.getAttribute('song-id'),
                 'parentId': itemTag.getAttribute('album-id'),
                 'type': itemTag.getAttribute('media-type')
             });
+            
             looper.setStartTime(Number(itemTag.getAttribute('start-time')))
             looper.setEndTime(Number(itemTag.getAttribute('end-time')))
             looper.switchOn()
+            console.log(looper)
+
+        } else if (mediaType == 'song') {
+            await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
+            await music.play()
+
+        } else if (mediaType == 'album') {
+            await music.play()
+
         }
 
         // Display
         playPauseButton.textContent = '||'
         mainScreen.setNowPlayingAlbum(await getNowPlayingAlbumInfo(itemTag.getAttribute('album-id')))
-        if (itemTag.getAttribute('media-type') != 'song-part') {
+        if (mediaType != 'song-part') {
             mainScreen.displayNowPlayingAlbum()
         }
         if (user.authenticated) {
