@@ -234,7 +234,7 @@
     <script>
         let urlParams = new URLSearchParams(window.location.search);
         let environmant = urlParams.get("env");
-        domain = 'http://justjam.jppj.jp'
+        domain = 'https://justjam.jppj.jp'
 
         if (environmant === "development") {
             domain = "http://localhost:8000";
@@ -320,7 +320,7 @@
             unauth.appendChild(button)
         }
 
-        let scriptPath = "http://justjam.jppj.jp/static/musickit/js/musickit.js";
+        let scriptPath = "https://justjam.jppj.jp/static/musickit/js/musickit.js";
 
         if (environmant === "development") {
             scriptPath = "../../js/musickit.js";
