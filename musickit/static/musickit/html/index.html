@@ -313,7 +313,18 @@
         }
 
     </script>
-    <script src="../../js/musickit.js"></script>
+    <script>
+        let urlParams = new URLSearchParams(window.location.search);
+        let environmant = urlParams.get("env");
+        let scriptPath = "http://justjam.jppj.jp/static/musickit/js/musickit.js";
+
+        if (environmant === "development") {
+            scriptPath = "../../js/musickit.js";
+        }
+        let scriptMusicKitLocal = document.createElement("script");
+        scriptMusicKitLocal.setAttribute("src", scriptPath);
+        document.body.appendChild(scriptMusicKitLocal);
+    </script>
 </body>
 
 </html>
