@@ -232,9 +232,17 @@
         </div>
     </div>
     <script>
+        let urlParams = new URLSearchParams(window.location.search);
+        let environmant = urlParams.get("env");
+        domain = 'http://justjam.jppj.jp'
+
+        if (environmant === "development") {
+            domain = "http://localhost:8000";
+        }
+
         async function getUserStatus() {
             userStatusData = await fetch(
-                'http://localhost:8000/account/user-status',
+                domain+'/account/user-status',
                 { credentials: 'include' }
             )
             userStatusJSON = await userStatusData.json()
@@ -244,7 +252,7 @@
 
         function getLogOutButton() {
             const a = document.createElement('a')
-            a.setAttribute('href', 'http://localhost:8000/account/logout')
+            a.setAttribute('href', domain+'/account/logout')
             a.innerHTML = 'Log Out'
             return a
         }
@@ -252,7 +260,7 @@
 
         function getLogInButton() {
             const a = document.createElement('a')
-            a.setAttribute('href', 'http://localhost:8000/account/login')
+            a.setAttribute('href', domain+'/account/login')
             a.setAttribute('class', 'nav-link')
             a.innerHTML = 'Log In'
             return a
@@ -262,7 +270,7 @@
         function getSignUpButton() {
             const p = document.createElement('p')
             let a = document.createElement('a')
-            a.setAttribute('href', 'http://localhost:8000/account/signup')
+            a.setAttribute('href', domain+'/account/signup')
             a.setAttribute('class', 'nav-link')
             a.innerHTML = 'Sign Up'
             p.appendChild(a)
@@ -312,10 +320,6 @@
             unauth.appendChild(button)
         }
 
-    </script>
-    <script>
-        let urlParams = new URLSearchParams(window.location.search);
-        let environmant = urlParams.get("env");
         let scriptPath = "http://justjam.jppj.jp/static/musickit/js/musickit.js";
 
         if (environmant === "development") {
