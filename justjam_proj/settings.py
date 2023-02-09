@@ -6,3 +6,9 @@ ALLOWED_HOSTS = ['justjam.jppj.jp']
 STATIC_ROOT = '/var/www/jppj.jp/justjam/html/static'
 
 SECRET_KEY = sk
+
+CSRF_TRUSTED_ORIGINS = ['https://justjam.jppj.jp']
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = ['https://justjam.jppj.jp']
