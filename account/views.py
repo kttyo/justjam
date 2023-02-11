@@ -4,6 +4,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from django.http import JsonResponse
 from django.conf import settings
+import logging
+logger = logging.getLogger(__name__)
 
 
 def user_status(request):
@@ -14,6 +16,7 @@ def user_status(request):
     else:
         dict_data['authenticated'] = False
         dict_data['username'] = 'AnonymousUser'
+    logger.info(dict_data)
     return JsonResponse(dict_data, safe=False)
 
 
