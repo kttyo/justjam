@@ -19,7 +19,7 @@ const setupMusicKit = new Promise((resolve) => {
     document.addEventListener('musickitloaded', (event) => {
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
         MusicKit.configure({
-            developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjY3ODkyMzQ3LCJleHAiOjE2NzYwMDk0MDR9.qtAeRjx-xus4-Qp92snk42YRx8N0nMupuKTYGvo_zJhVDnECcXl8-mGR8CJ9ygQ6QKYvyo4EWJWMOWyPsdhQ2g',
+            developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjc1OTU0ODAwLCJleHAiOjE2NzY1NTk2MDB9.meW0GKHjTih3DJAaSBJ8pH0r7JHAhONgXq7pnWU9VWdoQvvTCupOLRGVz8Shc71TDEKFhUBhlglMskVl4ef36g',
             app: {
                 name: 'My Cool Web App',
                 build: '2022.11.17'
