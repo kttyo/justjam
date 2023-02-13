@@ -14,12 +14,19 @@ if (env === "development") {
     referenceURL = "http://localhost:8000";
 }
 
+function getNewToken() {
+    return fetch(referenceURL + '/account/music-user-token')
+        .then(response => response.json())
+        .then(data => data['jwt']);
+};
+
 // Create Promise for document.addEventListener
 const setupMusicKit = new Promise((resolve) => {
-    document.addEventListener('musickitloaded', (event) => {
+    document.addEventListener('musickitloaded', async (event) => {
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
+        const token = await getNewToken()
         MusicKit.configure({
-            developerToken: 'eyJhbGciOiJFUzI1NiIsImtpZCI6Iks3TEs2TUI2OFEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJaOTlENTc4MjZUIiwiaWF0IjoxNjc1OTU0ODAwLCJleHAiOjE2NzY1NTk2MDB9.meW0GKHjTih3DJAaSBJ8pH0r7JHAhONgXq7pnWU9VWdoQvvTCupOLRGVz8Shc71TDEKFhUBhlglMskVl4ef36g',
+            developerToken: token,
             app: {
                 name: 'My Cool Web App',
                 build: '2022.11.17'
