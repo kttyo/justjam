@@ -2,14 +2,14 @@ import json
 import datetime
 import time
 import jwt
-from django.conf import settings
 import os
-import sys
+from django.conf import settings
 import logging
 logger = logging.getLogger(__name__)
 
-# team_id = settings.team_id,
-# key_id = settings.key_id,
+current_module_path = os.path.abspath(__file__)
+static_path = os.path.join(os.path.dirname(current_module_path), 'static')
+
 
 def convert_date_to_epoch(date_string):
     time_tuple = time.strptime(date_string, "%Y%m%d")
@@ -18,7 +18,7 @@ def convert_date_to_epoch(date_string):
 
 
 def generate_jwt(current_date, future_date):
-    with open(settings.AUTH_KEY_FILE, 'r') as authkey_file:
+    with open(os.path.join(static_path, settings.AUTH_KEY_FILE), 'r') as authkey_file:
         key = authkey_file.read()
     iat = convert_date_to_epoch(current_date)
     exp = convert_date_to_epoch(future_date)
@@ -32,7 +32,7 @@ def generate_jwt(current_date, future_date):
 
 
 def update_jwt_json(jwt, current_date, future_date):
-    with open(settings.JWT_JSON_FILE, 'w', encoding='utf-8') as jwt_json:
+    with open(os.path.join(static_path, settings.JWT_JSON_FILE), 'w', encoding='utf-8') as jwt_json:
         data = {
             'iat': current_date,
             'exp': future_date,
@@ -47,7 +47,7 @@ def get_music_user_token():
     future_date = current_date + datetime.timedelta(days=7)
 
     try:
-        with open(os.path.join(sys.path[0],settings.JWT_JSON_FILE), 'r', encoding='utf-8') as json_file:
+        with open(os.path.join(static_path, settings.JWT_JSON_FILE), 'r', encoding='utf-8') as json_file:
             current_jwt = json.load(json_file)
 
         if current_date.strftime("%Y%m%d") < current_jwt['exp']:
@@ -63,10 +63,9 @@ def get_music_user_token():
                 current_date=current_date.strftime("%Y%m%d"),
                 future_date=future_date.strftime("%Y%m%d")
             )
-            with open(os.path.join(sys.path[0], settings.JWT_JSON_FILE), 'r', encoding='utf-8') as json_file:
+            with open(os.path.join(static_path, settings.JWT_JSON_FILE), 'r', encoding='utf-8') as json_file:
                 current_jwt = json.load(json_file)
             return current_jwt
 
     except Exception as e:
-        logger.error('Error at line 51')
         logger.error(e)
