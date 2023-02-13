@@ -14,6 +14,10 @@ import os
 from pathlib import Path
 from .settings_common import *
 from .local_settings import SECRET_KEY as sk
+from .local_settings import TEAM_ID as team_id
+from .local_settings import KEY_ID as key_id
+from .local_settings import AUTH_KEY_FILE as auth_key_file
+from .local_settings import JWT_JSON_FILE as jwt_json_file
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,3 +41,8 @@ CORS_ALLOWED_ORIGINS = ['http://localhost:8080']
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8080']
+
+TEAM_ID = team_id
+KEY_ID = key_id
+AUTH_KEY_FILE = auth_key_file
+JWT_JSON_FILE = jwt_json_file

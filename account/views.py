@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from django.http import JsonResponse
 from django.conf import settings
+from .music_user_token import get_music_user_token
 import logging
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,11 @@ def user_status(request):
         dict_data['authenticated'] = False
         dict_data['username'] = 'AnonymousUser'
     logger.info(dict_data)
+    return JsonResponse(dict_data, safe=False)
+
+
+def music_user_token(request):
+    dict_data = get_music_user_token()
     return JsonResponse(dict_data, safe=False)
 
 
