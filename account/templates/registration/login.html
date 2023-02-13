@@ -6,6 +6,7 @@
 </head>
 <body>
     <h1>Log In</h1>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
     <form action="{% url 'account:login' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
