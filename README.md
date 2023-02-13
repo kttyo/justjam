@@ -28,6 +28,12 @@ So as soon as you grab your guitar, you can just hit that solo on _justjam_ and 
 You can access this application at:
 [https://justjam.jppj.jp/](https://justjam.jppj.jp/)
 
+#### Play around using the demo account
+There is a [Log In](https://justjam.jppj.jp/account/login) link, so you can use the credentials below to use the favorite functionality.
+Some songs and sections of songs are already saved as favorites.
+* _username:_ test
+* _password:_ justjamtest
+
 ### Apple Music Authentication Required for Full Experience
 
 As this application uses Apple's MusicKit JS for searching and playing full version of the songs, you will be prompted to log in to your Apple Music account.
