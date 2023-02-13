@@ -1,5 +1,10 @@
 import os
 from pathlib import Path
+from .local_settings import SECRET_KEY
+from .local_settings import TEAM_ID
+from .local_settings import KEY_ID
+from .local_settings import AUTH_KEY_FILE
+from .local_settings import JWT_JSON_FILE
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
