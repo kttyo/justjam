@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 current_module_path = os.path.abspath(__file__)
-static_path = os.path.join(os.path.dirname(current_module_path), 'static')
+static_path = os.path.join(os.path.dirname(current_module_path), 'auth_files')
 
 
 def convert_date_to_epoch(date_string):
