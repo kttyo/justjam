@@ -5,24 +5,25 @@ import jwt
 import os
 from django.conf import settings
 import logging
+
 logger = logging.getLogger(__name__)
 
 current_module_path = os.path.abspath(__file__)
 static_path = os.path.join(os.path.dirname(current_module_path), 'auth_files')
 
 
-def convert_date_to_epoch(date_string):
-    time_tuple = time.strptime(date_string, "%Y%m%d")
-    date_epoch = int(time.mktime(time_tuple))
+def convert_date_to_epoch(date_string) -> int:
+    time_tuple: tuple = time.strptime(date_string, "%Y%m%d")
+    date_epoch: int = int(time.mktime(time_tuple))
     return date_epoch
 
 
-def generate_jwt(current_date, future_date):
+def generate_jwt(current_date, future_date) -> str:
     with open(os.path.join(static_path, settings.AUTH_KEY_FILE), 'r') as authkey_file:
         key = authkey_file.read()
-    iat = convert_date_to_epoch(current_date)
-    exp = convert_date_to_epoch(future_date)
-    encoded_jwt = jwt.encode(
+    iat: int = convert_date_to_epoch(current_date)
+    exp: int = convert_date_to_epoch(future_date)
+    encoded_jwt: str = jwt.encode(
         {"iss": settings.TEAM_ID, "iat": iat, "exp": exp},
         key,
         algorithm="ES256",
@@ -42,7 +43,7 @@ def update_jwt_json(jwt, current_date, future_date):
         jwt_json.write(json_string)
 
 
-def get_music_user_token():
+def get_music_user_token() -> dict:
     current_date = datetime.datetime.now()
     future_date = current_date + datetime.timedelta(days=7)
 
@@ -54,7 +55,7 @@ def get_music_user_token():
             return current_jwt
 
         else:
-            new_jwt = generate_jwt(
+            new_jwt: str = generate_jwt(
                 current_date=current_date.strftime("%Y%m%d"),
                 future_date=future_date.strftime("%Y%m%d")
             )
@@ -63,8 +64,9 @@ def get_music_user_token():
                 current_date=current_date.strftime("%Y%m%d"),
                 future_date=future_date.strftime("%Y%m%d")
             )
+            logger.info('music user token was updated.')
             with open(os.path.join(static_path, settings.JWT_JSON_FILE), 'r', encoding='utf-8') as json_file:
-                current_jwt = json.load(json_file)
+                current_jwt: dict = json.load(json_file)
             return current_jwt
 
     except Exception as e:
