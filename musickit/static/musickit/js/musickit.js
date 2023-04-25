@@ -208,7 +208,11 @@ Promise.all(promises).then(async (results) => {
             headerSongs.textContent = 'Songs';
             wrapperDiv.appendChild(headerSongs);
 
-            const searchedSongs = await music.api.songs(songIdList)
+            try {
+                const searchedSongs = await music.api.songs(songIdList)
+            } catch (error) {
+                console.error(error);
+            }
             const searchedSongsSorted = _.sortBy(searchedSongs, ['attributes.artistName', 'attributes.name']);
             wrapperDiv.appendChild(await getSongCards(searchedSongsSorted))
         }
@@ -217,10 +221,13 @@ Promise.all(promises).then(async (results) => {
             const headerAlbums = document.createElement("h2");
             headerAlbums.textContent = 'Albums';
             wrapperDiv.appendChild(headerAlbums);
-
-            const searchedAlbums = await music.api.albums(albumIdList)
-            const searchedAlbumsSorted = _.sortBy(searchedAlbums, ['attributes.artistName', 'attributes.name']);
-            wrapperDiv.appendChild(await getAlbumCards(searchedAlbumsSorted))
+            try {
+                const searchedAlbums = await music.api.albums(albumIdList)
+                const searchedAlbumsSorted = _.sortBy(searchedAlbums, ['attributes.artistName', 'attributes.name']);
+                wrapperDiv.appendChild(await getAlbumCards(searchedAlbumsSorted))
+            } catch (error) {
+                console.error(error);
+            }
         }
 
         mainScreen.setFavorite(wrapperDiv)
@@ -254,17 +261,21 @@ Promise.all(promises).then(async (results) => {
 
 
     async function refreshLooper() {
-        const song = await music.api.song(music.player.nowPlayingItem.id)
-        looper.setMediaItem({
-            'id': music.player.nowPlayingItem.id,
-            'parentId': song.relationships.albums.data[0].id,
-            'type': music.player.nowPlayingItem.type
-        });
-        looper.setStartTime(0);
-        looper.setEndTime(music.player.currentPlaybackDuration);
+        try {
+            const song = await music.api.song(music.player.nowPlayingItem.id)
+            looper.setMediaItem({
+                'id': music.player.nowPlayingItem.id,
+                'parentId': song.relationships.albums.data[0].id,
+                'type': music.player.nowPlayingItem.type
+            });
+            looper.setStartTime(0);
+            looper.setEndTime(music.player.currentPlaybackDuration);
 
-        looperStartDotPos.style.left = '0%';
-        looperEndDotPos.style.left = '100%';
+            looperStartDotPos.style.left = '0%';
+            looperEndDotPos.style.left = '100%';
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     async function refreshMainLoopFavButton() {
@@ -605,59 +616,63 @@ Promise.all(promises).then(async (results) => {
         const wrapperDiv = document.createElement("div");
 
         // Get album tracks
-        let albumData = await music.api.album(albumId)
-        let albumTracks = albumData.relationships.tracks.data
+        try {
+            let albumData = await music.api.album(albumId)
+            let albumTracks = albumData.relationships.tracks.data
 
-        const headerNowPlayingAlbum = document.createElement("h2");
-        headerNowPlayingAlbum.textContent = 'Now Playing Album';
-        wrapperDiv.appendChild(headerNowPlayingAlbum);
+            const headerNowPlayingAlbum = document.createElement("h2");
+            headerNowPlayingAlbum.textContent = 'Now Playing Album';
+            wrapperDiv.appendChild(headerNowPlayingAlbum);
 
-        const headerNowPlayingAlbumInfo = document.createElement("h3");
-        headerNowPlayingAlbumInfo.textContent = albumData.attributes.name + ' | ' + albumData.attributes.artistName;
-        wrapperDiv.appendChild(headerNowPlayingAlbumInfo);
+            const headerNowPlayingAlbumInfo = document.createElement("h3");
+            headerNowPlayingAlbumInfo.textContent = albumData.attributes.name + ' | ' + albumData.attributes.artistName;
+            wrapperDiv.appendChild(headerNowPlayingAlbumInfo);
 
-        for (const track of albumTracks) {
-            const divtag = document.createElement("div");
-            divtag.setAttribute('class', 'row');
+            for (const track of albumTracks) {
+                const divtag = document.createElement("div");
+                divtag.setAttribute('class', 'row');
 
-            const leftCol = document.createElement("div");
-            leftCol.setAttribute('class', 'col-1');
+                const leftCol = document.createElement("div");
+                leftCol.setAttribute('class', 'col-1');
 
-            const rightCol = document.createElement("div");
-            rightCol.setAttribute('class', 'col-11');
+                const rightCol = document.createElement("div");
+                rightCol.setAttribute('class', 'col-11');
 
-            const para = document.createElement("p");
-            para.setAttribute('media-type', 'song');
-            para.setAttribute('song-id', track.attributes.playParams.id);
-            para.setAttribute('album-id', albumId)
-            para.setAttribute('id', track.attributes.playParams.id)
-            const node = document.createTextNode(track.attributes.trackNumber + ': ' + track.attributes.name);
-            para.appendChild(node);
+                const para = document.createElement("p");
+                para.setAttribute('media-type', 'song');
+                para.setAttribute('song-id', track.attributes.playParams.id);
+                para.setAttribute('album-id', albumId)
+                para.setAttribute('id', track.attributes.playParams.id)
+                const node = document.createTextNode(track.attributes.trackNumber + ': ' + track.attributes.name);
+                para.appendChild(node);
 
-            para.addEventListener('click', async (event) => {
-                const itemTag = event.target
-                looper.switchOff()
-                await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
-                playPauseButton.textContent = '||'
-                looper.setMediaItem({
-                    'id': itemTag.getAttribute('song-id'),
-                    'parentId': itemTag.getAttribute('album-id'),
-                    'type': itemTag.getAttribute('media-type')
-                });
-                looper.setStartTime(Number(itemTag.getAttribute('start-time')))
-                looper.setEndTime(Number(itemTag.getAttribute('end-time')))
-            })
-            rightCol.appendChild(para)
-            if (user.authenticated) {
-                let favButton = generateFavButton('song', albumId, track.attributes.playParams.id)
-                checkExisitingFavoriteData(favButton, 'song', track.attributes.playParams.id)
-                leftCol.appendChild(favButton);
+                para.addEventListener('click', async (event) => {
+                    const itemTag = event.target
+                    looper.switchOff()
+                    await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
+                    playPauseButton.textContent = '||'
+                    looper.setMediaItem({
+                        'id': itemTag.getAttribute('song-id'),
+                        'parentId': itemTag.getAttribute('album-id'),
+                        'type': itemTag.getAttribute('media-type')
+                    });
+                    looper.setStartTime(Number(itemTag.getAttribute('start-time')))
+                    looper.setEndTime(Number(itemTag.getAttribute('end-time')))
+                })
+                rightCol.appendChild(para)
+                if (user.authenticated) {
+                    let favButton = generateFavButton('song', albumId, track.attributes.playParams.id)
+                    checkExisitingFavoriteData(favButton, 'song', track.attributes.playParams.id)
+                    leftCol.appendChild(favButton);
+                }
+                divtag.appendChild(leftCol)
+                divtag.appendChild(rightCol)
+                wrapperDiv.appendChild(divtag)
             }
-            divtag.appendChild(leftCol)
-            divtag.appendChild(rightCol)
-            wrapperDiv.appendChild(divtag)
+            return wrapperDiv
+        } catch (error) {
+            console.error(error);
         }
-        return wrapperDiv
     }
 
     // Fav Button Clicked
@@ -935,55 +950,59 @@ Promise.all(promises).then(async (results) => {
         }
 
         // Bulk search the songs to capture relationships data
-        searchedSongs = await music.api.songs(loopItemIdList)
+        try {
+            searchedSongs = await music.api.songs(loopItemIdList)
 
-        for (const loopItem of loopItemList) {
-            for (const song of searchedSongs) {
-                if (loopItem.media_id == song.id) {
-                    loopItem.songInfo = song
+            for (const loopItem of loopItemList) {
+                for (const song of searchedSongs) {
+                    if (loopItem.media_id == song.id) {
+                        loopItem.songInfo = song
+                    }
                 }
+
+                if (!loopItem.songInfo) {
+                    continue
+                }
+
+                // Get Card Layout
+                const cardDiv = createMediaCardLayout()
+                const artwork = cardDiv.querySelector('img')
+                const ptag = cardDiv.querySelector('.card-text')
+                const cardBody = cardDiv.querySelector('.card-body')
+
+                // Artwork
+                artwork.setAttribute('src', MusicKit.formatArtworkURL(loopItem.songInfo.attributes.artwork, 50, 50))
+                artwork.setAttribute('width', '100%')
+
+                // Card Text
+                ptag.setAttribute('media-type', 'song-part');
+                ptag.setAttribute('start-time', loopItem.loop_start_time)
+                ptag.setAttribute('end-time', loopItem.loop_end_time)
+                ptag.setAttribute('song-id', loopItem.media_id);
+                ptag.setAttribute('album-id', loopItem.songInfo.relationships.albums.data[0].id)
+                const node = document.createTextNode(getFormattedTime(loopItem.loop_start_time) + ' - ' + getFormattedTime(loopItem.loop_end_time) + ' - ' + loopItem.songInfo.attributes.name + ' - ' + loopItem.songInfo.attributes.artistName);
+                ptag.appendChild(node);
+                ptag.addEventListener('click', itemClickedForPlaying)
+                if (user.authenticated) {
+                    let favButton = generateFavButtonForPart('song-part', loopItem.songInfo.relationships.albums.data[0].id, loopItem.media_id, loopItem.loop_start_time, loopItem.loop_end_time)
+
+                    favButton.setAttribute('start-time', loopItem.loop_start_time)
+                    favButton.setAttribute('end-time', loopItem.loop_end_time)
+
+
+                    // Update attributes if the media already exists as favorite
+                    checkExisitingFavoritePart(favButton, loopItem.media_id, loopItem.loop_start_time, loopItem.loop_end_time)
+
+                    // Favorite Button
+                    cardBody.appendChild(favButton);
+                }
+                rowDiv.appendChild(cardDiv);
+                containerDiv.appendChild(rowDiv);
             }
-
-            if (!loopItem.songInfo) {
-                continue
-            }
-
-            // Get Card Layout
-            const cardDiv = createMediaCardLayout()
-            const artwork = cardDiv.querySelector('img')
-            const ptag = cardDiv.querySelector('.card-text')
-            const cardBody = cardDiv.querySelector('.card-body')
-
-            // Artwork
-            artwork.setAttribute('src', MusicKit.formatArtworkURL(loopItem.songInfo.attributes.artwork, 50, 50))
-            artwork.setAttribute('width', '100%')
-
-            // Card Text
-            ptag.setAttribute('media-type', 'song-part');
-            ptag.setAttribute('start-time', loopItem.loop_start_time)
-            ptag.setAttribute('end-time', loopItem.loop_end_time)
-            ptag.setAttribute('song-id', loopItem.media_id);
-            ptag.setAttribute('album-id', loopItem.songInfo.relationships.albums.data[0].id)
-            const node = document.createTextNode(getFormattedTime(loopItem.loop_start_time) + ' - ' + getFormattedTime(loopItem.loop_end_time) + ' - ' + loopItem.songInfo.attributes.name + ' - ' + loopItem.songInfo.attributes.artistName);
-            ptag.appendChild(node);
-            ptag.addEventListener('click', itemClickedForPlaying)
-            if (user.authenticated) {
-                let favButton = generateFavButtonForPart('song-part', loopItem.songInfo.relationships.albums.data[0].id, loopItem.media_id, loopItem.loop_start_time, loopItem.loop_end_time)
-
-                favButton.setAttribute('start-time', loopItem.loop_start_time)
-                favButton.setAttribute('end-time', loopItem.loop_end_time)
-
-
-                // Update attributes if the media already exists as favorite
-                checkExisitingFavoritePart(favButton, loopItem.media_id, loopItem.loop_start_time, loopItem.loop_end_time)
-
-                // Favorite Button
-                cardBody.appendChild(favButton);
-            }
-            rowDiv.appendChild(cardDiv);
-            containerDiv.appendChild(rowDiv);
+            return containerDiv
+        } catch (error) {
+            console.error(error);
         }
-        return containerDiv
     }
 
     async function getSongCards(songArray) {
@@ -998,39 +1017,42 @@ Promise.all(promises).then(async (results) => {
         for (const song of songArray) {
             songIdList.push(song.id)
         }
-        searchedSongs = await music.api.songs(songIdList)
+        try {
+            searchedSongs = await music.api.songs(songIdList)
+            for (const song of searchedSongs) {
+                // Get Card Layout
+                const cardDiv = createMediaCardLayout()
+                const artwork = cardDiv.querySelector('img')
+                const ptag = cardDiv.querySelector('.card-text')
+                const cardBody = cardDiv.querySelector('.card-body')
 
-        for (const song of searchedSongs) {
-            // Get Card Layout
-            const cardDiv = createMediaCardLayout()
-            const artwork = cardDiv.querySelector('img')
-            const ptag = cardDiv.querySelector('.card-text')
-            const cardBody = cardDiv.querySelector('.card-body')
+                // Artwork
+                artwork.setAttribute('src', MusicKit.formatArtworkURL(song.attributes.artwork, 50, 50))
+                artwork.setAttribute('width', '100%')
 
-            // Artwork
-            artwork.setAttribute('src', MusicKit.formatArtworkURL(song.attributes.artwork, 50, 50))
-            artwork.setAttribute('width', '100%')
+                // Card Text
+                ptag.setAttribute('media-type', 'song');
+                ptag.setAttribute('song-id', song.id);
+                ptag.setAttribute('album-id', song.relationships.albums.data[0].id)
+                const node = document.createTextNode(song.attributes.name + ' - ' + song.attributes.artistName);
+                ptag.appendChild(node);
+                ptag.addEventListener('click', itemClickedForPlaying)
 
-            // Card Text
-            ptag.setAttribute('media-type', 'song');
-            ptag.setAttribute('song-id', song.id);
-            ptag.setAttribute('album-id', song.relationships.albums.data[0].id)
-            const node = document.createTextNode(song.attributes.name + ' - ' + song.attributes.artistName);
-            ptag.appendChild(node);
-            ptag.addEventListener('click', itemClickedForPlaying)
+                // Favorite Button
+                if (user.authenticated) {
+                    let favButton = generateFavButton('song', song.relationships.albums.data[0].id, song.id)
+                    checkExisitingFavoriteData(favButton, 'song', song.id)
 
-            // Favorite Button
-            if (user.authenticated) {
-                let favButton = generateFavButton('song', song.relationships.albums.data[0].id, song.id)
-                checkExisitingFavoriteData(favButton, 'song', song.id)
+                    cardBody.appendChild(favButton);
+                }
 
-                cardBody.appendChild(favButton);
+                rowDiv.appendChild(cardDiv);
+                containerDiv.appendChild(rowDiv);
             }
-
-            rowDiv.appendChild(cardDiv);
-            containerDiv.appendChild(rowDiv);
+            return containerDiv
+        } catch (error) {
+            console.error(error);
         }
-        return containerDiv
     }
 
 
