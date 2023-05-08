@@ -37,7 +37,7 @@ def favorite_item(request):
             media_id=request.data['media_id']
         )
         items_to_delete.delete()
-        print(items_to_delete)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
