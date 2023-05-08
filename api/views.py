@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 def favorite_item(request):
     logger.info('favorite_item function: {}'.format(request.user.id))
     logger.info('favorite_item function: {}'.format(request.method))
+    logger.info('favorite_item function: {}'.format(request.data))
     if request.user.id and request.method == 'GET':
         favorite_items = FavoriteItem.objects.filter(user=request.user.id)
         serializer = FavoriteItemSerializer(favorite_items, many=True)
@@ -32,8 +33,11 @@ def favorite_item(request):
             user=request.user.id
         ).filter(
             media_type=request.data['media_type']
-        ).filter(media_id=request.data['media_id'])
+        ).filter(
+            media_id=request.data['media_id']
+        )
         items_to_delete.delete()
+        print(items_to_delete)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
