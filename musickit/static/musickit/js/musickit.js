@@ -210,11 +210,11 @@ Promise.all(promises).then(async (results) => {
 
             try {
                 const searchedSongs = await music.api.songs(songIdList)
+                const searchedSongsSorted = _.sortBy(searchedSongs, ['attributes.artistName', 'attributes.name']);
+                wrapperDiv.appendChild(await getSongCards(searchedSongsSorted))
             } catch (error) {
                 console.error(error);
             }
-            const searchedSongsSorted = _.sortBy(searchedSongs, ['attributes.artistName', 'attributes.name']);
-            wrapperDiv.appendChild(await getSongCards(searchedSongsSorted))
         }
 
         if (albumIdList.length > 0) {
