@@ -85,5 +85,8 @@ def signup_view(request):
             return render(request, 'registration/signup.html', context)
 
     else:
-        context = {'form': CustomUserCreationForm()}
+        context = {
+            'form': CustomUserCreationForm(),
+            'main_page': main_page_url
+        }
         return render(request, 'registration/signup.html', context)
