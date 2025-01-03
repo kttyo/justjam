@@ -1,0 +1,7 @@
+*.DS_Store
+*.pyc
+local_settings.py
+__pycache__/
+account/auth_files/
+api/__pycache__/
+musickit/__pycache__/
