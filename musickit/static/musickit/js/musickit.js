@@ -42,6 +42,8 @@ const promises = [setupMusicKit, getUserStatus()]
 Promise.all(promises).then(async (results) => {
     const music = results[0]
     const user = results[1]
+    
+    await music.authorize()
     //setupMusicKit.then(async (music) => {
     console.log('Entered Main Script')
 
