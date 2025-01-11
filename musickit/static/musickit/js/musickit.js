@@ -211,7 +211,6 @@ Promise.all(promises).then(async (results) => {
             try {
                 const queryParameters = { ids: songIdList, l: 'en-us' };
                 const searchedSongs = await music.api.music('/v1/catalog/{{storefrontId}}/songs', queryParameters);
-                console.log(searchedSongs.data.data)
                 const searchedSongsSorted = _.sortBy(searchedSongs.data.data, ['attributes.artistName', 'attributes.name']);
                 wrapperDiv.appendChild(await getSongCards(searchedSongsSorted))
             } catch (error) {
@@ -224,8 +223,9 @@ Promise.all(promises).then(async (results) => {
             headerAlbums.textContent = 'Albums';
             wrapperDiv.appendChild(headerAlbums);
             try {
-                const searchedAlbums = await music.api.albums(albumIdList)
-                const searchedAlbumsSorted = _.sortBy(searchedAlbums, ['attributes.artistName', 'attributes.name']);
+                const queryParameters = { ids: albumIdList, l: 'en-us' };
+                const searchedAlbums = await music.api.music(`/v1/catalog/{{storefrontId}}/albums`, queryParameters);
+                const searchedAlbumsSorted = _.sortBy(searchedAlbums.data.data, ['attributes.artistName', 'attributes.name']);
                 wrapperDiv.appendChild(await getAlbumCards(searchedAlbumsSorted))
             } catch (error) {
                 console.error(error);
@@ -1023,7 +1023,7 @@ Promise.all(promises).then(async (results) => {
         try {
             const queryParameters = { ids: songIdList, l: 'en-us' };
             searchedSongs = await music.api.music('/v1/catalog/{{storefrontId}}/songs', queryParameters);
-            for (const song of searchedSongs) {
+            for (const song of searchedSongs.data.data) {
                 // Get Card Layout
                 const cardDiv = createMediaCardLayout()
                 const artwork = cardDiv.querySelector('img')
