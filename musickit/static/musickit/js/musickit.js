@@ -1,5 +1,5 @@
 let scriptMusicKit = document.createElement("script");
-scriptMusicKit.setAttribute("src", "https://js-cdn.music.apple.com/musickit/v1/musickit.js");
+scriptMusicKit.setAttribute("src", "https://js-cdn.music.apple.com/musickit/v3/musickit.js");
 document.body.appendChild(scriptMusicKit);
 
 let scriptLodash = document.createElement("script");
@@ -25,7 +25,7 @@ const setupMusicKit = new Promise((resolve) => {
     document.addEventListener('musickitloaded', async (event) => {
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
         const token = await getNewToken()
-        MusicKit.configure({
+        await MusicKit.configure({
             developerToken: token,
             app: {
                 name: 'My Cool Web App',
