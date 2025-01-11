@@ -951,10 +951,11 @@ Promise.all(promises).then(async (results) => {
 
         // Bulk search the songs to capture relationships data
         try {
-            searchedSongs = await music.api.songs(loopItemIdList)
+            const queryParameters = { ids: loopItemIdList, l: 'en-us' };
+            searchedSongs = await music.api.music('/v1/catalog/{{storefrontId}}/songs', queryParameters);
 
             for (const loopItem of loopItemList) {
-                for (const song of searchedSongs) {
+                for (const song of searchedSongs.data.data) {
                     if (loopItem.media_id == song.id) {
                         loopItem.songInfo = song
                     }
