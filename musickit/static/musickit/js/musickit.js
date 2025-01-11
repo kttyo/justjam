@@ -628,7 +628,7 @@ Promise.all(promises).then(async (results) => {
             wrapperDiv.appendChild(headerNowPlayingAlbum);
 
             const headerNowPlayingAlbumInfo = document.createElement("h3");
-            headerNowPlayingAlbumInfo.textContent = albumData.attributes.name + ' | ' + albumData.attributes.artistName;
+            headerNowPlayingAlbumInfo.textContent = albumData.data.data[0].attributes.name + ' | ' + albumData.data.data[0].attributes.artistName;
             wrapperDiv.appendChild(headerNowPlayingAlbumInfo);
 
             for (const track of albumTracks) {
