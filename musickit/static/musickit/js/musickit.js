@@ -611,8 +611,9 @@ Promise.all(promises).then(async (results) => {
     let searchBar = document.getElementById('search-bar');
     searchBar.addEventListener('keypress', async (event) => {
         if (event.key == 'Enter') {
-            searchResults = await music.api.search(event.target.value.replace(' ', '+').replace('　', '+'))
-            renderSearchResult(searchResults)
+            const queryParameters = { term: event.target.value, types: ['albums', 'artists', 'songs'], l: 'en-us' };
+            searchResults = await music.api.music('/v1/catalog/{{storefrontId}}/search', queryParameters);
+            renderSearchResult(searchResults.data.results)
         }
     });
 
