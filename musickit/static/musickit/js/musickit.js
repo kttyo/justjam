@@ -75,7 +75,7 @@ Promise.all(promises).then(async (results) => {
 
     console.log('Main script starts')
 
-    music.player.volume = 0.8;
+    music.volume = 0.8;
 
     // Info Display
     // let artworkImg = document.getElementById('artwork');
@@ -254,22 +254,22 @@ Promise.all(promises).then(async (results) => {
     }
 
     function updateCurrentPlayingItem() {
-        songName.textContent = music.player.nowPlayingItem.title
-        currentAlgumInfo.textContent = music.player.nowPlayingItem.artistName + ' | ' + music.player.nowPlayingItem.albumName
-        playbackDuration.textContent = getFormattedTime(music.player.currentPlaybackDuration)
+        songName.textContent = music.nowPlayingItem.title
+        currentAlgumInfo.textContent = music.nowPlayingItem.artistName + ' | ' + music.nowPlayingItem.albumName
+        playbackDuration.textContent = getFormattedTime(music.currentPlaybackDuration)
     }
 
 
     async function refreshLooper() {
         try {
-            const song = await music.api.song(music.player.nowPlayingItem.id)
+            const song = await music.api.song(music.nowPlayingItem.id)
             looper.setMediaItem({
-                'id': music.player.nowPlayingItem.id,
+                'id': music.nowPlayingItem.id,
                 'parentId': song.relationships.albums.data[0].id,
-                'type': music.player.nowPlayingItem.type
+                'type': music.nowPlayingItem.type
             });
             looper.setStartTime(0);
-            looper.setEndTime(music.player.currentPlaybackDuration);
+            looper.setEndTime(music.currentPlaybackDuration);
 
             looperStartDotPos.style.left = '0%';
             looperEndDotPos.style.left = '100%';
@@ -298,30 +298,30 @@ Promise.all(promises).then(async (results) => {
 
     music.addEventListener('playbackTimeDidChange', async () => {
         // Check Looper
-        if (looper.isOn && music.player.currentPlaybackTime < looper.startTime) {
+        if (looper.isOn && music.currentPlaybackTime < looper.startTime) {
             await music.seekToTime(looper.startTime)
-        } else if (looper.isOn && music.player.currentPlaybackTime >= looper.endTime) {
+        } else if (looper.isOn && music.currentPlaybackTime >= looper.endTime) {
             await music.seekToTime(looper.startTime)
         }
 
         // Time Display
-        playbackTime.textContent = getFormattedTime(music.player.currentPlaybackTime)
+        playbackTime.textContent = getFormattedTime(music.currentPlaybackTime)
 
-        let portionPlayed = music.player.currentPlaybackTime / music.player.currentPlaybackDuration;
+        let portionPlayed = music.currentPlaybackTime / music.currentPlaybackDuration;
         let pixedToBeColored = Math.floor(portionPlayed * timeScope.offsetWidth);
         timeScopeAfter.style.width = pixedToBeColored + 'px';
         timeScopeDotPos.style.left = pixedToBeColored + 'px';
     })
 
     music.addEventListener('playbackStateDidChange', () => {
-        if (music.player.playbackState == 10) {
+        if (music.playbackState == 10) {
             playPauseButton.textContent = '▶︎'
         }
     })
 
 
     music.addEventListener('playbackVolumeDidChange', () => {
-        let pixedToBeColored = Math.floor(music.player.volume * volumeScope.offsetWidth);
+        let pixedToBeColored = Math.floor(music.volume * volumeScope.offsetWidth);
         volumeScopeAfter.style.width = pixedToBeColored + 'px';
         volumeScopeDotPos.style.left = pixedToBeColored + 'px';
     })
@@ -335,7 +335,7 @@ Promise.all(promises).then(async (results) => {
         let clickedSpot = Math.floor(e.clientX - volumeScope.getBoundingClientRect().left);
         let volumeInDecimal = Math.round(clickedSpot / barWidth * 10) / 10;
         if (volumeInDecimal <= 1) {
-            music.player.volume = volumeInDecimal
+            music.volume = volumeInDecimal
         }
     })
 
@@ -348,7 +348,7 @@ Promise.all(promises).then(async (results) => {
         let cursorLocation = Math.floor(e.clientX - volumeScope.getBoundingClientRect().left);
         let volumeInDecimal = Math.round(cursorLocation / barWidth * 10) / 10;
         if (volumeInDecimal <= 1 && volumeInDecimal >= 0) {
-            music.player.volume = volumeInDecimal
+            music.volume = volumeInDecimal
         }
     })
 
@@ -361,7 +361,7 @@ Promise.all(promises).then(async (results) => {
         console.log('timeScope click')
         let barWidth = timeScope.offsetWidth;
         let clickedSpot = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        let clickedSpotInSeconds = Math.floor(clickedSpot / barWidth * music.player.currentPlaybackDuration)
+        let clickedSpotInSeconds = Math.floor(clickedSpot / barWidth * music.currentPlaybackDuration)
         // Check Looper
         if (looper.isOn && clickedSpotInSeconds < looper.startTime) {
             await music.seekToTime(looper.startTime)
@@ -378,7 +378,7 @@ Promise.all(promises).then(async (results) => {
         console.log('timeScope dragend')
         let barWidth = timeScope.offsetWidth;
         let cursorPosision = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        const duration = music.player.currentPlaybackDuration;
+        const duration = music.currentPlaybackDuration;
         const clickedSpotInSeconds = Math.round(cursorPosision / barWidth * duration)
         timeScopeDotPos.style.left = cursorPosision + 'px'
 
@@ -403,11 +403,11 @@ Promise.all(promises).then(async (results) => {
     })
 
     playPauseButton.addEventListener('click', function () {
-        if (music.player.isPlaying) {
-            music.player.pause();
+        if (music.isPlaying) {
+            music.pause();
             playPauseButton.textContent = '▶︎'
         } else {
-            music.player.play();
+            music.play();
             playPauseButton.textContent = '||'
         }
     })
@@ -509,7 +509,7 @@ Promise.all(promises).then(async (results) => {
 
     function setLooperDotPos(timeInSeconds, dotPosElement) {
         let barWidth = timeScope.offsetWidth;
-        let duration = music.player.currentPlaybackDuration;
+        let duration = music.currentPlaybackDuration;
         let percentage = timeInSeconds / duration
         let positionInPixels = Math.round(barWidth * percentage)
         dotPosElement.style.left = positionInPixels + 'px'
@@ -518,7 +518,7 @@ Promise.all(promises).then(async (results) => {
     looperStartDot.addEventListener('dragend', async (e) => {
         let barWidth = timeScope.offsetWidth;
         let cursorLocation = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        let duration = music.player.currentPlaybackDuration;
+        let duration = music.currentPlaybackDuration;
         let clickedSpotInSeconds = Math.round(cursorLocation / barWidth * duration)
 
         let endDotLeftInPixels = looperEndDotPos.style.left.indexOf('%') > -1 ? looperEndDotPos.style.left.substring(0, looperEndDotPos.style.left.length - 1) / 100 * barWidth : looperEndDotPos.style.left.substring(0, looperEndDotPos.style.left.length - 2)
@@ -547,7 +547,7 @@ Promise.all(promises).then(async (results) => {
     looperEndDot.addEventListener('dragend', async (e) => {
         let barWidth = timeScope.offsetWidth;
         let cursorLocation = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        let duration = music.player.currentPlaybackDuration;
+        let duration = music.currentPlaybackDuration;
         let clickedSpotInSeconds = Math.round(cursorLocation / barWidth * duration)
 
         let startDotLeftInPixels = looperStartDotPos.style.left.indexOf('%') > -1 ? looperStartDotPos.style.left.substring(0, looperStartDotPos.style.left.length - 1) / 100 * barWidth : looperStartDotPos.style.left.substring(0, looperStartDotPos.style.left.length - 2)
@@ -592,11 +592,11 @@ Promise.all(promises).then(async (results) => {
 
     // Previous and Next
     previousButton.addEventListener('click', function () {
-        music.player.skipToPreviousItem();
+        music.skipToPreviousItem();
     });
 
     nextButton.addEventListener('click', function () {
-        music.player.skipToNextItem();
+        music.skipToNextItem();
     });
 
 
@@ -649,7 +649,7 @@ Promise.all(promises).then(async (results) => {
                 para.addEventListener('click', async (event) => {
                     const itemTag = event.target
                     looper.switchOff()
-                    await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
+                    await music.changeToMediaAtIndex(music.queue.indexForItem(itemTag.getAttribute('song-id')))
                     playPauseButton.textContent = '||'
                     looper.setMediaItem({
                         'id': itemTag.getAttribute('song-id'),
@@ -900,7 +900,7 @@ Promise.all(promises).then(async (results) => {
         // Play the song
         if (mediaType == 'song-part') {
             const startTime = Number(itemTag.getAttribute('start-time'))
-            const indexForItem = music.player.queue.indexForItem(itemTag.getAttribute('song-id'))
+            const indexForItem = music.queue.indexForItem(itemTag.getAttribute('song-id'))
 
             await music.changeToMediaAtIndex(indexForItem)
             await music.seekToTime(startTime)
@@ -918,7 +918,7 @@ Promise.all(promises).then(async (results) => {
             console.log(looper)
 
         } else if (mediaType == 'song') {
-            await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
+            await music.changeToMediaAtIndex(music.queue.indexForItem(itemTag.getAttribute('song-id')))
             await music.play()
 
         } else if (mediaType == 'album') {
