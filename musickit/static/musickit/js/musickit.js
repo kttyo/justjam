@@ -264,10 +264,14 @@ Promise.all(promises).then(async (results) => {
 
     async function refreshLooper() {
         try {
-            const song = await music.api.song(music.nowPlayingItem.id)
+            const songId = music.nowPlayingItem.id;
+            const queryParameters = { l: 'en-us' };
+            const song = await music.api.music(`/v1/catalog/{{storefrontId}}/songs/${songId}`, queryParameters);
+            console.log(song.data.data[0])
+
             looper.setMediaItem({
                 'id': music.nowPlayingItem.id,
-                'parentId': song.relationships.albums.data[0].id,
+                'parentId': song.data.data[0].relationships.albums.data[0].id,
                 'type': music.nowPlayingItem.type
             });
             looper.setStartTime(0);
