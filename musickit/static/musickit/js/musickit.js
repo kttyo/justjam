@@ -619,8 +619,9 @@ Promise.all(promises).then(async (results) => {
 
         // Get album tracks
         try {
-            let albumData = await music.api.album(albumId)
-            let albumTracks = albumData.relationships.tracks.data
+            const queryParameters = { l: 'en-us' };
+            let albumData = await music.api.music(`/v1/catalog/{{storefrontId}}/albums/${albumId}`, queryParameters);
+            let albumTracks = albumData.data.data[0].relationships.tracks.data
 
             const headerNowPlayingAlbum = document.createElement("h2");
             headerNowPlayingAlbum.textContent = 'Now Playing Album';
