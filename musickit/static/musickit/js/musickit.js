@@ -209,8 +209,10 @@ Promise.all(promises).then(async (results) => {
             wrapperDiv.appendChild(headerSongs);
 
             try {
-                const searchedSongs = await music.api.songs(songIdList)
-                const searchedSongsSorted = _.sortBy(searchedSongs, ['attributes.artistName', 'attributes.name']);
+                const queryParameters = { ids: songIdList, l: 'en-us' };
+                const searchedSongs = await music.api.music('/v1/catalog/{{storefrontId}}/songs', queryParameters);
+                console.log(searchedSongs.data.data)
+                const searchedSongsSorted = _.sortBy(searchedSongs.data.data, ['attributes.artistName', 'attributes.name']);
                 wrapperDiv.appendChild(await getSongCards(searchedSongsSorted))
             } catch (error) {
                 console.error(error);
@@ -1019,7 +1021,8 @@ Promise.all(promises).then(async (results) => {
             songIdList.push(song.id)
         }
         try {
-            searchedSongs = await music.api.songs(songIdList)
+            const queryParameters = { ids: songIdList, l: 'en-us' };
+            searchedSongs = await music.api.music('/v1/catalog/{{storefrontId}}/songs', queryParameters);
             for (const song of searchedSongs) {
                 // Get Card Layout
                 const cardDiv = createMediaCardLayout()
