@@ -289,8 +289,7 @@ Promise.all(promises).then(async (results) => {
     }
 
 
-    music.addEventListener('mediaItemDidChange', async (event) => {
-        console.log('mediaItemDidChange')
+    music.addEventListener('nowPlayingItemDidChange', async (event) => {
         updateCurrentPlayingItem()
         await refreshLooper()
         if (user.authenticated) {
