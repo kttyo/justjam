@@ -1,5 +1,5 @@
 let scriptMusicKit = document.createElement("script");
-scriptMusicKit.setAttribute("src", "https://js-cdn.music.apple.com/musickit/v1/musickit.js");
+scriptMusicKit.setAttribute("src", "https://js-cdn.music.apple.com/musickit/v3/musickit.js");
 document.body.appendChild(scriptMusicKit);
 
 let scriptLodash = document.createElement("script");
@@ -25,7 +25,7 @@ const setupMusicKit = new Promise((resolve) => {
     document.addEventListener('musickitloaded', async (event) => {
         // MusicKit global is now defined (MusicKit.configure can return a configured MusicKit instance too)
         const token = await getNewToken()
-        MusicKit.configure({
+        await MusicKit.configure({
             developerToken: token,
             app: {
                 name: 'My Cool Web App',
@@ -42,6 +42,8 @@ const promises = [setupMusicKit, getUserStatus()]
 Promise.all(promises).then(async (results) => {
     const music = results[0]
     const user = results[1]
+    
+    await music.authorize()
     //setupMusicKit.then(async (music) => {
     console.log('Entered Main Script')
 
@@ -75,7 +77,7 @@ Promise.all(promises).then(async (results) => {
 
     console.log('Main script starts')
 
-    music.player.volume = 0.8;
+    music.volume = 0.8;
 
     // Info Display
     // let artworkImg = document.getElementById('artwork');
@@ -209,8 +211,9 @@ Promise.all(promises).then(async (results) => {
             wrapperDiv.appendChild(headerSongs);
 
             try {
-                const searchedSongs = await music.api.songs(songIdList)
-                const searchedSongsSorted = _.sortBy(searchedSongs, ['attributes.artistName', 'attributes.name']);
+                const queryParameters = { ids: songIdList, l: 'en-us' };
+                const searchedSongs = await music.api.music('/v1/catalog/{{storefrontId}}/songs', queryParameters);
+                const searchedSongsSorted = _.sortBy(searchedSongs.data.data, ['attributes.artistName', 'attributes.name']);
                 wrapperDiv.appendChild(await getSongCards(searchedSongsSorted))
             } catch (error) {
                 console.error(error);
@@ -222,8 +225,9 @@ Promise.all(promises).then(async (results) => {
             headerAlbums.textContent = 'Albums';
             wrapperDiv.appendChild(headerAlbums);
             try {
-                const searchedAlbums = await music.api.albums(albumIdList)
-                const searchedAlbumsSorted = _.sortBy(searchedAlbums, ['attributes.artistName', 'attributes.name']);
+                const queryParameters = { ids: albumIdList, l: 'en-us' };
+                const searchedAlbums = await music.api.music(`/v1/catalog/{{storefrontId}}/albums`, queryParameters);
+                const searchedAlbumsSorted = _.sortBy(searchedAlbums.data.data, ['attributes.artistName', 'attributes.name']);
                 wrapperDiv.appendChild(await getAlbumCards(searchedAlbumsSorted))
             } catch (error) {
                 console.error(error);
@@ -254,22 +258,26 @@ Promise.all(promises).then(async (results) => {
     }
 
     function updateCurrentPlayingItem() {
-        songName.textContent = music.player.nowPlayingItem.title
-        currentAlgumInfo.textContent = music.player.nowPlayingItem.artistName + ' | ' + music.player.nowPlayingItem.albumName
-        playbackDuration.textContent = getFormattedTime(music.player.currentPlaybackDuration)
+        songName.textContent = music.nowPlayingItem.title
+        currentAlgumInfo.textContent = music.nowPlayingItem.artistName + ' | ' + music.nowPlayingItem.albumName
+        playbackDuration.textContent = getFormattedTime(music.currentPlaybackDuration)
     }
 
 
     async function refreshLooper() {
         try {
-            const song = await music.api.song(music.player.nowPlayingItem.id)
+            const songId = music.nowPlayingItem.id;
+            const queryParameters = { l: 'en-us' };
+            const song = await music.api.music(`/v1/catalog/{{storefrontId}}/songs/${songId}`, queryParameters);
+            console.log(song.data.data[0])
+
             looper.setMediaItem({
-                'id': music.player.nowPlayingItem.id,
-                'parentId': song.relationships.albums.data[0].id,
-                'type': music.player.nowPlayingItem.type
+                'id': music.nowPlayingItem.id,
+                'parentId': song.data.data[0].relationships.albums.data[0].id,
+                'type': music.nowPlayingItem.type
             });
             looper.setStartTime(0);
-            looper.setEndTime(music.player.currentPlaybackDuration);
+            looper.setEndTime(music.currentPlaybackDuration);
 
             looperStartDotPos.style.left = '0%';
             looperEndDotPos.style.left = '100%';
@@ -287,8 +295,7 @@ Promise.all(promises).then(async (results) => {
     }
 
 
-    music.addEventListener('mediaItemDidChange', async (event) => {
-        console.log('mediaItemDidChange')
+    music.addEventListener('nowPlayingItemDidChange', async (event) => {
         updateCurrentPlayingItem()
         await refreshLooper()
         if (user.authenticated) {
@@ -298,30 +305,30 @@ Promise.all(promises).then(async (results) => {
 
     music.addEventListener('playbackTimeDidChange', async () => {
         // Check Looper
-        if (looper.isOn && music.player.currentPlaybackTime < looper.startTime) {
+        if (looper.isOn && music.currentPlaybackTime < looper.startTime) {
             await music.seekToTime(looper.startTime)
-        } else if (looper.isOn && music.player.currentPlaybackTime >= looper.endTime) {
+        } else if (looper.isOn && music.currentPlaybackTime >= looper.endTime) {
             await music.seekToTime(looper.startTime)
         }
 
         // Time Display
-        playbackTime.textContent = getFormattedTime(music.player.currentPlaybackTime)
+        playbackTime.textContent = getFormattedTime(music.currentPlaybackTime)
 
-        let portionPlayed = music.player.currentPlaybackTime / music.player.currentPlaybackDuration;
+        let portionPlayed = music.currentPlaybackTime / music.currentPlaybackDuration;
         let pixedToBeColored = Math.floor(portionPlayed * timeScope.offsetWidth);
         timeScopeAfter.style.width = pixedToBeColored + 'px';
         timeScopeDotPos.style.left = pixedToBeColored + 'px';
     })
 
     music.addEventListener('playbackStateDidChange', () => {
-        if (music.player.playbackState == 10) {
+        if (music.playbackState == 10) {
             playPauseButton.textContent = '▶︎'
         }
     })
 
 
     music.addEventListener('playbackVolumeDidChange', () => {
-        let pixedToBeColored = Math.floor(music.player.volume * volumeScope.offsetWidth);
+        let pixedToBeColored = Math.floor(music.volume * volumeScope.offsetWidth);
         volumeScopeAfter.style.width = pixedToBeColored + 'px';
         volumeScopeDotPos.style.left = pixedToBeColored + 'px';
     })
@@ -335,7 +342,7 @@ Promise.all(promises).then(async (results) => {
         let clickedSpot = Math.floor(e.clientX - volumeScope.getBoundingClientRect().left);
         let volumeInDecimal = Math.round(clickedSpot / barWidth * 10) / 10;
         if (volumeInDecimal <= 1) {
-            music.player.volume = volumeInDecimal
+            music.volume = volumeInDecimal
         }
     })
 
@@ -348,7 +355,7 @@ Promise.all(promises).then(async (results) => {
         let cursorLocation = Math.floor(e.clientX - volumeScope.getBoundingClientRect().left);
         let volumeInDecimal = Math.round(cursorLocation / barWidth * 10) / 10;
         if (volumeInDecimal <= 1 && volumeInDecimal >= 0) {
-            music.player.volume = volumeInDecimal
+            music.volume = volumeInDecimal
         }
     })
 
@@ -361,7 +368,7 @@ Promise.all(promises).then(async (results) => {
         console.log('timeScope click')
         let barWidth = timeScope.offsetWidth;
         let clickedSpot = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        let clickedSpotInSeconds = Math.floor(clickedSpot / barWidth * music.player.currentPlaybackDuration)
+        let clickedSpotInSeconds = Math.floor(clickedSpot / barWidth * music.currentPlaybackDuration)
         // Check Looper
         if (looper.isOn && clickedSpotInSeconds < looper.startTime) {
             await music.seekToTime(looper.startTime)
@@ -378,7 +385,7 @@ Promise.all(promises).then(async (results) => {
         console.log('timeScope dragend')
         let barWidth = timeScope.offsetWidth;
         let cursorPosision = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        const duration = music.player.currentPlaybackDuration;
+        const duration = music.currentPlaybackDuration;
         const clickedSpotInSeconds = Math.round(cursorPosision / barWidth * duration)
         timeScopeDotPos.style.left = cursorPosision + 'px'
 
@@ -403,11 +410,11 @@ Promise.all(promises).then(async (results) => {
     })
 
     playPauseButton.addEventListener('click', function () {
-        if (music.player.isPlaying) {
-            music.player.pause();
+        if (music.isPlaying) {
+            music.pause();
             playPauseButton.textContent = '▶︎'
         } else {
-            music.player.play();
+            music.play();
             playPauseButton.textContent = '||'
         }
     })
@@ -509,7 +516,7 @@ Promise.all(promises).then(async (results) => {
 
     function setLooperDotPos(timeInSeconds, dotPosElement) {
         let barWidth = timeScope.offsetWidth;
-        let duration = music.player.currentPlaybackDuration;
+        let duration = music.currentPlaybackDuration;
         let percentage = timeInSeconds / duration
         let positionInPixels = Math.round(barWidth * percentage)
         dotPosElement.style.left = positionInPixels + 'px'
@@ -518,7 +525,7 @@ Promise.all(promises).then(async (results) => {
     looperStartDot.addEventListener('dragend', async (e) => {
         let barWidth = timeScope.offsetWidth;
         let cursorLocation = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        let duration = music.player.currentPlaybackDuration;
+        let duration = music.currentPlaybackDuration;
         let clickedSpotInSeconds = Math.round(cursorLocation / barWidth * duration)
 
         let endDotLeftInPixels = looperEndDotPos.style.left.indexOf('%') > -1 ? looperEndDotPos.style.left.substring(0, looperEndDotPos.style.left.length - 1) / 100 * barWidth : looperEndDotPos.style.left.substring(0, looperEndDotPos.style.left.length - 2)
@@ -547,7 +554,7 @@ Promise.all(promises).then(async (results) => {
     looperEndDot.addEventListener('dragend', async (e) => {
         let barWidth = timeScope.offsetWidth;
         let cursorLocation = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        let duration = music.player.currentPlaybackDuration;
+        let duration = music.currentPlaybackDuration;
         let clickedSpotInSeconds = Math.round(cursorLocation / barWidth * duration)
 
         let startDotLeftInPixels = looperStartDotPos.style.left.indexOf('%') > -1 ? looperStartDotPos.style.left.substring(0, looperStartDotPos.style.left.length - 1) / 100 * barWidth : looperStartDotPos.style.left.substring(0, looperStartDotPos.style.left.length - 2)
@@ -592,11 +599,11 @@ Promise.all(promises).then(async (results) => {
 
     // Previous and Next
     previousButton.addEventListener('click', function () {
-        music.player.skipToPreviousItem();
+        music.skipToPreviousItem();
     });
 
     nextButton.addEventListener('click', function () {
-        music.player.skipToNextItem();
+        music.skipToNextItem();
     });
 
 
@@ -604,8 +611,9 @@ Promise.all(promises).then(async (results) => {
     let searchBar = document.getElementById('search-bar');
     searchBar.addEventListener('keypress', async (event) => {
         if (event.key == 'Enter') {
-            searchResults = await music.api.search(event.target.value.replace(' ', '+').replace('　', '+'))
-            renderSearchResult(searchResults)
+            const queryParameters = { term: event.target.value, types: ['albums', 'artists', 'songs'], l: 'en-us' };
+            searchResults = await music.api.music('/v1/catalog/{{storefrontId}}/search', queryParameters);
+            renderSearchResult(searchResults.data.results)
         }
     });
 
@@ -617,15 +625,16 @@ Promise.all(promises).then(async (results) => {
 
         // Get album tracks
         try {
-            let albumData = await music.api.album(albumId)
-            let albumTracks = albumData.relationships.tracks.data
+            const queryParameters = { l: 'en-us' };
+            let albumData = await music.api.music(`/v1/catalog/{{storefrontId}}/albums/${albumId}`, queryParameters);
+            let albumTracks = albumData.data.data[0].relationships.tracks.data
 
             const headerNowPlayingAlbum = document.createElement("h2");
             headerNowPlayingAlbum.textContent = 'Now Playing Album';
             wrapperDiv.appendChild(headerNowPlayingAlbum);
 
             const headerNowPlayingAlbumInfo = document.createElement("h3");
-            headerNowPlayingAlbumInfo.textContent = albumData.attributes.name + ' | ' + albumData.attributes.artistName;
+            headerNowPlayingAlbumInfo.textContent = albumData.data.data[0].attributes.name + ' | ' + albumData.data.data[0].attributes.artistName;
             wrapperDiv.appendChild(headerNowPlayingAlbumInfo);
 
             for (const track of albumTracks) {
@@ -649,7 +658,7 @@ Promise.all(promises).then(async (results) => {
                 para.addEventListener('click', async (event) => {
                     const itemTag = event.target
                     looper.switchOff()
-                    await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
+                    await music.changeToMediaAtIndex(music.queue.indexForItem(itemTag.getAttribute('song-id')))
                     playPauseButton.textContent = '||'
                     looper.setMediaItem({
                         'id': itemTag.getAttribute('song-id'),
@@ -900,7 +909,7 @@ Promise.all(promises).then(async (results) => {
         // Play the song
         if (mediaType == 'song-part') {
             const startTime = Number(itemTag.getAttribute('start-time'))
-            const indexForItem = music.player.queue.indexForItem(itemTag.getAttribute('song-id'))
+            const indexForItem = music.queue.indexForItem(itemTag.getAttribute('song-id'))
 
             await music.changeToMediaAtIndex(indexForItem)
             await music.seekToTime(startTime)
@@ -918,7 +927,7 @@ Promise.all(promises).then(async (results) => {
             console.log(looper)
 
         } else if (mediaType == 'song') {
-            await music.changeToMediaAtIndex(music.player.queue.indexForItem(itemTag.getAttribute('song-id')))
+            await music.changeToMediaAtIndex(music.queue.indexForItem(itemTag.getAttribute('song-id')))
             await music.play()
 
         } else if (mediaType == 'album') {
@@ -951,10 +960,11 @@ Promise.all(promises).then(async (results) => {
 
         // Bulk search the songs to capture relationships data
         try {
-            searchedSongs = await music.api.songs(loopItemIdList)
+            const queryParameters = { ids: loopItemIdList, l: 'en-us' };
+            searchedSongs = await music.api.music('/v1/catalog/{{storefrontId}}/songs', queryParameters);
 
             for (const loopItem of loopItemList) {
-                for (const song of searchedSongs) {
+                for (const song of searchedSongs.data.data) {
                     if (loopItem.media_id == song.id) {
                         loopItem.songInfo = song
                     }
@@ -1018,8 +1028,9 @@ Promise.all(promises).then(async (results) => {
             songIdList.push(song.id)
         }
         try {
-            searchedSongs = await music.api.songs(songIdList)
-            for (const song of searchedSongs) {
+            const queryParameters = { ids: songIdList, l: 'en-us' };
+            searchedSongs = await music.api.music('/v1/catalog/{{storefrontId}}/songs', queryParameters);
+            for (const song of searchedSongs.data.data) {
                 // Get Card Layout
                 const cardDiv = createMediaCardLayout()
                 const artwork = cardDiv.querySelector('img')

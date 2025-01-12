@@ -302,7 +302,7 @@
 
         let tokenExists = false;
         for (var i = 0, len = localStorage.length; i < len; ++i) {
-            let pattern = /^music\.[a-zA-Z0-9]+\.u$/;
+            let pattern = /^music\.[a-z0-9]+\.[a-z0-9\-]+$/;
             if (pattern.test(localStorage.key(i))) {
                 tokenExists = true
                 break
