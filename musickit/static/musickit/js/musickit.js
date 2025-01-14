@@ -420,6 +420,9 @@ Promise.all(promises).then(async (results) => {
     })
 
     document.addEventListener('keydown', function (event) {
+        if (event.code === 'Space') {
+            event.preventDefault();
+        }
         if (event.code === 'Space' & music.queue.currentItem.isPlayable & music.isPlaying) {
             music.pause();
             playPauseButton.textContent = '▶︎'
