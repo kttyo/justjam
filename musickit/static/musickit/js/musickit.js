@@ -410,15 +410,24 @@ Promise.all(promises).then(async (results) => {
     })
 
     playPauseButton.addEventListener('click', function () {
-        if (music.isPlaying) {
+        if (music.queue.currentItem.isPlayable & music.isPlaying) {
             music.pause();
             playPauseButton.textContent = '▶︎'
-        } else {
+        } else if (music.queue.currentItem.isPlayable) {
             music.play();
             playPauseButton.textContent = '||'
         }
     })
 
+    document.addEventListener('keydown', function (event) {
+        if (event.code === 'Space' & music.queue.currentItem.isPlayable & music.isPlaying) {
+            music.pause();
+            playPauseButton.textContent = '▶︎'
+        } else if (event.code === 'Space' & music.queue.currentItem.isPlayable) {
+            music.play();
+            playPauseButton.textContent = '||'
+        }
+    })
 
     // Looper
     class Looper {
