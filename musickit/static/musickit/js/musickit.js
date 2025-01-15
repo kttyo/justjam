@@ -14,6 +14,24 @@ if (env === "development") {
     referenceURL = "http://localhost:8000";
 }
 
+// Identify Client Browser
+const userAgent = navigator.userAgent;
+let browserName, fullVersion;
+
+if (userAgent.indexOf("Chrome") > -1) {
+browserName = "Chrome";
+fullVersion = userAgent.split("Chrome/")[1].split(" ")[0];
+} else if (userAgent.indexOf("Firefox") > -1) {
+browserName = "Firefox";
+fullVersion = userAgent.split("Firefox/")[1];
+} else if (userAgent.indexOf("Safari") > -1) {
+browserName = "Safari";
+fullVersion = userAgent.split("Version/")[1].split(" ")[0];
+} else {
+browserName = "Unknown";
+fullVersion = "Unknown";
+}
+
 function getNewToken() {
     return fetch(referenceURL + '/account/music-user-token')
         .then(response => response.json())
@@ -382,30 +400,31 @@ Promise.all(promises).then(async (results) => {
     })
 
     timeScopeDot.addEventListener('dragend', async (e) => {
-        console.log('timeScope dragend')
-        let barWidth = timeScope.offsetWidth;
-        let cursorPosision = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        const duration = music.currentPlaybackDuration;
-        const clickedSpotInSeconds = Math.round(cursorPosision / barWidth * duration)
-        timeScopeDotPos.style.left = cursorPosision + 'px'
+        if (browserName != "Safari" || window.outerWidth === window.innerWidth) {
+            let barWidth = timeScope.offsetWidth;
+            let cursorPosision = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
+            const duration = music.currentPlaybackDuration;
+            const clickedSpotInSeconds = Math.round(cursorPosision / barWidth * duration)
+            timeScopeDotPos.style.left = cursorPosision + 'px'
 
-        let destinationTime;
-        if (clickedSpotInSeconds < 0) {
-            destinationTime = 0
-        } else if (clickedSpotInSeconds > duration) {
-            destinationTime = duration
-        } else {
-            destinationTime = clickedSpotInSeconds
-        }
+            let destinationTime;
+            if (clickedSpotInSeconds < 0) {
+                destinationTime = 0
+            } else if (clickedSpotInSeconds > duration) {
+                destinationTime = duration
+            } else {
+                destinationTime = clickedSpotInSeconds
+            }
 
-        if (looper.isOn && destinationTime < looper.startTime) {
-            await music.seekToTime(looper.startTime)
-        } else if (looper.isOn && destinationTime >= looper.endTime && looper.endTime - 2 >= looper.startTime) {
-            await music.seekToTime(looper.endTime - 2)
-        } else if (looper.isOn && clickedSpotInSeconds >= looper.endTime) {
-            await music.seekToTime(looper.startTime)
-        } else {
-            await music.seekToTime(destinationTime)
+            if (looper.isOn && destinationTime < looper.startTime) {
+                await music.seekToTime(looper.startTime)
+            } else if (looper.isOn && destinationTime >= looper.endTime && looper.endTime - 2 >= looper.startTime) {
+                await music.seekToTime(looper.endTime - 2)
+            } else if (looper.isOn && clickedSpotInSeconds >= looper.endTime) {
+                await music.seekToTime(looper.startTime)
+            } else {
+                await music.seekToTime(destinationTime)
+            }
         }
     })
 
@@ -535,64 +554,68 @@ Promise.all(promises).then(async (results) => {
     }
 
     looperStartDot.addEventListener('dragend', async (e) => {
-        let barWidth = timeScope.offsetWidth;
-        let cursorLocation = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        let duration = music.currentPlaybackDuration;
-        let clickedSpotInSeconds = Math.round(cursorLocation / barWidth * duration)
+        if (browserName != "Safari" || window.outerWidth === window.innerWidth) {
+            let barWidth = timeScope.offsetWidth;
+            let cursorLocation = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
+            let duration = music.currentPlaybackDuration;
+            let clickedSpotInSeconds = Math.round(cursorLocation / barWidth * duration)
 
-        let endDotLeftInPixels = looperEndDotPos.style.left.indexOf('%') > -1 ? looperEndDotPos.style.left.substring(0, looperEndDotPos.style.left.length - 1) / 100 * barWidth : looperEndDotPos.style.left.substring(0, looperEndDotPos.style.left.length - 2)
+            let endDotLeftInPixels = looperEndDotPos.style.left.indexOf('%') > -1 ? looperEndDotPos.style.left.substring(0, looperEndDotPos.style.left.length - 1) / 100 * barWidth : looperEndDotPos.style.left.substring(0, looperEndDotPos.style.left.length - 2)
 
 
-        if (cursorLocation < 0) {
-            looperStartDotPos.style.left = '0px'
-        } else if (cursorLocation > endDotLeftInPixels) {
-            looperStartDotPos.style.left = (endDotLeftInPixels - 1) + 'px'
-        } else {
-            looperStartDotPos.style.left = cursorLocation + 'px'
+            if (cursorLocation < 0) {
+                looperStartDotPos.style.left = '0px'
+            } else if (cursorLocation > endDotLeftInPixels) {
+                looperStartDotPos.style.left = (endDotLeftInPixels - 1) + 'px'
+            } else {
+                looperStartDotPos.style.left = cursorLocation + 'px'
+            }
+
+            let destinationTime;
+            if (clickedSpotInSeconds < 0) {
+                destinationTime = 0
+            } else if (clickedSpotInSeconds >= looper.endTime) {
+                destinationTime = looper.endTime - 1
+            } else {
+                destinationTime = clickedSpotInSeconds
+            }
+            looper.setStartTime(Number(destinationTime))
+            await music.seekToTime(looper.startTime)
         }
-
-        let destinationTime;
-        if (clickedSpotInSeconds < 0) {
-            destinationTime = 0
-        } else if (clickedSpotInSeconds >= looper.endTime) {
-            destinationTime = looper.endTime - 1
-        } else {
-            destinationTime = clickedSpotInSeconds
-        }
-        looper.setStartTime(Number(destinationTime))
-        await music.seekToTime(looper.startTime)
     })
 
     looperEndDot.addEventListener('dragend', async (e) => {
-        let barWidth = timeScope.offsetWidth;
-        let cursorLocation = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
-        let duration = music.currentPlaybackDuration;
-        let clickedSpotInSeconds = Math.round(cursorLocation / barWidth * duration)
+        if (browserName != "Safari" || window.outerWidth === window.innerWidth) {
+            let barWidth = timeScope.offsetWidth;
+            let cursorLocation = Math.floor(e.clientX - timeScope.getBoundingClientRect().left);
+            let duration = music.currentPlaybackDuration;
+            let clickedSpotInSeconds = Math.round(cursorLocation / barWidth * duration)
 
-        let startDotLeftInPixels = looperStartDotPos.style.left.indexOf('%') > -1 ? looperStartDotPos.style.left.substring(0, looperStartDotPos.style.left.length - 1) / 100 * barWidth : looperStartDotPos.style.left.substring(0, looperStartDotPos.style.left.length - 2)
+            let startDotLeftInPixels = looperStartDotPos.style.left.indexOf('%') > -1 ? looperStartDotPos.style.left.substring(0, looperStartDotPos.style.left.length - 1) / 100 * barWidth : looperStartDotPos.style.left.substring(0, looperStartDotPos.style.left.length - 2)
 
-        if (cursorLocation > barWidth) {
-            looperEndDotPos.style.left = barWidth + 'px'
-        } else if (cursorLocation < startDotLeftInPixels) {
-            looperEndDotPos.style.left = (startDotLeftInPixels * 1 + 1) + 'px'
-        } else {
-            looperEndDotPos.style.left = cursorLocation + 'px'
-        }
+            if (cursorLocation > barWidth) {
+                looperEndDotPos.style.left = barWidth + 'px'
+            } else if (cursorLocation < startDotLeftInPixels) {
+                looperEndDotPos.style.left = (startDotLeftInPixels * 1 + 1) + 'px'
+            } else {
+                looperEndDotPos.style.left = cursorLocation + 'px'
+            }
 
-        let destinationTime;
-        if (clickedSpotInSeconds <= looper.startTime) {
-            destinationTime = looper.startTime + 1
-        } else if (clickedSpotInSeconds > duration) {
-            destinationTime = duration
-        } else {
-            destinationTime = clickedSpotInSeconds
-        }
-        looper.setEndTime(Number(destinationTime))
+            let destinationTime;
+            if (clickedSpotInSeconds <= looper.startTime) {
+                destinationTime = looper.startTime + 1
+            } else if (clickedSpotInSeconds > duration) {
+                destinationTime = duration
+            } else {
+                destinationTime = clickedSpotInSeconds
+            }
+            looper.setEndTime(Number(destinationTime))
 
-        if (destinationTime - 3 < looper.startTime) {
-            await music.seekToTime(looper.startTime)
-        } else {
-            await music.seekToTime(destinationTime - 3)
+            if (destinationTime - 3 < looper.startTime) {
+                await music.seekToTime(looper.startTime)
+            } else {
+                await music.seekToTime(destinationTime - 3)
+            }
         }
     })
 
