@@ -223,6 +223,7 @@
                             </a>
                         </li>
                     </ul>
+                    <div id="auth"></div>
                     <div id="unauth"></div>
                 </div>
             </nav>
@@ -318,6 +319,15 @@
             button.textContent = 'Sign out from Apple Music';
 
             unauth.appendChild(button)
+        } else {
+            const auth = document.getElementById('auth');
+            const button = document.createElement('button');
+            button.setAttribute('id', 'authenticate');
+            button.setAttribute('type', 'button');
+            button.setAttribute('class', 'btn btn-outline-primary');
+            button.textContent = 'Sign in to Apple Music';
+
+            auth.appendChild(button)
         }
 
         let scriptPath = "https://justjam.jppj.jp/static/musickit/js/musickit.js";

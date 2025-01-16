@@ -61,7 +61,6 @@ Promise.all(promises).then(async (results) => {
     const music = results[0]
     const user = results[1]
     
-    await music.authorize()
     //setupMusicKit.then(async (music) => {
     console.log('Entered Main Script')
 
@@ -79,6 +78,13 @@ Promise.all(promises).then(async (results) => {
             }
         }
         return cookieValue;
+    }
+
+    let authenticateButton = document.getElementById('authenticate');
+    if (authenticateButton) {
+        authenticateButton.addEventListener('click', async () => {
+            result = await music.authorize();
+        })
     }
 
     let unauthenticateButton = document.getElementById('unauthenticate');
