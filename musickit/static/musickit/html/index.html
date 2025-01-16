@@ -2,7 +2,6 @@
 <html>
 
 <head>
-    <link rel="apple-touch-icon" href="../apple-touch-icon.png">
     <meta charset="utf-8" />
 
     <!-- Configuring MusicKit JS -->
@@ -312,6 +311,16 @@
         let scriptMusicKitLocal = document.createElement("script");
         scriptMusicKitLocal.setAttribute("src", scriptPath);
         document.body.appendChild(scriptMusicKitLocal);
+
+        let iconPath = "https://justjam.jppj.jp/static/musickit/apple-touch-icon.png";
+
+        if (environmant === "development") {
+            iconPath = "../apple-touch-icon.png";
+        }
+        let iconLink = document.createElement("link");
+        iconLink.setAttribute("rel", "apple-touch-icon");
+        iconLink.setAttribute("href", iconPath);
+        document.body.appendChild(iconLink);
     </script>
 </body>
 
