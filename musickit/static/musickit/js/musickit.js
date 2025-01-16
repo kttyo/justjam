@@ -47,7 +47,8 @@ const setupMusicKit = new Promise((resolve) => {
             developerToken: token,
             app: {
                 name: 'My Cool Web App',
-                build: '2022.11.17'
+                build: '2022.11.17',
+                bundleId: 'jp.jppj.justjam'
             }
         })
         // resolve the Promise with a MusicKit instance
