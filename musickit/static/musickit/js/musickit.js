@@ -229,7 +229,7 @@ Promise.all(promises).then(async (results) => {
             wrapperDiv.appendChild(headerSongs);
 
             try {
-                const queryParameters = { ids: songIdList, l: 'en-us' };
+                const queryParameters = { ids: songIdList, l: navigator.language };
                 const searchedSongs = await music.api.music('/v1/catalog/{{storefrontId}}/songs', queryParameters);
                 const searchedSongsSorted = _.sortBy(searchedSongs.data.data, ['attributes.artistName', 'attributes.name']);
                 wrapperDiv.appendChild(await getSongCards(searchedSongsSorted))
@@ -243,7 +243,7 @@ Promise.all(promises).then(async (results) => {
             headerAlbums.textContent = 'Albums';
             wrapperDiv.appendChild(headerAlbums);
             try {
-                const queryParameters = { ids: albumIdList, l: 'en-us' };
+                const queryParameters = { ids: albumIdList, l: navigator.language };
                 const searchedAlbums = await music.api.music(`/v1/catalog/{{storefrontId}}/albums`, queryParameters);
                 const searchedAlbumsSorted = _.sortBy(searchedAlbums.data.data, ['attributes.artistName', 'attributes.name']);
                 wrapperDiv.appendChild(await getAlbumCards(searchedAlbumsSorted))
@@ -285,7 +285,7 @@ Promise.all(promises).then(async (results) => {
     async function refreshLooper() {
         try {
             const songId = music.nowPlayingItem.id;
-            const queryParameters = { l: 'en-us' };
+            const queryParameters = { l: navigator.language };
             const song = await music.api.music(`/v1/catalog/{{storefrontId}}/songs/${songId}`, queryParameters);
             console.log(song.data.data[0])
 
@@ -646,7 +646,7 @@ Promise.all(promises).then(async (results) => {
     let searchBar = document.getElementById('search-bar');
     searchBar.addEventListener('keypress', async (event) => {
         if (event.key == 'Enter') {
-            const queryParameters = { term: event.target.value, types: ['albums', 'artists', 'songs'], l: 'en-us' };
+            const queryParameters = { term: event.target.value, types: ['albums', 'artists', 'songs'], l: navigator.language };
             searchResults = await music.api.music('/v1/catalog/{{storefrontId}}/search', queryParameters);
             renderSearchResult(searchResults.data.results)
         }
@@ -660,7 +660,7 @@ Promise.all(promises).then(async (results) => {
 
         // Get album tracks
         try {
-            const queryParameters = { l: 'en-us' };
+            const queryParameters = { l: navigator.language };
             let albumData = await music.api.music(`/v1/catalog/{{storefrontId}}/albums/${albumId}`, queryParameters);
             let albumTracks = albumData.data.data[0].relationships.tracks.data
 
@@ -995,7 +995,7 @@ Promise.all(promises).then(async (results) => {
 
         // Bulk search the songs to capture relationships data
         try {
-            const queryParameters = { ids: loopItemIdList, l: 'en-us' };
+            const queryParameters = { ids: loopItemIdList, l: navigator.language };
             searchedSongs = await music.api.music('/v1/catalog/{{storefrontId}}/songs', queryParameters);
 
             for (const loopItem of loopItemList) {
@@ -1063,7 +1063,7 @@ Promise.all(promises).then(async (results) => {
             songIdList.push(song.id)
         }
         try {
-            const queryParameters = { ids: songIdList, l: 'en-us' };
+            const queryParameters = { ids: songIdList, l: navigator.language };
             searchedSongs = await music.api.music('/v1/catalog/{{storefrontId}}/songs', queryParameters);
             for (const song of searchedSongs.data.data) {
                 // Get Card Layout
