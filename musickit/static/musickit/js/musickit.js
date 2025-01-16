@@ -62,7 +62,6 @@ Promise.all(promises).then(async (results) => {
     const music = results[0]
     const user = results[1]
     
-    await music.authorize()
     //setupMusicKit.then(async (music) => {
     console.log('Entered Main Script')
 
@@ -80,6 +79,43 @@ Promise.all(promises).then(async (results) => {
             }
         }
         return cookieValue;
+    }
+
+    console.log(localStorage)
+    let tokenExists = false;
+    for (var i = 0, len = localStorage.length; i < len; ++i) {
+        let pattern = /^music\.[a-z0-9]+\.[a-z0-9\-]+$/;
+        if (pattern.test(localStorage.key(i))) {
+            tokenExists = true
+            break
+        }
+    }
+
+    if (tokenExists) {
+        const unauth = document.getElementById('unauth');
+        const button = document.createElement('button');
+        button.setAttribute('id', 'unauthenticate');
+        button.setAttribute('type', 'button');
+        button.setAttribute('class', 'btn btn-outline-primary');
+        button.textContent = 'Sign out from Apple Music';
+
+        unauth.appendChild(button)
+    } else {
+        const auth = document.getElementById('auth');
+        const button = document.createElement('button');
+        button.setAttribute('id', 'authenticate');
+        button.setAttribute('type', 'button');
+        button.setAttribute('class', 'btn btn-outline-primary');
+        button.textContent = 'Sign in to Apple Music';
+
+        auth.appendChild(button)
+    }
+
+    let authenticateButton = document.getElementById('authenticate');
+    if (authenticateButton) {
+        authenticateButton.addEventListener('click', async () => {
+            result = await music.authorize();
+        })
     }
 
     let unauthenticateButton = document.getElementById('unauthenticate');
