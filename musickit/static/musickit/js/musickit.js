@@ -466,7 +466,7 @@ Promise.all(promises).then(async (results) => {
     })
 
     playPauseButton.addEventListener('click', function () {
-        if (music.queue.currentItem.isPlayable & music.isPlaying) {
+        if (music.queue.currentItem.isPlayable && music.isPlaying) {
             music.pause();
             playPauseButton.textContent = '▶︎'
         } else if (music.queue.currentItem.isPlayable) {
@@ -479,10 +479,10 @@ Promise.all(promises).then(async (results) => {
         if (event.code === 'Space') {
             event.preventDefault();
         }
-        if (event.code === 'Space' & music.queue.currentItem.isPlayable & music.isPlaying) {
+        if (event.code === 'Space' && music.queue.currentItem.isPlayable && music.isPlaying) {
             music.pause();
             playPauseButton.textContent = '▶︎'
-        } else if (event.code === 'Space' & music.queue.currentItem.isPlayable) {
+        } else if (event.code === 'Space' && music.queue.currentItem.isPlayable) {
             music.play();
             playPauseButton.textContent = '||'
         }
