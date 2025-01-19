@@ -313,7 +313,7 @@ Promise.all(promises).then(async (results) => {
     }
 
     function updateCurrentPlayingItem() {
-        songName.textContent = music.nowPlayingItem.title
+        songName.textContent = music.nowPlayingItem.attributes.name
         currentAlgumInfo.textContent = music.nowPlayingItem.artistName + ' | ' + music.nowPlayingItem.albumName
         playbackDuration.textContent = getFormattedTime(music.currentPlaybackDuration)
     }
@@ -466,7 +466,7 @@ Promise.all(promises).then(async (results) => {
     })
 
     playPauseButton.addEventListener('click', function () {
-        if (music.queue.currentItem.isPlayable & music.isPlaying) {
+        if (music.queue.currentItem.isPlayable && music.isPlaying) {
             music.pause();
             playPauseButton.textContent = '▶︎'
         } else if (music.queue.currentItem.isPlayable) {
@@ -479,10 +479,10 @@ Promise.all(promises).then(async (results) => {
         if (event.code === 'Space') {
             event.preventDefault();
         }
-        if (event.code === 'Space' & music.queue.currentItem.isPlayable & music.isPlaying) {
+        if (event.code === 'Space' && music.queue.currentItem.isPlayable && music.isPlaying) {
             music.pause();
             playPauseButton.textContent = '▶︎'
-        } else if (event.code === 'Space' & music.queue.currentItem.isPlayable) {
+        } else if (event.code === 'Space' && music.queue.currentItem.isPlayable) {
             music.play();
             playPauseButton.textContent = '||'
         }
@@ -721,9 +721,9 @@ Promise.all(promises).then(async (results) => {
 
                 const para = document.createElement("p");
                 para.setAttribute('media-type', 'song');
-                para.setAttribute('song-id', track.attributes.playParams.id);
+                para.setAttribute('song-id', track.attributes.id);
                 para.setAttribute('album-id', albumId)
-                para.setAttribute('id', track.attributes.playParams.id)
+                para.setAttribute('id', track.attributes.id)
                 const node = document.createTextNode(track.attributes.trackNumber + ': ' + track.attributes.name);
                 para.appendChild(node);
 
@@ -742,8 +742,8 @@ Promise.all(promises).then(async (results) => {
                 })
                 rightCol.appendChild(para)
                 if (user.authenticated) {
-                    let favButton = generateFavButton('song', albumId, track.attributes.playParams.id)
-                    checkExisitingFavoriteData(favButton, 'song', track.attributes.playParams.id)
+                    let favButton = generateFavButton('song', albumId, track.attributes.id)
+                    checkExisitingFavoriteData(favButton, 'song', track.attributes.id)
                     leftCol.appendChild(favButton);
                 }
                 divtag.appendChild(leftCol)
