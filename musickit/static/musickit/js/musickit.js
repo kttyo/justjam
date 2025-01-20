@@ -476,17 +476,25 @@ Promise.all(promises).then(async (results) => {
     })
 
     document.addEventListener('keydown', function (event) {
+        const activeElement = document.activeElement;
+        const isInputField = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.isContentEditable;
+    
         if (event.code === 'Space') {
-            event.preventDefault();
+            if (!isInputField) {
+                event.preventDefault();
+    
+                if (music.queue.currentItem.isPlayable) {
+                    if (music.isPlaying) {
+                        music.pause();
+                        playPauseButton.textContent = '▶︎';
+                    } else {
+                        music.play();
+                        playPauseButton.textContent = '||';
+                    }
+                }
+            }
         }
-        if (event.code === 'Space' && music.queue.currentItem.isPlayable && music.isPlaying) {
-            music.pause();
-            playPauseButton.textContent = '▶︎'
-        } else if (event.code === 'Space' && music.queue.currentItem.isPlayable) {
-            music.play();
-            playPauseButton.textContent = '||'
-        }
-    })
+    });
 
     // Looper
     class Looper {
