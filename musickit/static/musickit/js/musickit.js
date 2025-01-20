@@ -750,8 +750,8 @@ Promise.all(promises).then(async (results) => {
                 })
                 rightCol.appendChild(para)
                 if (user.authenticated) {
-                    let favButton = generateFavButton('song', albumId, track.attributes.id)
-                    checkExisitingFavoriteData(favButton, 'song', track.attributes.id)
+                    let favButton = generateFavButton('song', albumId, track.id)
+                    checkExisitingFavoriteData(favButton, 'song', track.id)
                     leftCol.appendChild(favButton);
                 }
                 divtag.appendChild(leftCol)
