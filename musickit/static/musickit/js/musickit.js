@@ -729,9 +729,9 @@ Promise.all(promises).then(async (results) => {
 
                 const para = document.createElement("p");
                 para.setAttribute('media-type', 'song');
-                para.setAttribute('song-id', track.attributes.id);
+                para.setAttribute('song-id', track.id);
                 para.setAttribute('album-id', albumId)
-                para.setAttribute('id', track.attributes.id)
+                para.setAttribute('id', track.id)
                 const node = document.createTextNode(track.attributes.trackNumber + ': ' + track.attributes.name);
                 para.appendChild(node);
 
