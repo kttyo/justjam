@@ -5,6 +5,7 @@ from .local_settings import TEAM_ID
 from .local_settings import KEY_ID
 from .local_settings import AUTH_KEY_FILE
 from .local_settings import JWT_JSON_FILE
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,10 +23,12 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'musickit.apps.MusickitConfig',
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -33,7 +36,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'justjam_proj.urls'
@@ -127,4 +129,20 @@ LOGGING = {
             'style': '{'
         }
     },
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # アクセストークンの有効期限
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # リフレッシュトークンの有効期限
+    'ROTATE_REFRESH_TOKENS': True,                   # リフレッシュ時に新しいトークンを発行
+    'BLACKLIST_AFTER_ROTATION': True,                # 古いトークンを無効化
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,                       # 署名にDjangoのSECRET_KEYを使用
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
