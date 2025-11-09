@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 main_page_url = 'http://justjam.jppj.jp'
 if settings.DEBUG:
-    main_page_url = 'http://localhost:8080/html?env=development'
-
+    # main_page_url = 'http://localhost:8080/html?env=development'
+    main_page_url = 'http://localhost:3000'
 
 def user_status(request):
     dict_data = {}
