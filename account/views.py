@@ -5,8 +5,36 @@ from django.contrib.auth import login, logout
 from django.http import JsonResponse
 from django.conf import settings
 from .music_user_token import get_music_user_token
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import get_user_model
 import logging
 logger = logging.getLogger(__name__)
+
+User = get_user_model()
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def proxy_login(request):
+    """
+    NextAuthからemailを受け取り、
+    対応するユーザーを作成 or 取得してJWTを発行
+    """
+    email = request.data.get('email')
+    name = request.data.get('name', '')
+
+    if not email:
+        return Response({"error": "email required"}, status=400)
+
+    user, _ = User.objects.get_or_create(email=email, defaults={"username": name})
+
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        "access": str(refresh.access_token),
+        "refresh": str(refresh)
+    })
 
 main_page_url = 'http://justjam.jppj.jp'
 if settings.DEBUG:
