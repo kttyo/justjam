@@ -5,6 +5,10 @@ from .local_settings import TEAM_ID
 from .local_settings import KEY_ID
 from .local_settings import AUTH_KEY_FILE
 from .local_settings import JWT_JSON_FILE
+from .local_settings import DB_USER
+from .local_settings import DB_PASSWORD
+from .local_settings import DB_HOST
+from .local_settings import DB_PORT
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -66,6 +70,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'justjam',
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
     }
 }
 
