@@ -5,3 +5,4 @@ __pycache__/
 account/auth_files/
 api/__pycache__/
 musickit/__pycache__/
+.env
