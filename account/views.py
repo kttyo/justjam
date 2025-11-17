@@ -15,6 +15,7 @@ from google.auth.transport import requests as google_requests
 from rest_framework import status
 import logging
 import time
+from .models import SocialAccount   # ← これが今回必要
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
@@ -22,64 +23,66 @@ User = get_user_model()
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def proxy_login(request):
-    """
-    NextAuthから Google IDトークンを受け取り、
-    Google署名を検証 → Djangoユーザー発行 → JWT返却
-    """
     provider = request.data.get('provider')
     email = request.data.get('email')
     name = request.data.get('name', '')
-    google_token = request.data.get('id_token')  # ✅ id_token に統一
+    id_token_value = request.data.get('id_token')
 
+    # -------------------------
+    # Google ログインの場合
+    # -------------------------
+    sub = None
     if provider == "google":
-        # --- Googleトークン検証 ---
-        if not google_token:
+        if not id_token_value:
             return Response({"error": "id_token required"}, status=400)
 
         try:
-            try:
-                # ✅ 通常検証
-                idinfo = id_token.verify_oauth2_token(
-                    google_token,
-                    google_requests.Request(),
-                    settings.GOOGLE_CLIENT_ID,
-                )
-            except ValueError as e:
-                # ✅ 「Token used too early」なら数秒待って再試行
-                if "Token used too early" in str(e):
-                    logger.warning("Token used too early — retrying in 5 seconds...")
-                    time.sleep(5)
-                    idinfo = id_token.verify_oauth2_token(
-                        google_token,
-                        google_requests.Request(),
-                        settings.GOOGLE_CLIENT_ID,
-                    )
-                else:
-                    raise e
-
-            # ✅ トークン検証成功時
-            email = idinfo.get("email")
-            name = idinfo.get("name", name)
-
-        except Exception as e:
-            logger.exception("Google token verification failed")
-            return Response(
-                {"error": f"Invalid Google token: {str(e)}"},
-                status=status.HTTP_400_BAD_REQUEST
+            idinfo = id_token.verify_oauth2_token(
+                id_token_value,
+                google_requests.Request(),
+                settings.GOOGLE_CLIENT_ID,
             )
+            email = idinfo.get("email")
+            name = idinfo.get("name")
+            sub = idinfo.get("sub")                  # ← Google の固有 ID
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
 
-    elif provider == "apple":
-        # TODO: Apple の場合は JWT 検証（後日実装）
-        pass
+    # -------------------------
+    # Magic Link（email）
+    # -------------------------
+    if provider == "email":
+        if not email:
+            return Response({"error": "email required"}, status=400)
 
-    # --- email必須チェック ---
-    if not email:
-        return Response({"error": "email required"}, status=400)
+    # -------------------------
+    # User と SocialAccount の作成 or 取得
+    # -------------------------
 
-    # --- Djangoユーザー作成または取得 ---
-    user, _ = User.objects.get_or_create(email=email, defaults={"username": name})
+    # User 作成（外部ログインの場合はパスワード無し）
+    user, created = User.objects.get_or_create(
+        email=email,
+        defaults={"name": name}
+    )
 
-    # --- JWT発行 ---
+    # SocialAccount を紐付け（Google）
+    if provider in ["google", "apple"]:
+        SocialAccount.objects.get_or_create(
+            user=user,
+            provider=provider,
+            sub=sub
+        )
+    # Email Login（Magic Link）
+    else:
+        SocialAccount.objects.get_or_create(
+            user=user,
+            provider="email",
+            email=email
+        )
+
+    # -------------------------
+    # JWT 発行
+    # -------------------------
     refresh = RefreshToken.for_user(user)
     return Response({
         "access": str(refresh.access_token),
