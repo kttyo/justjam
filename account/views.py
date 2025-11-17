@@ -23,18 +23,25 @@ User = get_user_model()
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def proxy_login(request):
-    provider = request.data.get('provider')
-    email = request.data.get('email')
-    name = request.data.get('name', '')
-    id_token_value = request.data.get('id_token')
+    """
+    NextAuth から送られる Google / Email / Apple ログインを統合処理する API。
+    User + SocialAccount を自動生成し、JWT を返す。
+    """
+    provider = request.data.get("provider")
+    email = request.data.get("email")
+    name = request.data.get("name", "")
+    id_token_value = request.data.get("id_token")  # Google / Apple 用
 
-    # -------------------------
-    # Google ログインの場合
-    # -------------------------
+    if not provider:
+        return Response({"error": "provider is required"}, status=400)
+
+    # ----------------------------------------------------
+    # ① Google ログイン
+    # ----------------------------------------------------
     sub = None
     if provider == "google":
         if not id_token_value:
-            return Response({"error": "id_token required"}, status=400)
+            return Response({"error": "id_token is required for Google login"}, status=400)
 
         try:
             idinfo = id_token.verify_oauth2_token(
@@ -43,50 +50,65 @@ def proxy_login(request):
                 settings.GOOGLE_CLIENT_ID,
             )
             email = idinfo.get("email")
-            name = idinfo.get("name")
-            sub = idinfo.get("sub")                  # ← Google の固有 ID
+            name = idinfo.get("name", name)
+            sub = idinfo.get("sub")       # ← Google 固有ID
+
         except Exception as e:
-            return Response({"error": str(e)}, status=400)
+            return Response({"error": f"Google token verification failed: {str(e)}"}, status=400)
 
-    # -------------------------
-    # Magic Link（email）
-    # -------------------------
-    if provider == "email":
+    # ----------------------------------------------------
+    # ② Magic Link（Email Provider）
+    # ----------------------------------------------------
+    elif provider == "email":
         if not email:
-            return Response({"error": "email required"}, status=400)
+            return Response({"error": "email is required for email login"}, status=400)
 
-    # -------------------------
-    # User と SocialAccount の作成 or 取得
-    # -------------------------
+    # ----------------------------------------------------
+    # ③ Apple（後日）
+    # ----------------------------------------------------
+    elif provider == "apple":
+        # TODO: Apple の id_token 検証
+        pass
 
-    # User 作成（外部ログインの場合はパスワード無し）
+    else:
+        return Response({"error": "Unsupported provider"}, status=400)
+
+    # ----------------------------------------------------
+    # ④ User を作成 or 取得（email 基準）
+    # ----------------------------------------------------
     user, created = User.objects.get_or_create(
         email=email,
         defaults={"name": name}
     )
 
-    # SocialAccount を紐付け（Google）
+    # ----------------------------------------------------
+    # ⑤ SocialAccount 紐付け（Google, Apple は sub で紐づけ）
+    # ----------------------------------------------------
     if provider in ["google", "apple"]:
+        if not sub:
+            return Response({"error": "sub is required for Google/Apple login"}, status=400)
+
         SocialAccount.objects.get_or_create(
             user=user,
             provider=provider,
             sub=sub
         )
-    # Email Login（Magic Link）
-    else:
+
+    # Magic Link の場合（email で紐づけ）
+    elif provider == "email":
         SocialAccount.objects.get_or_create(
             user=user,
             provider="email",
             email=email
         )
 
-    # -------------------------
-    # JWT 発行
-    # -------------------------
+    # ----------------------------------------------------
+    # ⑥ JWT 発行
+    # ----------------------------------------------------
     refresh = RefreshToken.for_user(user)
     return Response({
         "access": str(refresh.access_token),
-        "refresh": str(refresh)
+        "refresh": str(refresh),
     })
 
 main_page_url = 'http://justjam.jppj.jp'
