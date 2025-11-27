@@ -32,6 +32,8 @@ def proxy_login(request):
     name = request.data.get("name", "")
     id_token_value = request.data.get("id_token")  # Google / Apple 用
 
+    logger.info(f"[proxy_login] provider={provider}, email={email}, has_id_token={bool(id_token_value)}")
+
     if not provider:
         return Response({"error": "provider is required"}, status=400)
 
@@ -48,6 +50,7 @@ def proxy_login(request):
                 id_token_value,
                 google_requests.Request(),
                 settings.GOOGLE_CLIENT_ID,
+                clock_skew_in_seconds=5  # just for testing phase
             )
             email = idinfo.get("email")
             name = idinfo.get("name", name)
