@@ -150,11 +150,13 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # アクセストークンの有効期限
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # リフレッシュトークンの有効期限
-    'ROTATE_REFRESH_TOKENS': True,                   # リフレッシュ時に新しいトークンを発行
-    'BLACKLIST_AFTER_ROTATION': True,                # 古いトークンを無効化
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),   # ← NextAuth 側と合わせて短め
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),
+
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,                       # 署名にDjangoのSECRET_KEYを使用
+    'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
