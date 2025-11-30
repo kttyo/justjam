@@ -62,6 +62,14 @@ def favorite_part(request):
 
     # POST: ループ部分追加
     elif request.user.id and request.method == 'POST':
+        if request.user.role == 'free':
+            current_count = FavoritePart.objects.filter(user=request.user).count()
+        if current_count >= 5:
+            return Response(
+                {"detail": "無料ユーザーの保存上限（10件）を超えています。"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
         data = request.data.copy()
         data['user'] = request.user.id
         serializer = FavoritePartSerializer(data=data)
