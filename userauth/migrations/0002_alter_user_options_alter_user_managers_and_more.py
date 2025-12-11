@@ -9,7 +9,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('account', '0001_initial'),
+        ('userauth', '0001_initial'),
     ]
 
     operations = [

@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
-    'account.apps.AccountConfig',
+    'userauth.apps.UserauthConfig',
     'musickit.apps.MusickitConfig',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -95,7 +95,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'account.User'
+AUTH_USER_MODEL = 'userauth.User'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/

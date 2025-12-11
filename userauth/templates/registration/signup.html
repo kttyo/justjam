@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Log In</title>
+    <title>Sign Up</title>
 </head>
 <body>
-    <h1>Log In</h1>
+    <h1>Sign Up</h1>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-    <form action="{% url 'account:login' %}" method="post">
+    <form action="{% url 'userauth:signup' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <p><input type="submit" value="Log In"></p>
+        <p><input type="submit" value="Sign Up"></p>
     </form>
-<a href="{{main_page}}"><button>Cancel</button></a>
 </body>
+<a href="{{main_page}}"><button>Cancel</button></a>
 </html>

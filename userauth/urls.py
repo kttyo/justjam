@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-app_name = 'account'
+app_name = 'userauth'
 urlpatterns = [
     path('login', views.login_view, name="login"),
     path('logout', views.logout_view, name="logout"),
