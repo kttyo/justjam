@@ -23,5 +23,3 @@ CORS_ALLOWED_ORIGINS = ['http://localhost:8080','http://localhost:3000']
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8080','http://localhost:3000']
-
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
