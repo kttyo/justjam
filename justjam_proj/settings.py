@@ -1,6 +1,6 @@
 from .settings_common import *
 
-ALLOWED_HOSTS = ['justjam.jppj.jp']
+ALLOWED_HOSTS = ['justjam.jppj.jp', 'loopa.jppj.jp']
 
 STATIC_ROOT = '/var/www/jppj.jp/justjam/html/static/'
 
