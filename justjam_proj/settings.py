@@ -9,3 +9,7 @@ CSRF_TRUSTED_ORIGINS = ['https://justjam.jppj.jp','https://loopa.jppj.jp']
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = ['https://justjam.jppj.jp','https://loopa.jppj.jp']
+
+CORS_ALLOWED_ORIGINS = [
+    'https://loopa.jppj.jp',
+]
