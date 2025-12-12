@@ -131,9 +131,18 @@ def user_status(request):
     return JsonResponse(dict_data, safe=False)
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def music_user_token(request):
-    dict_data = get_music_user_token()
-    return JsonResponse(dict_data, safe=False)
+    try:
+        dict_data = get_music_user_token()
+        return Response(dict_data)
+    except Exception as e:
+        logger.exception("music_user_token failed")
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 def login_view(request):
