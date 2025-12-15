@@ -1,73 +1,85 @@
 import json
-import datetime
 import time
 import jwt
 import os
-from django.conf import settings
 import logging
+from django.conf import settings
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 current_module_path = os.path.abspath(__file__)
 static_path = os.path.join(os.path.dirname(current_module_path), 'auth_files')
 
+# ==============================
+# 設定値
+# ==============================
+TOKEN_LIFETIME_SECONDS = 60 * 60 * 12   # 12時間
+REFRESH_MARGIN_SECONDS = 60 * 10        # exp - 10分で更新
 
-def convert_date_to_epoch(date_string) -> int:
-    time_tuple: tuple = time.strptime(date_string, "%Y%m%d")
-    date_epoch: int = int(time.mktime(time_tuple))
-    return date_epoch
+
+def _load_cached_token() -> Optional[dict]:
+    try:
+        with open(os.path.join(static_path, settings.JWT_JSON_FILE), 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return None
+    except Exception as e:
+        logger.error(f"Failed to load developer token: {e}")
+        return None
 
 
-def generate_jwt(current_date, future_date) -> str:
+def _save_token(data: dict):
+    with open(os.path.join(static_path, settings.JWT_JSON_FILE), 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4)
+
+
+def _generate_new_token(now: int) -> dict:
     with open(os.path.join(static_path, settings.AUTH_KEY_FILE), 'r') as authkey_file:
-        key = authkey_file.read()
-    iat: int = convert_date_to_epoch(current_date)
-    exp: int = convert_date_to_epoch(future_date)
-    encoded_jwt: str = jwt.encode(
-        {"iss": settings.TEAM_ID, "iat": iat, "exp": exp},
-        key,
+        private_key = authkey_file.read()
+
+    payload = {
+        "iss": settings.TEAM_ID,
+        "iat": now,
+        "exp": now + TOKEN_LIFETIME_SECONDS,
+    }
+
+    token = jwt.encode(
+        payload,
+        private_key,
         algorithm="ES256",
         headers={"kid": settings.KEY_ID}
     )
-    return encoded_jwt
 
-
-def update_jwt_json(jwt, current_date, future_date):
-    with open(os.path.join(static_path, settings.JWT_JSON_FILE), 'w', encoding='utf-8') as jwt_json:
-        data = {
-            'iat': current_date,
-            'exp': future_date,
-            'jwt': jwt
-        }
-        json_string = json.dumps(data, indent=4)
-        jwt_json.write(json_string)
+    return {
+        "jwt": token,
+        "iat": payload["iat"],
+        "exp": payload["exp"],
+    }
 
 
 def get_developer_token() -> dict:
-    current_date = datetime.datetime.now()
-    future_date = current_date + datetime.timedelta(days=7)
+    """
+    Apple Music Developer Token を取得
+    - 有効期限が十分残っていれば再利用
+    - exp - 10分を切ったら自動更新
+    """
+    now = int(time.time())
+    cached = _load_cached_token()
 
-    try:
-        with open(os.path.join(static_path, settings.JWT_JSON_FILE), 'r', encoding='utf-8') as json_file:
-            current_jwt = json.load(json_file)
+    if cached:
+        exp = cached.get("exp", 0)
 
-        if current_date.strftime("%Y%m%d") < current_jwt['exp']:
-            return current_jwt
+        # exp - 10分 以上残っていれば再利用
+        if exp > now + REFRESH_MARGIN_SECONDS:
+            return cached
 
-        else:
-            new_jwt: str = generate_jwt(
-                current_date=current_date.strftime("%Y%m%d"),
-                future_date=future_date.strftime("%Y%m%d")
-            )
-            update_jwt_json(
-                jwt=new_jwt,
-                current_date=current_date.strftime("%Y%m%d"),
-                future_date=future_date.strftime("%Y%m%d")
-            )
-            logger.info('music user token was updated.')
-            with open(os.path.join(static_path, settings.JWT_JSON_FILE), 'r', encoding='utf-8') as json_file:
-                current_jwt: dict = json.load(json_file)
-            return current_jwt
+        logger.info("Developer Token is expiring soon. Refreshing...")
 
-    except Exception as e:
-        logger.error(e)
+    # 新規発行
+    new_token = _generate_new_token(now)
+    _save_token(new_token)
+
+    logger.info("New Developer Token generated.")
+
+    return new_token
