@@ -43,7 +43,7 @@ def update_jwt_json(jwt, current_date, future_date):
         jwt_json.write(json_string)
 
 
-def get_music_user_token() -> dict:
+def get_developer_token() -> dict:
     current_date = datetime.datetime.now()
     future_date = current_date + datetime.timedelta(days=7)
 

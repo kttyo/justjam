@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from django.http import JsonResponse
 from django.conf import settings
-from .music_user_token import get_music_user_token
+from .developer_token import get_developer_token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -133,9 +133,9 @@ def user_status(request):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
-def music_user_token(request):
+def developer_token(request):
     try:
-        dict_data = get_music_user_token()
+        dict_data = get_developer_token()
         return Response(dict_data)
     except Exception as e:
         logger.exception("music_user_token failed")
