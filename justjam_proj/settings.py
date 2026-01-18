@@ -11,5 +11,5 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = ['https://justjam.jppj.jp','https://loopa.jppj.jp','https://loopamusic.com']
 
 CORS_ALLOWED_ORIGINS = [
-    'https://loopa.jppj.jp','loopamusic.com'
+    'https://loopa.jppj.jp','https://loopamusic.com'
 ]
