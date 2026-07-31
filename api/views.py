@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import FavoriteItemSerializer, FavoritePartSerializer
 from .models import FavoriteItem, FavoritePart
+from userauth.entitlements import get_entitlements
 import logging
 logger = logging.getLogger(__name__)
 
@@ -62,9 +63,10 @@ def favorite_part(request):
 
     # POST: ループ部分追加
     elif request.user.id and request.method == 'POST':
-        if request.user.role == 'free':
+        max_loops = get_entitlements(request.user.role)["maxLoops"]
+        if max_loops is not None:
             current_count = FavoritePart.objects.filter(user=request.user).count()
-            if current_count >= 5:
+            if current_count >= max_loops:
                 return Response(
                     {"detail": "無料ユーザーの保存上限を超えています。"},
                     status=status.HTTP_403_FORBIDDEN
