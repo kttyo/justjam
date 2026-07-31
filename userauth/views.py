@@ -16,6 +16,7 @@ from rest_framework import status
 import logging
 import time
 from .models import SocialAccount   # ← これが今回必要
+from .entitlements import get_entitlements
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
@@ -108,7 +109,13 @@ def proxy_login(request):
     # ----------------------------------------------------
     # ⑥ JWT 発行
     # ----------------------------------------------------
+    entitlements = get_entitlements(user.role)
+
     refresh = RefreshToken.for_user(user)
+    refresh['role'] = user.role
+    refresh['maxLoops'] = entitlements['maxLoops']
+    refresh['speedOptions'] = entitlements['speedOptions']
+
     return Response({
         "access": str(refresh.access_token),
         "refresh": str(refresh),
