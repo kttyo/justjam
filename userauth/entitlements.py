@@ -1,7 +1,7 @@
 ENTITLEMENTS = {
     "free": {
         "maxLoops": 5,
-        "speedOptions": [0.5, 0.75, 1.0],
+        "speedOptions": None,
     },
     "premium": {
         "maxLoops": None,
