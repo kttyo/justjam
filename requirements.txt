@@ -1,5 +1,5 @@
 asgiref==3.8.1
-backports.zoneinfo==0.2.1
+backports.zoneinfo==0.2.1; python_version < "3.9"
 cachetools==5.5.2
 certifi==2025.10.5
 cffi==1.15.1
