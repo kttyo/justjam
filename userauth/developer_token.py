@@ -1,15 +1,11 @@
 import json
 import time
 import jwt
-import os
 import logging
 from django.conf import settings
 from typing import Optional
 
 logger = logging.getLogger(__name__)
-
-current_module_path = os.path.abspath(__file__)
-static_path = os.path.join(os.path.dirname(current_module_path), 'auth_files')
 
 # ==============================
 # 設定値
@@ -20,7 +16,7 @@ REFRESH_MARGIN_SECONDS = 60 * 10        # exp - 10分で更新
 
 def _load_cached_token() -> Optional[dict]:
     try:
-        with open(os.path.join(static_path, settings.JWT_JSON_FILE), 'r', encoding='utf-8') as f:
+        with open(settings.JWT_JSON_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
         return None
@@ -30,12 +26,12 @@ def _load_cached_token() -> Optional[dict]:
 
 
 def _save_token(data: dict):
-    with open(os.path.join(static_path, settings.JWT_JSON_FILE), 'w', encoding='utf-8') as f:
+    with open(settings.JWT_JSON_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4)
 
 
 def _generate_new_token(now: int) -> dict:
-    with open(os.path.join(static_path, settings.AUTH_KEY_FILE), 'r') as authkey_file:
+    with open(settings.AUTH_KEY_FILE, 'r') as authkey_file:
         private_key = authkey_file.read()
 
     payload = {
