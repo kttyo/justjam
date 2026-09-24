@@ -69,7 +69,7 @@ WSGI_APPLICATION = 'justjam_proj.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'justjam',
+        'NAME': 'loopa',
         'USER': DB_USER,
         'PASSWORD': DB_PASSWORD,
         'HOST': DB_HOST,
