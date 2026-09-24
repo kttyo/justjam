@@ -1,15 +1,28 @@
 import os
 from pathlib import Path
-from .local_settings import SECRET_KEY
-from .local_settings import TEAM_ID
-from .local_settings import KEY_ID
-from .local_settings import AUTH_KEY_FILE
-from .local_settings import JWT_JSON_FILE
-from .local_settings import DB_USER
-from .local_settings import DB_PASSWORD
-from .local_settings import DB_HOST
-from .local_settings import DB_PORT
 from datetime import timedelta
+
+
+def _get_secret(name):
+    val = os.environ.get(name)
+    if val is not None:
+        return val
+    try:
+        from . import local_settings
+        return getattr(local_settings, name)
+    except (ImportError, AttributeError):
+        raise RuntimeError(f"Missing required setting: {name}")
+
+
+SECRET_KEY = _get_secret("SECRET_KEY")
+TEAM_ID = _get_secret("TEAM_ID")
+KEY_ID = _get_secret("KEY_ID")
+AUTH_KEY_FILE = _get_secret("AUTH_KEY_FILE")
+JWT_JSON_FILE = _get_secret("JWT_JSON_FILE")
+DB_USER = _get_secret("DB_USER")
+DB_PASSWORD = _get_secret("DB_PASSWORD")
+DB_HOST = _get_secret("DB_HOST")
+DB_PORT = _get_secret("DB_PORT")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
