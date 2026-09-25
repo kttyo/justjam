@@ -1,4 +1,5 @@
 import json
+import os
 import time
 import jwt
 import logging
@@ -28,6 +29,7 @@ def _load_cached_token() -> Optional[dict]:
 def _save_token(data: dict):
     with open(settings.JWT_JSON_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4)
+    os.chmod(settings.JWT_JSON_FILE, 0o600)
 
 
 def _generate_new_token(now: int) -> dict:
