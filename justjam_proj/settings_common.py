@@ -23,6 +23,7 @@ DB_USER = _get_secret("DB_USER")
 DB_PASSWORD = _get_secret("DB_PASSWORD")
 DB_HOST = _get_secret("DB_HOST")
 DB_PORT = _get_secret("DB_PORT")
+INTERNAL_API_SECRET = _get_secret("INTERNAL_API_SECRET")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

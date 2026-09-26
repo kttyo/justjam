@@ -13,6 +13,7 @@ from django.contrib.auth import get_user_model
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from rest_framework import status
+import hmac
 import logging
 import time
 from .models import SocialAccount   # ← これが今回必要
@@ -27,7 +28,15 @@ def proxy_login(request):
     """
     NextAuth から送られる Google / Email / Apple ログインを統合処理する API。
     User + SocialAccount を自動生成し、JWT を返す。
+
+    Next.js server-side からのみ呼び出される内部 API のため、
+    X-Internal-Secret ヘッダーで呼び出し元を検証する。
     """
+    provided_secret = request.headers.get("X-Internal-Secret", "")
+    if not hmac.compare_digest(provided_secret, settings.INTERNAL_API_SECRET):
+        logger.warning("[proxy_login] rejected: missing or invalid X-Internal-Secret")
+        return Response({"error": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+
     provider = request.data.get("provider")
     email = request.data.get("email")
     name = request.data.get("name", "")
@@ -53,6 +62,10 @@ def proxy_login(request):
                 settings.GOOGLE_CLIENT_ID,
                 clock_skew_in_seconds=5  # just for testing phase
             )
+
+            if not idinfo.get("email_verified"):
+                return Response({"error": "Google email is not verified"}, status=400)
+
             email = idinfo.get("email")
             name = idinfo.get("name", name)
             sub = idinfo.get("sub")       # ← Google 固有ID
