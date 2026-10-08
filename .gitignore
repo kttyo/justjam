@@ -6,3 +6,5 @@ userauth/auth_files/
 api/__pycache__/
 musickit/__pycache__/
 .env
+# Local backup files
+*.backup_*

@@ -11,3 +11,6 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     'https://loopa.jppj.jp','https://loopamusic.com'
 ]
+# Security settings for production HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
